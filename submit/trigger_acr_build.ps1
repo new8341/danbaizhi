@@ -1,29 +1,40 @@
-# 触发四个 ACR 仓库同步云端构建
-# 前提：四个仓库均已绑定 GitHub new8341/danbaizhi，构建规则均为 tags:release-v$version
+# Trigger ACR cloud builds for all four tracks (tag release-v$Version).
+# Requires: four ACR repos bound to GitHub new8341/danbaizhi with tags:release-v$version
 param(
     [string]$Version = "0.1",
     [switch]$SkipPushMain
 )
 
-$ErrorActionPreference = "Stop"
 $Root = Split-Path $PSScriptRoot -Parent
 Set-Location $Root
+
+function Invoke-Git {
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & git @GitArgs 2>&1 | ForEach-Object { "$_" } | Write-Host
+    $code = $LASTEXITCODE
+    $ErrorActionPreference = $prev
+    if ($code -ne 0) {
+        throw "git $($GitArgs -join ' ') failed with exit code $code"
+    }
+}
 
 $tag = "release-v$Version"
 Write-Host "=== Trigger ACR builds for all tracks (tag=$tag) ===" -ForegroundColor Cyan
 
 if (-not (Test-Path "documen/DrugClip/benchmark/manifest.jsonl")) {
-    Write-Warning "DrugClip benchmark missing at documen/DrugClip/benchmark/ — drugclip ACR build will FAIL until you unzip benchmark.zip there."
+    Write-Warning "DrugClip benchmark missing — drugclip build may fail until benchmark is in documen/DrugClip/benchmark/"
 }
 
 if (-not $SkipPushMain) {
-    git push origin main 2>&1 | Out-String | Write-Host
+    Invoke-Git push origin main
 }
 
-git tag -d $tag 2>$null | Out-Null
-git push origin ":refs/tags/$tag" 2>&1 | Out-String | Write-Host
-git tag -f $tag
-git push origin $tag 2>&1 | Out-String | Write-Host
+Invoke-Git tag -d $tag 2>$null
+Invoke-Git push origin ":refs/tags/$tag" 2>$null
+Invoke-Git tag -f $tag
+Invoke-Git push origin $tag
 
 Write-Host ""
 Write-Host "Pushed tag $tag — check each ACR repo build log:" -ForegroundColor Green
