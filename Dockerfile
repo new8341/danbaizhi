@@ -1,5 +1,5 @@
-# ACR cloud build: use Docker Hub public base (tcc-public needs domestic docker pull).
-FROM python:3.10-slim
+# ACR cloud build: Aliyun mirror (Docker Hub times out on domestic build nodes).
+FROM registry.cn-shanghai.aliyuncs.com/library/python:3.10-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
     && pip install --no-cache-dir numpy mdtraj \

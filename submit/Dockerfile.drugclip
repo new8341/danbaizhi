@@ -1,5 +1,5 @@
 # Fusai docker image — track 1 (DrugClip)
-FROM python:3.10-slim
+FROM registry.cn-shanghai.aliyuncs.com/library/python:3.10-slim
 
 WORKDIR /app
 
