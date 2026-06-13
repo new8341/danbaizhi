@@ -55,23 +55,64 @@ git push origin main
 
 Windows 建议安装 [Git Credential Manager](https://github.com/git-ecosystem/git-credential-manager)，首次输入后会记住 token。
 
-### 1.5 SSH 方式（可选，免重复输 token）
+### 1.5 SSH 方式（推荐：国内 HTTPS 443 不通时）
 
-1. 生成密钥：`ssh-keygen -t ed25519 -C "你的邮箱"`
-2. 公钥 `~/.ssh/id_ed25519.pub` 添加到 GitHub → **Settings** → **SSH and GPG keys**
-3. 改远程：
+若 `git push` 报错 `Failed to connect to github.com port 443`，但本机可连 `ssh.github.com:443`，请用 SSH：
+
+**① 已为本机生成密钥**（若不存在会自动创建）：
 
 ```powershell
-git remote set-url origin git@github.com:new8341/danbaizhi.git
+# 查看公钥（复制整行）
+Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub
+```
+
+**② GitHub 添加公钥**：  
+GitHub → **Settings** → **SSH and GPG keys** → **New SSH key** → 粘贴公钥 → Save
+
+**③ SSH 配置**（`~/.ssh/config`，已写入）：
+
+```text
+Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+```
+
+**④ 仓库 remote 改为 SSH**（本仓库已执行）：
+
+```text
+origin  git@github.com:new8341/danbaizhi.git
+```
+
+**⑤ 验证并推送**：
+
+```powershell
+ssh -T git@github.com
+# 成功应看到：Hi new8341! You've successfully authenticated...
+
+cd H:\Fusai
 git push origin main
 ```
 
-### 1.6 常见 GitHub 错误
+### 1.6 HTTPS + 代理（备选）
+
+若使用 Clash 等本地代理（常见 `127.0.0.1:7890`）：
+
+```powershell
+git config --local http.https://github.com.proxy http://127.0.0.1:7890
+git config --local https.https://github.com.proxy http://127.0.0.1:7890
+git remote set-url origin https://github.com/new8341/danbaizhi.git
+git push origin main
+```
+
+### 1.7 常见 GitHub 错误
 
 | 错误 | 处理 |
 |------|------|
-| `Authentication failed` | 使用 PAT 代替账号密码 |
-| `Permission denied` | 确认 token 有 repo 写权限；仓库归属 `new8341` |
+| `Failed to connect to github.com port 443` | 改用 **SSH over 443**（§1.5）或配置 **HTTP 代理**（§1.6） |
+| `Authentication failed` | HTTPS 时使用 PAT 代替账号密码 |
+| `Permission denied (publickey)` | 将 `id_ed25519.pub` 添加到 GitHub SSH keys |
 | `Author identity unknown` | 执行上文 1.3 `git config user.name/email` |
 | push 很慢 | 大文件用 Git LFS；本仓库约 70MB，正常 |
 
