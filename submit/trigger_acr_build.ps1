@@ -17,13 +17,13 @@ if (-not (Test-Path "documen/DrugClip/benchmark/manifest.jsonl")) {
 }
 
 if (-not $SkipPushMain) {
-    git push origin main
+    git push origin main 2>&1 | Out-String | Write-Host
 }
 
 git tag -d $tag 2>$null | Out-Null
-git push origin ":refs/tags/$tag" 2>$null | Out-Null
-git tag $tag
-git push origin $tag
+git push origin ":refs/tags/$tag" 2>&1 | Out-String | Write-Host
+git tag -f $tag
+git push origin $tag 2>&1 | Out-String | Write-Host
 
 Write-Host ""
 Write-Host "Pushed tag $tag — check each ACR repo build log:" -ForegroundColor Green
