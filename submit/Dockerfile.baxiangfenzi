@@ -1,0 +1,17 @@
+# Fusai docker image — track 2 (Baxiangfenzi)
+FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3
+
+WORKDIR /app
+
+COPY submit/ /app/submit/
+COPY agent/ /app/agent/
+COPY submit/run.sh /app/run.sh
+
+RUN chmod +x /app/run.sh /app/submit/run.sh
+
+ENV FUSAI_TRACK=baxiangfenzi
+ENV SAISDATA=/saisdata
+ENV SAISRESULT=/saisresult
+ENV PYTHONUNBUFFERED=1
+
+CMD ["sh", "/app/run.sh"]

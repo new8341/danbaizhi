@@ -1,0 +1,18 @@
+# Secrets / local artifacts
+submit/registry.env
+submit/_local_saisresult/
+
+# Generated at runtime
+Project/result/
+daima/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.specstory/
+
+# Other tracks (this repo is Danbaizhi / task 3 only)
+documen/DrugClip/
+documen/Baxiangfenzi/
+documen/Shenjingsuanzi/
+documen/readme.md
+documen/fusai.md

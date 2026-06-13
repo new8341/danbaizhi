@@ -1,0 +1,55 @@
+{
+  "created_at": "2026-05-24T11:44:47",
+  "base_config": "E:\\cursor\\Fudan_other\\Danbaizhi\\configs\\submission_sources.public.json",
+  "candidate_roots": [
+    "E:\\cursor\\Fudan_other\\Danbaizhi\\results\\colabfold",
+    "E:\\cursor\\Fudan_other\\Danbaizhi\\results\\boltz",
+    "E:\\cursor\\Fudan_other\\Danbaizhi\\results\\chai"
+  ],
+  "out_config": "E:\\cursor\\Fudan_other\\Danbaizhi\\configs\\submission_sources.sequence_prior.json",
+  "prefer_sequence_prior": true,
+  "validate_candidates": true,
+  "max_length_delta": 0,
+  "candidate_sort": "mtime_desc",
+  "max_prior_per_problem": 24,
+  "min_mean_plddt": 50.0,
+  "problems": {
+    "1": {
+      "accepted_count": 1,
+      "rejected_count": 1,
+      "accepted": [
+        "results/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
+      ],
+      "rejected": [
+        {
+          "path": "results/colabfold/problem_1/predictions/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+          "reason": "plddt_below_threshold: mean=29.25, min=50.00"
+        }
+      ],
+      "prior_cap": null
+    },
+    "2": {
+      "accepted_count": 1,
+      "rejected_count": 1,
+      "accepted": [
+        "results/colabfold/problem_2/predictions_msa/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
+      ],
+      "rejected": [
+        {
+          "path": "results/colabfold/problem_2/predictions/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+          "reason": "plddt_below_threshold: mean=25.84, min=50.00"
+        }
+      ],
+      "prior_cap": null
+    },
+    "3": {
+      "accepted_count": 1,
+      "rejected_count": 0,
+      "accepted": [
+        "results/colabfold/problem_3/predictions_msa/p3_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
+      ],
+      "rejected": [],
+      "prior_cap": null
+    }
+  }
+}

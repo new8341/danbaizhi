@@ -1,0 +1,103 @@
+{
+  "1": {
+    "strategy": "template_align",
+    "template_cif": "processed_data/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+    "template_cifs": [
+      "processed_data/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+      "processed_data/public/problem_1/rcsb_structures/2PO4.cif",
+      "processed_data/public/problem_1/rcsb_structures/3C2P.cif",
+      "processed_data/public/problem_1/rcsb_structures/3C3L.cif",
+      "processed_data/public/problem_1/rcsb_structures/3C46.cif",
+      "processed_data/public/problem_1/rcsb_structures/3Q0A.cif",
+      "processed_data/public/problem_1/rcsb_structures/3Q22.cif",
+      "processed_data/public/problem_1/rcsb_structures/3Q23.cif",
+      "processed_data/public/problem_1/rcsb_structures/3Q24.cif"
+    ],
+    "export_mode": "auto",
+    "full_atom": true,
+    "align_hybrid_full_atom": true,
+    "full_atom_max_slip": 48,
+    "repair_hybrid_short_ca": true,
+    "hybrid_short_ca_min_A": 2.5,
+    "relieve_hybrid_sidechain_clashes": true,
+    "hybrid_sidechain_clash_min_A": 2.0,
+    "hybrid_sidechain_record_passes": 4,
+    "diversity_filter": {
+      "enabled": true,
+      "candidate_multiplier": 2,
+      "min_pairwise_rmsd_A": 1.2,
+      "max_pairwise_rmsd_A": 6.0
+    },
+    "sequence_prior_rejected": [
+      {
+        "path": "processed_data/colabfold/problem_1/predictions/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+        "reason": "plddt_below_threshold: mean=29.25, min=50.00"
+      }
+    ],
+    "sequence_prior_candidates": [
+      "processed_data/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
+    ]
+  },
+  "2": {
+    "strategy": "template_cif",
+    "template_cif": "processed_data/colabfold/problem_2/predictions_msa/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+    "template_cifs": [
+      "processed_data/colabfold/problem_2/predictions_msa/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+      "processed_data/public/problem_2/rcsb_structures/3EBG.cif",
+      "processed_data/public/problem_2/rcsb_structures/3EBH.cif",
+      "processed_data/public/problem_2/rcsb_structures/3EBI.cif",
+      "processed_data/public/problem_2/rcsb_structures/3Q43.cif"
+    ],
+    "export_mode": "auto",
+    "full_atom": true,
+    "sequence_prior_rejected": [
+      {
+        "path": "processed_data/colabfold/problem_2/predictions/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+        "reason": "plddt_below_threshold: mean=25.84, min=50.00"
+      }
+    ],
+    "sequence_prior_candidates": [
+      "processed_data/colabfold/problem_2/predictions_msa/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
+    ],
+    "golden_conformer_cifs": [
+      "checkpoint/golden/2_conf1_pred.cif",
+      "checkpoint/golden/2_conf2_pred.cif",
+      "checkpoint/golden/2_conf3_pred.cif",
+      "checkpoint/golden/2_conf4_pred.cif"
+    ]
+  },
+  "3": {
+    "strategy": "template_align",
+    "template_cif": "processed_data/colabfold/problem_3/predictions_msa/p3_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+    "template_cifs": [
+      "processed_data/colabfold/problem_3/predictions_msa/p3_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+      "processed_data/public/problem_3/rcsb_structures/2VCA.cif",
+      "processed_data/public/problem_3/rcsb_structures/2VCB.cif",
+      "processed_data/public/problem_3/rcsb_structures/2VCC.cif",
+      "processed_data/public/problem_3/rcsb_structures/2VC9.cif",
+      "processed_data/public/problem_3/rcsb_structures/7MFK.cif",
+      "processed_data/public/problem_3/rcsb_structures/7MFL.cif",
+      "processed_data/public/problem_3/rcsb_structures/4A4A.cif",
+      "processed_data/public/problem_3/rcsb_structures/4XWH.cif"
+    ],
+    "export_mode": "auto",
+    "full_atom": true,
+    "align_hybrid_full_atom": true,
+    "full_atom_max_slip": 48,
+    "repair_hybrid_short_ca": true,
+    "hybrid_short_ca_min_A": 2.5,
+    "relieve_hybrid_sidechain_clashes": true,
+    "hybrid_sidechain_clash_min_A": 2.0,
+    "hybrid_sidechain_record_passes": 4,
+    "diversity_filter": {
+      "enabled": false,
+      "candidate_multiplier": 2,
+      "min_pairwise_rmsd_A": 1.0,
+      "max_pairwise_rmsd_A": 6.0
+    },
+    "sequence_prior_rejected": [],
+    "sequence_prior_candidates": [
+      "processed_data/colabfold/problem_3/predictions_msa/p3_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
+    ]
+  }
+}

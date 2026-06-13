@@ -1,0 +1,21 @@
+{
+  "problem_id": 1,
+  "sequence_length": 1104,
+  "hits_found": 17,
+  "downloads_requested": 8,
+  "downloaded_count": 8,
+  "downloaded_pdb_ids": [
+    "2PO4",
+    "3C2P",
+    "3C3L",
+    "3C46",
+    "3Q0A",
+    "3Q22",
+    "3Q23",
+    "3Q24"
+  ],
+  "paths": {
+    "hits_json": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_1\\rcsb_hits.json",
+    "structures_dir": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_1\\rcsb_structures"
+  }
+}
