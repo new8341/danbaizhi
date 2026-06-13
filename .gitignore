@@ -1,6 +1,8 @@
 # Secrets / local artifacts
 submit/registry.env
 submit/_local_saisresult/
+.DS_Store
+**/.DS_Store
 
 # Generated at runtime
 Project/result/

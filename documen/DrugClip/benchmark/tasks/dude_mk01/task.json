@@ -1,0 +1,16 @@
+{
+  "task_id": "dude_mk01",
+  "benchmark": "DUD-E",
+  "target": "mk01",
+  "task_type": "single_receptor_screening",
+  "receptor_files": [
+    "receptors/receptor.pdb"
+  ],
+  "reference_ligand_files": [
+    "refs/crystal_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 1,
+  "num_ligands": 4629
+}

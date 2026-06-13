@@ -1,0 +1,32 @@
+{
+  "task_id": "litpcba_PKM2",
+  "benchmark": "LIT-PCBA",
+  "target": "PKM2",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/3gqy_protein.mol2",
+    "receptors/3gr4_protein.mol2",
+    "receptors/3h6o_protein.mol2",
+    "receptors/3me3_protein.mol2",
+    "receptors/3u2z_protein.mol2",
+    "receptors/4g1n_protein.mol2",
+    "receptors/4jpg_protein.mol2",
+    "receptors/5x1v_protein.mol2",
+    "receptors/5x1w_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/3gqy_ligand.mol2",
+    "refs/3gr4_ligand.mol2",
+    "refs/3h6o_ligand.mol2",
+    "refs/3me3_ligand.mol2",
+    "refs/3u2z_ligand.mol2",
+    "refs/4g1n_ligand.mol2",
+    "refs/4jpg_ligand.mol2",
+    "refs/5x1v_ligand.mol2",
+    "refs/5x1w_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 9,
+  "num_ligands": 61143
+}

@@ -1,0 +1,42 @@
+{
+  "task_id": "litpcba_IDH1",
+  "benchmark": "LIT-PCBA",
+  "target": "IDH1",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/4i3k_protein.mol2",
+    "receptors/4i3l_protein.mol2",
+    "receptors/4umx_protein.mol2",
+    "receptors/4xrx_protein.mol2",
+    "receptors/4xs3_protein.mol2",
+    "receptors/5de1_protein.mol2",
+    "receptors/5l57_protein.mol2",
+    "receptors/5l58_protein.mol2",
+    "receptors/5lge_protein.mol2",
+    "receptors/5sun_protein.mol2",
+    "receptors/5svf_protein.mol2",
+    "receptors/5tqh_protein.mol2",
+    "receptors/6adg_protein.mol2",
+    "receptors/6b0z_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/4i3k_ligand.mol2",
+    "refs/4i3l_ligand.mol2",
+    "refs/4umx_ligand.mol2",
+    "refs/4xrx_ligand.mol2",
+    "refs/4xs3_ligand.mol2",
+    "refs/5de1_ligand.mol2",
+    "refs/5l57_ligand.mol2",
+    "refs/5l58_ligand.mol2",
+    "refs/5lge_ligand.mol2",
+    "refs/5sun_ligand.mol2",
+    "refs/5svf_ligand.mol2",
+    "refs/5tqh_ligand.mol2",
+    "refs/6adg_ligand.mol2",
+    "refs/6b0z_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 14,
+  "num_ligands": 89102
+}

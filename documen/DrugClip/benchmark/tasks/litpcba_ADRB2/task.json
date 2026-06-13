@@ -1,0 +1,30 @@
+{
+  "task_id": "litpcba_ADRB2",
+  "benchmark": "LIT-PCBA",
+  "target": "ADRB2",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/3p0g_protein.mol2",
+    "receptors/3pds_protein.mol2",
+    "receptors/3sn6_protein.mol2",
+    "receptors/4lde_protein.mol2",
+    "receptors/4ldl_protein.mol2",
+    "receptors/4ldo_protein.mol2",
+    "receptors/4qkx_protein.mol2",
+    "receptors/6mxt_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/3p0g_ligand.mol2",
+    "refs/3pds_ligand.mol2",
+    "refs/3sn6_ligand.mol2",
+    "refs/4lde_ligand.mol2",
+    "refs/4ldl_ligand.mol2",
+    "refs/4ldo_ligand.mol2",
+    "refs/4qkx_ligand.mol2",
+    "refs/6mxt_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 8,
+  "num_ligands": 77795
+}

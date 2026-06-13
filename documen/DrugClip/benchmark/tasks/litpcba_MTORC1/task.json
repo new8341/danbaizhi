@@ -1,0 +1,36 @@
+{
+  "task_id": "litpcba_MTORC1",
+  "benchmark": "LIT-PCBA",
+  "target": "MTORC1",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/1fap_protein.mol2",
+    "receptors/1nsg_protein.mol2",
+    "receptors/2fap_protein.mol2",
+    "receptors/3fap_protein.mol2",
+    "receptors/4drh_protein.mol2",
+    "receptors/4dri_protein.mol2",
+    "receptors/4drj_protein.mol2",
+    "receptors/4fap_protein.mol2",
+    "receptors/4jsx_protein.mol2",
+    "receptors/4jt5_protein.mol2",
+    "receptors/5gpg_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/1fap_ligand.mol2",
+    "refs/1nsg_ligand.mol2",
+    "refs/2fap_ligand.mol2",
+    "refs/3fap_ligand.mol2",
+    "refs/4drh_ligand.mol2",
+    "refs/4dri_ligand.mol2",
+    "refs/4drj_ligand.mol2",
+    "refs/4fap_ligand.mol2",
+    "refs/4jsx_ligand.mol2",
+    "refs/4jt5_ligand.mol2",
+    "refs/5gpg_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 11,
+  "num_ligands": 8267
+}
