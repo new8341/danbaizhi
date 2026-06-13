@@ -1,35 +1,29 @@
-# Create ACR repos using OAuth profile fusai-acr (after aliyun_oauth_login.ps1)
-$ErrorActionPreference = "Stop"
-$Aliyun = Join-Path $env:USERPROFILE ".local\bin\aliyun.exe"
-$region = "cn-shanghai"
-$instance = "crpi-i14uo4x5tmwyoptf"
-$ns = "ai4s-lee"
-
-$profiles = & $Aliyun configure list 2>&1 | Out-String
-if ($profiles -notmatch "fusai-acr") {
-    Write-Error "Profile fusai-acr not found. Run: .\submit\aliyun_oauth_login.ps1"
-}
-
-$repos = @(
-    @{ Name = "drugclip"; Summary = "AI4S task1 DrugClip" },
-    @{ Name = "baxiangfenzi"; Summary = "AI4S task2 targeted molecule" },
-    @{ Name = "shenjingsuanzi"; Summary = "AI4S task4 neural operator PDE" }
-)
-
-foreach ($r in $repos) {
-    $body = @{
-        InstanceId = $instance
-        RepoNamespaceName = $ns
-        RepoName = $r.Name
-        RepoType = "PRIVATE"
-        Summary = $r.Summary
-    } | ConvertTo-Json -Compress
-
-    Write-Host "Creating $($r.Name) ..." -ForegroundColor Cyan
-    $out = & $Aliyun cr CreateRepository --force --profile fusai-acr --region $region --body $body 2>&1 | Out-String
-    Write-Host $out
-}
-
+# Personal-edition ACR: CreateRepository API is NOT supported — use console instead.
+# OAuth login still useful for future enterprise API; repos must be created in console.
+$ErrorActionPreference = "Continue"
 Write-Host ""
-Write-Host "Done. Configure GitHub + build rules in console if repos are new." -ForegroundColor Green
-Write-Host "Then: .\submit\trigger_acr_build.ps1 -Version 0.1"
+Write-Host "=== ACR personal edition: create repos in CONSOLE (API not supported) ===" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Open: https://cr.console.aliyun.com/" -ForegroundColor Cyan
+Write-Host "Region: East China 2 (Shanghai) | Namespace: ai4s-lee | GitHub: new8341/danbaizhi"
+Write-Host ""
+Write-Host "Create 3 private repos (copy settings from danbaizhi):" -ForegroundColor Green
+Write-Host ""
+$repos = @(
+    @{ Name = "drugclip"; Dockerfile = "submit/Dockerfile.drugclip" },
+    @{ Name = "baxiangfenzi"; Dockerfile = "submit/Dockerfile.baxiangfenzi" },
+    @{ Name = "shenjingsuanzi"; Dockerfile = "submit/Dockerfile.shenjingsuanzi" }
+)
+foreach ($r in $repos) {
+    Write-Host "  [$($r.Name)]"
+    Write-Host "    Dockerfile: $($r.Dockerfile)"
+    Write-Host "    Context: /"
+    Write-Host "    Rule: tags:release-v`$version | tag: `$version"
+    Write-Host "    Overseas build: OFF | Auto-build: ON"
+    Write-Host "    URL: https://cr.console.aliyun.com/repository/cn-shanghai/ai4s-lee/$($r.Name)/build"
+    Write-Host ""
+}
+Write-Host "After all 3 repos exist, run:" -ForegroundColor Green
+Write-Host '  .\submit\trigger_acr_build.ps1 -Version 0.1'
+Write-Host ""
+Write-Host "Note: OAuth profile region was fixed to cn-shanghai (you had entered gengfu369 by mistake)." -ForegroundColor DarkYellow
