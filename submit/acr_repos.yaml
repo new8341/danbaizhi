@@ -11,18 +11,21 @@ repos:
     output: submission.zip
   drugclip:
     task_id: "1"
-    dockerfile: submit/Dockerfile.drugclip
+    dockerfile: Dockerfile.drugclip
+    acr_dockerfile_alt: submit/Dockerfile.drugclip
     env_track: drugclip
     output: result.zip
     requires_path: documen/DrugClip/benchmark/manifest.jsonl
   baxiangfenzi:
     task_id: "2"
-    dockerfile: submit/Dockerfile.baxiangfenzi
+    dockerfile: Dockerfile.baxiangfenzi
+    acr_dockerfile_alt: submit/Dockerfile.baxiangfenzi
     env_track: baxiangfenzi
     output: result.zip
   shenjingsuanzi:
     task_id: "4"
-    dockerfile: submit/Dockerfile.shenjingsuanzi
+    dockerfile: Dockerfile.shenjingsuanzi
+    acr_dockerfile_alt: submit/Dockerfile.shenjingsuanzi
     env_track: shenjingsuanzi
     output: submission.zip
 

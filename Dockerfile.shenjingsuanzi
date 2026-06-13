@@ -1,0 +1,20 @@
+# ACR build alias — keep in sync with submit/Dockerfile.shenjingsuanzi
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
+
+RUN pip install --no-cache-dir h5py tqdm
+
+WORKDIR /app
+
+COPY submit/ /app/submit/
+COPY agent/ /app/agent/
+COPY submit/run.sh /app/run.sh
+
+RUN chmod +x /app/run.sh /app/submit/run.sh
+
+ENV FUSAI_TRACK=shenjingsuanzi
+ENV SHENJING_MODEL=fno
+ENV SAISDATA=/saisdata
+ENV SAISRESULT=/saisresult
+ENV PYTHONUNBUFFERED=1
+
+CMD ["sh", "/app/run.sh"]
