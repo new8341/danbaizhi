@@ -1,7 +1,11 @@
 # Default dockerfile alias (Danbaizhi)
 FROM python:3.10-slim
 
-RUN pip install --no-cache-dir numpy mdtraj -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
+    && pip install --no-cache-dir numpy mdtraj \
+    && apt-get purge -y gcc g++ \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
