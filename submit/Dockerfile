@@ -1,5 +1,5 @@
-# Default dockerfile alias (Danbaizhi) — Aliyun mirror for domestic ACR nodes.
-FROM registry.cn-shanghai.aliyuncs.com/library/python:3.10-slim
+# Default dockerfile alias (Danbaizhi)
+FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
     && pip install --no-cache-dir numpy mdtraj \

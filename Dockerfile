@@ -1,5 +1,5 @@
-# danbaizhi ACR: overseas build OFF ? use Aliyun mirror (Docker Hub times out on domestic nodes).
-FROM registry.cn-shanghai.aliyuncs.com/library/python:3.10-slim
+# danbaizhi ACR: use docker.io python:3.10-slim (Aliyun library/ mirror denied on personal ACR).
+FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
     && pip install --no-cache-dir numpy mdtraj \
