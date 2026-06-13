@@ -5,6 +5,7 @@ submit/_local_saisresult/
 # Generated at runtime
 Project/result/
 daima/
+submission_staging/
 **/__pycache__/
 *.py[cod]
 .pytest_cache/
