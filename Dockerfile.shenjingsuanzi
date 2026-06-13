@@ -1,4 +1,4 @@
-# ACR build alias â€” keep in sync with submit/Dockerfile.shenjingsuanzi
+# ACR build alias â€?keep in sync with submit/Dockerfile.shenjingsuanzi
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
 RUN pip install --no-cache-dir h5py tqdm
