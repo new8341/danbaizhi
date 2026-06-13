@@ -31,10 +31,12 @@ if (-not $SkipPushMain) {
     Invoke-Git push origin main
 }
 
-Invoke-Git tag -d $tag 2>$null
-Invoke-Git push origin ":refs/tags/$tag" 2>$null
-Invoke-Git tag -f $tag
-Invoke-Git push origin $tag
+$ErrorActionPreference = "Continue"
+git tag -d $tag 2>&1 | Out-Null
+git push origin ":refs/tags/$tag" 2>&1 | ForEach-Object { "$_" } | Write-Host
+git tag -f $tag 2>&1 | ForEach-Object { "$_" } | Write-Host
+git push -f origin $tag 2>&1 | ForEach-Object { "$_" } | Write-Host
+if ($LASTEXITCODE -ne 0) { throw "git push origin $tag failed with exit code $LASTEXITCODE" }
 
 Write-Host ""
 Write-Host "Pushed tag $tag — check each ACR repo build log:" -ForegroundColor Green
