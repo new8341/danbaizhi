@@ -53,4 +53,4 @@ docker run --rm `
 - 赛题原始文件见 `documen/Danbaizhi/`，请勿将私有评测数据写入仓库。
 - 勿提交 ACR 密码、`registry.env` 或 API Key。
 
-**GitHub + 阿里云 ACR 配置**：见 [`submit/SETUP_GITHUB_ACR.md`](submit/SETUP_GITHUB_ACR.md)
+**GitHub + 阿里云 ACR 云端构建（免本机 Docker）**：见 [`submit/ACR_CLOUD_BUILD.md`](submit/ACR_CLOUD_BUILD.md)

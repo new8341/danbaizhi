@@ -1,0 +1,16 @@
+# ACR 云端构建：减小上下文，加快上传
+.git
+.gitignore
+.specstory
+**/__pycache__
+**/.pytest_cache
+Project/result/
+daima/
+submission_staging/
+submit/_local_saisresult/
+submit/registry.env
+documen/DrugClip/
+documen/Baxiangfenzi/
+documen/Shenjingsuanzi/
+documen/readme.md
+documen/fusai.md

@@ -50,11 +50,14 @@ py -3 code/main.py verify-repro
 
 ## 四、构建并推送 Docker 镜像
 
+> **推荐：无本机 Docker 时** → 使用 [ACR 个人版免费云端构建](ACR_CLOUD_BUILD.md)（绑定 GitHub `new8341/danbaizhi`，无需 Docker Desktop）。
+
 ### 4.1 前置
 
-1. 启动 **Docker Desktop**（本机需 Linux 引擎可用）。
-2. 在 ACR 控制台创建私有仓库：`ai4s-lee/danbaizhi`。
-3. 复制配置（可选）：
+1. **方式 A（推荐）**：ACR 控制台云端构建 — 见 [`submit/ACR_CLOUD_BUILD.md`](ACR_CLOUD_BUILD.md)
+2. **方式 B**：本机 Docker Desktop + 下面命令
+3. 在 ACR 控制台创建私有仓库：`ai4s-lee/danbaizhi`
+4. 复制配置（可选）：
 
 ```powershell
 Copy-Item submit\registry.env.example submit\registry.env
