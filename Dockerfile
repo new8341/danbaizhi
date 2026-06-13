@@ -1,5 +1,5 @@
-# Root Dockerfile for ACR cloud build (same as submit/Dockerfile.danbaizhi)
-FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3
+# ACR cloud build: use Docker Hub public base (tcc-public needs domestic docker pull).
+FROM python:3.10-slim
 
 RUN pip install --no-cache-dir numpy mdtraj -i https://pypi.tuna.tsinghua.edu.cn/simple
 

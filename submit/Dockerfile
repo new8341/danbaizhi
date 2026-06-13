@@ -1,5 +1,5 @@
 # Default dockerfile alias (Danbaizhi)
-FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3
+FROM python:3.10-slim
 
 RUN pip install --no-cache-dir numpy mdtraj -i https://pypi.tuna.tsinghua.edu.cn/simple
 
