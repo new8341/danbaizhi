@@ -1,0 +1,3 @@
+# Place official benchmark.zip contents here before DrugClip ACR build.
+# Download: competition site → 赛题与数据 → Task1 benchmark.zip → unzip to this folder.
+# Expected layout: manifest.jsonl, tasks/<task_id>/ligands.csv, ...

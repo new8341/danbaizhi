@@ -29,8 +29,12 @@ def build_track(track: str, tag: str | None, push: bool, dry_run: bool) -> int:
     if not dockerfile.is_file():
         print(f"[SKIP] missing {dockerfile}", file=sys.stderr)
         return 1
+    ignorefile = ROOT / f".dockerignore.{track}"
     ref = image_ref(track, tag=tag)
-    build_cmd = ["docker", "build", "-f", str(dockerfile), "-t", ref, str(ROOT)]
+    build_cmd = ["docker", "build"]
+    if ignorefile.is_file():
+        build_cmd += ["--ignorefile", str(ignorefile)]
+    build_cmd += ["-f", str(dockerfile), "-t", ref, str(ROOT)]
     print(f"[BUILD] {track} -> {ref}")
     if dry_run:
         print(" ", " ".join(build_cmd))

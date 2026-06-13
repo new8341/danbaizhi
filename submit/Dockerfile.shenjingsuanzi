@@ -1,7 +1,7 @@
-# Fusai docker image — track 4 (Shenjingsuanzi)
-FROM registry.cn-shanghai.aliyuncs.com/tcc-public/pytorch:1.1.0-cuda10.0-py3
+# Fusai docker image — track 4 (Shenjingsuanzi) — GPU eval (V100)
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
-RUN pip install --no-cache-dir h5py tqdm -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir h5py tqdm
 
 WORKDIR /app
 

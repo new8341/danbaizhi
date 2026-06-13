@@ -1,20 +1,16 @@
-# Shared ACR cloud build context (all tracks). Per-track local builds: .dockerignore.<track>
 .git
 .gitignore
 .specstory
 **/__pycache__
 **/.pytest_cache
-Project/daima/
-Project/result/
+Project/
 daima/
 submission_staging/
 submit/_local_saisresult/
 submit/registry.env
-documen/readme.md
-documen/fusai.md
-documen/Danbaizhi/
 documen/Baxiangfenzi/
 documen/Shenjingsuanzi/
+documen/Danbaizhi/
 documen/DrugClip/*
 !documen/DrugClip/benchmark/
 !documen/DrugClip/benchmark/**

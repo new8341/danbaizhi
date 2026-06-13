@@ -11,8 +11,10 @@ submission_staging/
 .pytest_cache/
 .specstory/
 
-# Other tracks (this repo is Danbaizhi / task 3 only)
-documen/DrugClip/
+# Other tracks' documen (large); DrugClip benchmark is opt-in for ACR build
+documen/DrugClip/*
+!documen/DrugClip/benchmark/
+!documen/DrugClip/benchmark/**
 documen/Baxiangfenzi/
 documen/Shenjingsuanzi/
 documen/readme.md

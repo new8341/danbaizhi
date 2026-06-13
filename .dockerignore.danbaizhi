@@ -1,0 +1,12 @@
+.git
+.gitignore
+.specstory
+**/__pycache__
+**/.pytest_cache
+Project/daima/
+Project/result/
+daima/
+submission_staging/
+submit/_local_saisresult/
+submit/registry.env
+documen/

@@ -1,5 +1,5 @@
 # Fusai docker image — track 2 (Baxiangfenzi)
-FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3
+FROM python:3.10-slim
 
 WORKDIR /app
 
