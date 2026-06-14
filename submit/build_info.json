@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "baxiangfenzi",
-    "commit":  "51fed68",
-    "published":  "2026-06-14 22:02:19",
-    "note":  "DaoCloud python base for ACR 429 fix"
+    "track":  "danbaizhi",
+    "commit":  "a14ee1b",
+    "published":  "2026-06-15 07:26:45",
+    "note":  "openmm dep for Tianchi mmcif validation"
 }

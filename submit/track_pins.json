@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "e7a32c7",
-                                     "note":  "lazy registry + cache bust"
+                                     "commit":  "a14ee1b",
+                                     "note":  "openmm dep for Tianchi mmcif validation"
                                  },
                    "drugclip":  {
                                     "commit":  "cace6ee",
