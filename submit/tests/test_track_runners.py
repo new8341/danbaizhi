@@ -43,15 +43,32 @@ def test_drugclip_mini(tmp_path: Path) -> None:
 
 
 def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:
+    pytest.importorskip("rdkit")
     saisdata = tmp_path / "saisdata"
     saisdata.mkdir()
-    (saisdata / "target.pdb").write_text("ATOM placeholder\n", encoding="utf-8")
+    pdb = ROOT / "documen" / "Baxiangfenzi" / "target.pdb"
+    if pdb.is_file():
+        (saisdata / "target.pdb").write_text(pdb.read_text(encoding="utf-8"), encoding="utf-8")
+    else:
+        (saisdata / "target.pdb").write_text("ATOM      1  CA  ALA A   1       0.000   0.000   0.000\n", encoding="utf-8")
     staging = tmp_path / "staging"
-    BaxiangfenziRunner().run(saisdata, staging, tmp_path)
+    import os
+
+    os.environ["BAXIANG_MAX_CANDIDATES"] = "12"
+    os.environ["BAXIANG_MAX_DOCK"] = "3"
+    try:
+        BaxiangfenziRunner().run(saisdata, staging, tmp_path)
+    finally:
+        os.environ.pop("BAXIANG_MAX_CANDIDATES", None)
+        os.environ.pop("BAXIANG_MAX_DOCK", None)
     for i in (1, 2, 3):
         csv_path = staging / f"result{i}.csv"
         assert csv_path.is_file()
-        assert "mol_smiles" in csv_path.read_text(encoding="utf-8")
+        text = csv_path.read_text(encoding="utf-8")
+        assert "mol_smiles" in text
+        assert ">>" in text
+    assert (staging / "result.log").is_file()
+    assert "[agent]" in (staging / "result.log").read_text(encoding="utf-8")
 
 
 def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:

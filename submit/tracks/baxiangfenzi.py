@@ -1,23 +1,14 @@
-"""Track 2 — targeted molecule design + retrosynthesis baseline scaffold."""
+"""Track 2 — targeted molecule design + retrosynthesis agent."""
 from __future__ import annotations
 
 import csv
-import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
 from submit.pack_submission import emit_error
 from submit.tracks._paths import first_existing, saisdata_subdir
 from submit.tracks.base import TrackRunner, TrackSpec
-
-
-def _derive_from_target(target_path: Path, index: int) -> tuple[str, str]:
-    """Runtime-derived placeholder (not a pre-baked molecule library)."""
-    digest = hashlib.sha256(target_path.read_bytes()).hexdigest()
-    n = int(digest[:4], 16) % 5 + 3
-    smiles = "C" * n
-    route = f"{'C,' * (n - 1)}C>>{smiles}"
-    return smiles, route
+from submit.tracks.baxiangfenzi_agent.pipeline import run_agent_for_target
 
 
 class BaxiangfenziRunner(TrackRunner):
@@ -32,8 +23,8 @@ class BaxiangfenziRunner(TrackRunner):
     def run(self, saisdata: Path, staging_dir: Path, work_dir: Path) -> None:
         staging_dir.mkdir(parents=True, exist_ok=True)
         data_root = saisdata_subdir(saisdata, "37")
-        log_lines = [
-            "Baxiangfenzi baseline scaffold",
+        all_logs = [
+            "Baxiangfenzi autonomous agent pipeline",
             f"timestamp={datetime.now(timezone.utc).isoformat()}",
             f"data_root={data_root}",
         ]
@@ -51,13 +42,14 @@ class BaxiangfenziRunner(TrackRunner):
                 else:
                     emit_error("BAXIANG_TARGET_MISSING", f"Missing target file for slot {idx}: {target}")
 
-            smiles, route = _derive_from_target(target, idx)
+            result = run_agent_for_target(target, idx)
+            all_logs.extend(result.log_lines)
+
             out_csv = staging_dir / f"result{idx}.csv"
             with out_csv.open("w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
                 writer.writerow(["mol_smiles", "route"])
-                writer.writerow([smiles, route])
-            log_lines.append(f"target{idx}={target.name} bytes={target.stat().st_size}")
+                writer.writerow([result.smiles, result.route])
 
-        (staging_dir / "result.log").write_text("\n".join(log_lines), encoding="utf-8")
-        print("[Baxiangfenzi] wrote result1/2/3.csv", flush=True)
+        (staging_dir / "result.log").write_text("\n".join(all_logs), encoding="utf-8")
+        print("[Baxiangfenzi] agent pipeline complete", flush=True)

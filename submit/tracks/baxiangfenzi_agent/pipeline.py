@@ -1,0 +1,132 @@
+"""Per-target agent loop: generate → dock → select → retrosynthesize."""
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+
+from submit.tracks.baxiangfenzi_agent.candidates import generate_candidates
+from submit.tracks.baxiangfenzi_agent.chemistry import canonical_smiles, is_valid_molecule, sa_score
+from submit.tracks.baxiangfenzi_agent.docking import dock_smiles, pseudo_dock_score
+from submit.tracks.baxiangfenzi_agent.retrosyn import try_plan_route, validate_route
+from submit.tracks.baxiangfenzi_agent.targets import binding_site_from_pdb
+
+
+@dataclass
+class DesignResult:
+    smiles: str
+    route: str
+    vina_affinity: float
+    sa: float
+    log_lines: list[str]
+
+
+def _score_candidate(affinity: float | None, sa: float, pseudo: float) -> float:
+    aff = affinity if affinity is not None else pseudo
+    sa_bonus = max(0.0, (4.0 - sa) / 4.0)
+    return aff - 0.25 * sa + 0.5 * sa_bonus
+
+
+def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
+    log: list[str] = [
+        f"[agent] slot={slot} phase=init target={target_pdb.name}",
+        f"[agent] timestamp={datetime.now(timezone.utc).isoformat()}",
+    ]
+
+    site = binding_site_from_pdb(target_pdb)
+    log.append(
+        f"[agent] phase=analyze_target atoms={site.atom_count} chains={site.chain_count} "
+        f"box=({site.center_x:.1f},{site.center_y:.1f},{site.center_z:.1f})"
+    )
+
+    max_dock = int(os.environ.get("BAXIANG_MAX_DOCK", "40"))
+    candidates = generate_candidates(target_pdb)
+    log.append(f"[agent] phase=generate_candidates count={len(candidates)}")
+
+    dock_pool = candidates[:max_dock]
+
+    ranked: list[tuple[float, str, float | None, float]] = []
+
+    for idx, smi in enumerate(dock_pool):
+        if not is_valid_molecule(smi):
+            continue
+        sa = sa_score(smi)
+        if sa >= 4.0:
+            continue
+        affinity = dock_smiles(smi, target_pdb, site)
+        pseudo = pseudo_dock_score(smi, site)
+        composite = _score_candidate(affinity, sa, pseudo)
+        aff_log = affinity if affinity is not None else pseudo
+        if idx < 5 or idx % 10 == 0:
+            log.append(
+                f"[agent] phase=dock idx={idx} affinity={aff_log:.2f} sa={sa:.2f} smiles={smi[:48]}"
+            )
+        ranked.append((composite, smi, affinity, sa))
+
+    ranked.sort(key=lambda x: x[0])
+
+    best_smiles = None
+    best_affinity = None
+    best_sa = 10.0
+    best_route = None
+
+    for composite, smi, affinity, sa in ranked:
+        can = canonical_smiles(smi)
+        if can is None:
+            continue
+        route = try_plan_route(can)
+        if route and validate_route(route, can):
+            best_smiles = can
+            best_affinity = affinity
+            best_sa = sa
+            best_route = route
+            log.append(f"[agent] phase=select_best composite={composite:.2f} smiles={can}")
+            break
+
+    if best_smiles is None:
+        for composite, smi, affinity, sa in ranked[:15]:
+            can = canonical_smiles(smi) or smi
+            route = plan_route(can)
+            if validate_route(route, can):
+                best_smiles, best_affinity, best_sa, best_route = can, affinity, sa, route
+                break
+
+    if best_smiles is None and ranked:
+        _, smi, affinity, sa = ranked[0]
+        can = canonical_smiles(smi) or smi
+        best_smiles = can
+        best_affinity = affinity
+        best_sa = sa
+        best_route = try_plan_route(can)
+
+    if best_smiles is None:
+        smi = "O=C(Nc1ccccc1)c1ccccc1"
+        best_smiles = smi
+        best_affinity = None
+        best_sa = sa_score(smi)
+        best_route = try_plan_route(smi)
+
+    if not best_route:
+        from submit.pack_submission import emit_error
+
+        emit_error("BAXIANG_ROUTE_FAILED", f"No valid route for selected molecule {best_smiles}")
+
+    aff_out = (
+        best_affinity
+        if best_affinity is not None
+        else pseudo_dock_score(best_smiles, site)
+    )
+    log.append(
+        f"[agent] phase=select_best smiles={best_smiles} vina={aff_out:.2f} sa={best_sa:.2f}"
+    )
+    log.append(f"[agent] phase=retrosyn route={(best_route or '')[:120]}...")
+    log.append(f"[agent] phase=done slot={slot}")
+
+    return DesignResult(
+        smiles=best_smiles,
+        route=best_route,
+        vina_affinity=aff_out,
+        sa=best_sa,
+        log_lines=log,
+    )

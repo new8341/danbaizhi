@@ -9,12 +9,8 @@
 
 ## 当前状态
 
-- Runner：`submit/tracks/baxiangfenzi.py`（格式 baseline）  
-- 待接入：分子生成 + 逆合成 Agent（禁止镜像内预置分子库）  
-
-## 业务代码（规划）
-
-建议目录：`Baxiangfenzi/code/`
+- Runner：`submit/tracks/baxiangfenzi.py` + `submit/tracks/baxiangfenzi_agent/`
+- 流程：靶点分析 → RDKit 反应枚举候选 → AutoDock Vina 对接 → BRICS 逆合成路线
 
 ## 本地验证
 

@@ -61,7 +61,7 @@ py -3 -m pytest submit/tests/ -q
 - 代码源：**GitHub** → `new8341/danbaizhi`
 - 构建规则：`tags:release-v$version`
 - 代码变更自动构建：**开启**
-- **海外机器构建：关闭**
+- **海外机器构建：开启**（四个仓库均开启；国内节点拉 Docker Hub `python:3.10-slim` 会 `i/o timeout`）
 - 不使用缓存：**关闭**
 
 配置明细见 [`acr_repos.yaml`](acr_repos.yaml)。
