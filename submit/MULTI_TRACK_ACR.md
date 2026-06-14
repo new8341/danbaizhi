@@ -63,8 +63,10 @@ py -3 -m pytest submit/tests/ -q
 - 代码源：**GitHub** → `new8341/danbaizhi`
 - 构建规则：`tags:release-v$version`
 - 代码变更自动构建：**开启**
-- **海外机器构建：开启**（四个仓库均开启；国内节点拉 Docker Hub `python:3.10-slim` 会 `i/o timeout`）
+- **海外机器构建：开启**（danbaizhi/drugclip 等拉 `python:3.10-slim` 时推荐）
 - 不使用缓存：**关闭**
+
+**Docker Hub 429（baxiangfenzi）**：`Dockerfile.baxiangfenzi` 已改用 `docker.m.daocloud.io/library/python:3.10-slim` 代理。若仍失败：关闭海外构建，把 Dockerfile 第一行改为 `FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3` 后重新构建。
 
 配置明细见 [`acr_repos.yaml`](acr_repos.yaml) 与 [`track_pins.json`](track_pins.json)。
 

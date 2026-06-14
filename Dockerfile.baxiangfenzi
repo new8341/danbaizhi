@@ -1,5 +1,8 @@
 # ACR build alias ? keep in sync with submit/Dockerfile.baxiangfenzi
-FROM python:3.10-slim
+# Overseas ON: DaoCloud proxy avoids Docker Hub 429 on python:3.10-slim.
+# If still fails: turn OFF overseas build and use tcc-public line below instead.
+FROM docker.m.daocloud.io/library/python:3.10-slim
+# FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3  # use with ??????
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     autodock-vina \
