@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
 
 WORKDIR /app
 
+# Copy build stamp first so ACR layer cache invalidates on each publish.
+COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY Project/ /app/Project/
 COPY agent/ /app/agent/
