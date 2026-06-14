@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "13d9085",
-                                     "note":  "danbaizhi saisdata path fix republish"
+                                     "commit":  "3ddebcd",
+                                     "note":  "danbaizhi saisdata v2 + build_info stamp"
                                  },
                    "drugclip":  {
                                     "commit":  "cace6ee",

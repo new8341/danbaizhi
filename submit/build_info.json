@@ -1,6 +1,6 @@
-{
-  "track": "danbaizhi",
-  "commit": "pending",
-  "published": "pending",
-  "note": "updated by publish_track.ps1 before each ACR build"
+﻿{
+    "track":  "danbaizhi",
+    "commit":  "3ddebcd",
+    "published":  "2026-06-14 19:34:55",
+    "note":  "danbaizhi saisdata v2 + build_info stamp"
 }
