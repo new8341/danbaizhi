@@ -36,6 +36,15 @@ def test_danbaizhi_data_root_auto_discover(tmp_path: Path) -> None:
     assert danbaizhi_data_root(saisdata) == nested
 
 
+def test_danbaizhi_data_root_mount_52(tmp_path: Path) -> None:
+    saisdata = tmp_path / "saisdata"
+    nested = saisdata / "52"
+    nested.mkdir(parents=True)
+    for name in ("1.json", "2.json", "3.json"):
+        (nested / name).write_text("{}", encoding="utf-8")
+    assert danbaizhi_data_root(saisdata) == nested
+
+
 def test_danbaizhi_data_root_deep_nested(tmp_path: Path) -> None:
     saisdata = tmp_path / "saisdata"
     nested = saisdata / "mount" / "batch" / "data"

@@ -69,7 +69,7 @@ def danbaizhi_data_root(saisdata: Path) -> Path:
     if has_all_json(saisdata):
         return saisdata
 
-    for mount_id in ("3", "36", "38", "37", "48", "49"):
+    for mount_id in ("3", "36", "38", "37", "48", "49", "52"):
         sub = saisdata / mount_id
         if has_all_json(sub):
             return sub

@@ -1,2 +1,3 @@
 ﻿numpy>=1.24
 mdtraj>=1.9.9
+openmm>=8.0
