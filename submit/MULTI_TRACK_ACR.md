@@ -51,10 +51,12 @@ py -3 -m pytest submit/tests/ -q
 
 | 仓库名 | Dockerfile 路径 | 构建上下文 | 镜像 tag |
 |--------|-------------------|------------|----------|
-| `danbaizhi` | `Dockerfile`（根目录） | `/` | `$version` |
-| `drugclip` | `submit/Dockerfile.drugclip` | `/` | `$version` |
-| `baxiangfenzi` | `submit/Dockerfile.baxiangfenzi` | `/` | `$version` |
-| `shenjingsuanzi` | `submit/Dockerfile.shenjingsuanzi` | `/` | `$version` |
+| `danbaizhi` | `Dockerfile` | `/` | `$version` |
+| `drugclip` | `Dockerfile.drugclip` | `/` | `$version` |
+| `baxiangfenzi` | `Dockerfile.baxiangfenzi` | `/` | `$version` |
+| `shenjingsuanzi` | `Dockerfile.shenjingsuanzi` | `/` | `$version` |
+
+> ACR 控制台「Dockerfile」框**只填文件名**（1–64 字符，字母/数字/`-`/`_`/`.`），**不要**写 `submit/...`。根目录的 `Dockerfile.*` 是 `submit/Dockerfile.*` 的构建别名，内容保持同步。
 
 每个仓库统一设置：
 

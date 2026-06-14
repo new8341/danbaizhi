@@ -8,7 +8,7 @@ import zipfile
 from pathlib import Path
 
 from submit.pack_submission import emit_error
-from submit.tracks._paths import danbaizhi_data_root
+from submit.tracks._paths import danbaizhi_data_root, describe_saisdata
 from submit.tracks.base import TrackRunner, TrackSpec
 
 
@@ -36,12 +36,9 @@ class DanbaizhiRunner(TrackRunner):
         for name in ("1.json", "2.json", "3.json"):
             src = data_root / name
             if not src.is_file():
-                listing = []
-                if saisdata.is_dir():
-                    listing = sorted(p.name for p in saisdata.iterdir())
                 emit_error(
                     "DANBAIZHI_INPUT_MISSING",
-                    f"Missing input: {src}; saisdata listing={listing}",
+                    f"Missing input: {src}; data_root={data_root}; {describe_saisdata(saisdata)}",
                 )
             shutil.copy2(src, data_dir / name)
 

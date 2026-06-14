@@ -25,17 +25,13 @@ $pins = Read-TrackPins $Root
 if (-not $Version) { $Version = $pins.version }
 
 $meta = $script:TrackMeta[$Track]
-$head = git rev-parse --short HEAD
 
 Write-Host "=== Publish single track: $Track (image :$Version) ===" -ForegroundColor Cyan
 Write-Host "Other tracks are NOT rebuilt (pins unchanged)." -ForegroundColor Green
 Write-Host "Tianchi: crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/$($meta.acr_repo):$Version"
 Write-Host "Output: /saisresult/$($meta.output)"
 
-if (-not $SkipPushMain) {
-    Invoke-GitSafe push origin main
-}
-
+$head = git rev-parse --short HEAD
 $pins.tracks.$Track.commit = $head
 if ($Note) {
     $pins.tracks.$Track.note = $Note
@@ -44,7 +40,18 @@ if ($Note) {
 }
 Write-TrackPins $Root $pins
 
-$commit = Resolve-GitCommit $head
+$noteText = if ($Note) { $Note } else { "published $(Get-Date -Format 'yyyy-MM-dd HH:mm')" }
+Write-BuildInfo -Root $Root -Track $Track -Commit $head -Note $noteText
+
+Invoke-GitSafe add submit/track_pins.json submit/build_info.json
+$dirty = git diff --cached --quiet 2>$null; if ($LASTEXITCODE -ne 0) {
+    Invoke-GitSafe commit -m "chore: publish $Track build metadata ($head)"
+    if (-not $SkipPushMain) {
+        Invoke-GitSafe push origin main
+    }
+}
+
+$commit = Resolve-GitCommit (git rev-parse HEAD)
 Push-TrackTag -Track $Track -Version $Version -Commit $commit
 
 Write-Host ""

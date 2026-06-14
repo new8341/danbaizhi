@@ -80,6 +80,23 @@ function Write-TrackPins {
     ($Pins | ConvertTo-Json -Depth 6) + "`n" | Set-Content -Path $path -Encoding UTF8 -NoNewline
 }
 
+function Write-BuildInfo {
+    param(
+        [string]$Root,
+        [string]$Track,
+        [string]$Commit,
+        [string]$Note = ""
+    )
+    $path = Join-Path $Root "submit/build_info.json"
+    $info = [ordered]@{
+        track     = $Track
+        commit    = $Commit
+        published = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        note      = $Note
+    }
+    ($info | ConvertTo-Json -Depth 4) + "`n" | Set-Content -Path $path -Encoding UTF8 -NoNewline
+}
+
 function Get-TrackTagName {
     param(
         [string]$Track,

@@ -10,9 +10,9 @@ Write-Host ""
 Write-Host "Create 3 private repos (copy settings from danbaizhi):" -ForegroundColor Green
 Write-Host ""
 $repos = @(
-    @{ Name = "drugclip"; Dockerfile = "submit/Dockerfile.drugclip" },
-    @{ Name = "baxiangfenzi"; Dockerfile = "submit/Dockerfile.baxiangfenzi" },
-    @{ Name = "shenjingsuanzi"; Dockerfile = "submit/Dockerfile.shenjingsuanzi" }
+    @{ Name = "drugclip"; Dockerfile = "Dockerfile.drugclip" },
+    @{ Name = "baxiangfenzi"; Dockerfile = "Dockerfile.baxiangfenzi" },
+    @{ Name = "shenjingsuanzi"; Dockerfile = "Dockerfile.shenjingsuanzi" }
 )
 foreach ($r in $repos) {
     Write-Host "  [$($r.Name)]"
