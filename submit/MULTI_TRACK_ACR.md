@@ -64,7 +64,27 @@ py -3 -m pytest submit/tests/ -q
 - **海外机器构建：开启**（四个仓库均开启；国内节点拉 Docker Hub `python:3.10-slim` 会 `i/o timeout`）
 - 不使用缓存：**关闭**
 
-配置明细见 [`acr_repos.yaml`](acr_repos.yaml)。
+配置明细见 [`acr_repos.yaml`](acr_repos.yaml) 与 [`track_pins.json`](track_pins.json)。
+
+### 分赛道独立回滚（推荐）
+
+每个 ACR 仓库增加**第二条构建规则**（或替换旧统一 tag 规则）：
+
+| 仓库 | Branch/Tag | Dockerfile | 镜像版本 |
+|------|------------|------------|----------|
+| danbaizhi | `release-v0.1-danbaizhi` | `Dockerfile` | `0.1` |
+| drugclip | `release-v0.1-drugclip` | `Dockerfile.drugclip` | `0.1` |
+| baxiangfenzi | `release-v0.1-baxiangfenzi` | `Dockerfile.baxiangfenzi` | `0.1` |
+| shenjingsuanzi | `release-v0.1-shenjingsuanzi` | `Dockerfile.shenjingsuanzi` | `0.1` |
+
+当前各赛道 pin 见 `submit/track_pins.json`。回滚**单个赛道**：
+
+```powershell
+.\submit\restore_track.ps1 -List
+.\submit\restore_track.ps1 -Track danbaizhi -Node 3f000c1 -RetagAcr
+.\submit\restore_track.ps1 -Track baxiangfenzi -Node e491c22 -FilesOnly   # 只恢复该赛道源码
+.\submit\trigger_acr_build.ps1 -Tracks danbaizhi,drugclip                 # 按 pin 重建所选镜像
+```
 
 ---
 

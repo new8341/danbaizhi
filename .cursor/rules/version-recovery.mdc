@@ -1,0 +1,49 @@
+---
+description: 四赛道独立版本 pin / 回滚 / ACR 构建（Fusai monorepo）
+alwaysApply: true
+---
+
+# 四赛道独立回滚
+
+## 原则
+
+- **一个 Git 仓，四个赛道各自 pin** — 记录在 `submit/track_pins.json`
+- **ACR 分赛道 tag**：`release-v0.1-danbaizhi` / `-drugclip` / `-baxiangfenzi` / `-shenjingsuanzi`
+- **禁止**因回滚单赛道而对 `main` 做 `reset --hard` 或 `push --force`（除非用户明确要求）
+
+## 命令
+
+```powershell
+cd H:\Fusai
+.\submit\restore_track.ps1 -List
+
+# 仅回滚镜像（改 pin + 打赛道 tag，不动工作区）
+.\submit\restore_track.ps1 -Track danbaizhi -Node 3f000c1 -RetagAcr
+
+# 仅回滚该赛道源码到工作区（再 commit）
+.\submit\restore_track.ps1 -Track baxiangfenzi -Node e491c22 -FilesOnly
+
+# 源码 + 镜像一起回滚
+.\submit\restore_track.ps1 -Track drugclip -Node cace6ee -FilesOnly -RetagAcr
+
+# 把当前 HEAD 记为该赛道 pin
+.\submit\restore_track.ps1 -Track shenjingsuanzi -PinCurrent -RetagAcr
+
+# 按 track_pins.json 触发所选赛道 ACR 构建
+.\submit\trigger_acr_build.ps1 -Tracks danbaizhi,baxiangfenzi
+```
+
+## ACR 控制台（每个仓库一条专属规则）
+
+| ACR 仓库 | Branch/Tag | Dockerfile |
+|----------|------------|------------|
+| danbaizhi | `release-v0.1-danbaizhi` | `Dockerfile` |
+| drugclip | `release-v0.1-drugclip` | `Dockerfile.drugclip` |
+| baxiangfenzi | `release-v0.1-baxiangfenzi` | `Dockerfile.baxiangfenzi` |
+| shenjingsuanzi | `release-v0.1-shenjingsuanzi` | `Dockerfile.shenjingsuanzi` |
+
+可保留旧规则 `release-v0.1` 作备用；**分赛道回滚时只动对应 tag**。
+
+## 全仓回滚
+
+整仓某一历史节点仍用 `submit/restore_version.ps1`（影响四条赛道）。

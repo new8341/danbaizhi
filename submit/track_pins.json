@@ -1,0 +1,21 @@
+{
+  "version": "0.1",
+  "tracks": {
+    "danbaizhi": {
+      "commit": "b7d35fc",
+      "note": "danbaizhi nested /saisdata path fix"
+    },
+    "drugclip": {
+      "commit": "cace6ee",
+      "note": "drugclip overseas build + python:3.10-slim (known good build)"
+    },
+    "baxiangfenzi": {
+      "commit": "e491c22",
+      "note": "baxiangfenzi RDKit+Vina agent (before danbaizhi-only fixes if needed)"
+    },
+    "shenjingsuanzi": {
+      "commit": "cace6ee",
+      "note": "shenjingsuanzi pytorch base (stable with overseas build)"
+    }
+  }
+}

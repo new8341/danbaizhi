@@ -1,50 +1,51 @@
-# Trigger ACR cloud builds for all four tracks (tag release-v$Version).
-# Requires: four ACR repos bound to GitHub new8341/danbaizhi with tags:release-v$version
+# Trigger ACR cloud builds — per-track tags from submit/track_pins.json
+# Tag pattern: release-v<Version>-<track>  (e.g. release-v0.1-danbaizhi)
 param(
-    [string]$Version = "0.1",
-    [switch]$SkipPushMain
+    [string]$Version = "",
+    [string[]]$Tracks = @(),
+    [switch]$SkipPushMain,
+    [switch]$UnifiedTag
 )
 
 $Root = Split-Path $PSScriptRoot -Parent
 Set-Location $Root
+. (Join-Path $Root "submit/track_registry.ps1")
 
-function Invoke-Git {
-    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
-    $prev = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    & git @GitArgs 2>&1 | ForEach-Object { "$_" } | Write-Host
-    $code = $LASTEXITCODE
-    $ErrorActionPreference = $prev
-    if ($code -ne 0) {
-        throw "git $($GitArgs -join ' ') failed with exit code $code"
-    }
-}
+$pins = Read-TrackPins $Root
+if (-not $Version) { $Version = $pins.version }
 
-$tag = "release-v$Version"
-Write-Host "=== Trigger ACR builds for all tracks (tag=$tag) ===" -ForegroundColor Cyan
+$selected = if ($Tracks.Count -gt 0) { $Tracks } else { $script:TrackOrder }
+
+Write-Host "=== Trigger ACR builds (per-track tags, version=$Version) ===" -ForegroundColor Cyan
+Write-Host "Tracks: $($selected -join ', ')"
 
 if (-not (Test-Path "documen/DrugClip/benchmark/manifest.jsonl")) {
     Write-Warning "DrugClip benchmark missing — drugclip build may fail until benchmark is in documen/DrugClip/benchmark/"
 }
 
 if (-not $SkipPushMain) {
-    Invoke-Git push origin main
+    Invoke-GitSafe push origin main
 }
 
-$ErrorActionPreference = "Continue"
-git tag -d $tag 2>&1 | Out-Null
-git push origin ":refs/tags/$tag" 2>&1 | ForEach-Object { "$_" } | Write-Host
-git tag -f $tag 2>&1 | ForEach-Object { "$_" } | Write-Host
-git push -f origin $tag 2>&1 | ForEach-Object { "$_" } | Write-Host
-if ($LASTEXITCODE -ne 0) { throw "git push origin $tag failed with exit code $LASTEXITCODE" }
+foreach ($track in $selected) {
+    if (-not $pins.tracks.$track) {
+        Write-Warning "Unknown track in pins: $track"
+        continue
+    }
+    $commit = Resolve-GitCommit $pins.tracks.$track.commit
+    Push-TrackTag -Track $track -Version $Version -Commit $commit
+}
+
+if ($UnifiedTag) {
+    $legacy = "release-v$Version"
+    $head = git rev-parse HEAD
+    Write-Host "Also pushing legacy unified tag $legacy -> HEAD" -ForegroundColor Yellow
+    $ErrorActionPreference = "Continue"
+    git tag -d $legacy 2>&1 | Out-Null
+    git push origin ":refs/tags/$legacy" 2>&1 | ForEach-Object { "$_" } | Write-Host
+    git tag -f $legacy $head 2>&1 | ForEach-Object { "$_" } | Write-Host
+    git push -f origin $legacy 2>&1 | ForEach-Object { "$_" } | Write-Host
+}
 
 Write-Host ""
-Write-Host "Pushed tag $tag — check each ACR repo build log:" -ForegroundColor Green
-@(
-    "danbaizhi",
-    "drugclip",
-    "baxiangfenzi",
-    "shenjingsuanzi"
-) | ForEach-Object {
-    Write-Host "  https://cr.console.aliyun.com/repository/cn-shanghai/ai4s-lee/$_/build"
-}
+Write-Host "Ensure each ACR repo has build rule: tags:release-v$Version-<track>" -ForegroundColor Yellow
