@@ -10,6 +10,8 @@ RUN pip install --no-cache-dir rdkit numpy
 
 WORKDIR /app
 
+# Copy build stamp first so ACR layer cache invalidates on each publish.
+COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
