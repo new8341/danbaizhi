@@ -8,6 +8,7 @@ import zipfile
 from pathlib import Path
 
 from submit.pack_submission import emit_error
+from submit.tracks._paths import danbaizhi_data_root
 from submit.tracks.base import TrackRunner, TrackSpec
 
 
@@ -15,7 +16,7 @@ class DanbaizhiRunner(TrackRunner):
     spec = TrackSpec(
         name="danbaizhi",
         task_id="3",
-        saisdata_hint="/saisdata/ (1.json, 2.json, 3.json)",
+        saisdata_hint="/saisdata/ or /saisdata/<id>/ (1.json, 2.json, 3.json)",
         output_name="submission.zip",
         output_members=("agent.log",),
     )
@@ -30,10 +31,18 @@ class DanbaizhiRunner(TrackRunner):
 
         data_dir = project_root / "data"
         data_dir.mkdir(parents=True, exist_ok=True)
+        data_root = danbaizhi_data_root(saisdata)
+        print(f"[Danbaizhi] saisdata root={data_root}", flush=True)
         for name in ("1.json", "2.json", "3.json"):
-            src = saisdata / name
+            src = data_root / name
             if not src.is_file():
-                emit_error("DANBAIZHI_INPUT_MISSING", f"Missing input: {src}")
+                listing = []
+                if saisdata.is_dir():
+                    listing = sorted(p.name for p in saisdata.iterdir())
+                emit_error(
+                    "DANBAIZHI_INPUT_MISSING",
+                    f"Missing input: {src}; saisdata listing={listing}",
+                )
             shutil.copy2(src, data_dir / name)
 
         result_dir = project_root / "result"

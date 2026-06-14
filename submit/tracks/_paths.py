@@ -29,7 +29,30 @@ def saisdata_subdir(saisdata: Path, *parts: str) -> Path:
         return saisdata
     joined = Path(*parts)
     candidates = [saisdata / joined]
-    for mount_id in ("37", "49", "48"):
+    for mount_id in ("3", "37", "49", "48", "38", "36"):
         candidates.append(saisdata / mount_id / joined)
     found = first_existing(*candidates)
     return found if found is not None else saisdata / joined
+
+
+def danbaizhi_data_root(saisdata: Path) -> Path:
+    """Locate 1.json/2.json/3.json under flat or nested Tianchi mounts."""
+    markers = ("1.json", "2.json", "3.json")
+
+    def has_all_json(root: Path) -> bool:
+        return all((root / name).is_file() for name in markers)
+
+    if has_all_json(saisdata):
+        return saisdata
+
+    for mount_id in ("3", "38", "36", "48", "37", "49"):
+        sub = saisdata / mount_id
+        if has_all_json(sub):
+            return sub
+
+    if saisdata.is_dir():
+        for child in sorted(saisdata.iterdir()):
+            if child.is_dir() and has_all_json(child):
+                return child
+
+    return saisdata
