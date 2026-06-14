@@ -11,8 +11,8 @@
                                     "note":  "drugclip overseas build + python:3.10-slim (known good build)"
                                 },
                    "baxiangfenzi":  {
-                                        "commit":  "13d9085",
-                                        "note":  "baxiangfenzi agent republish"
+                                        "commit":  "ba5e434",
+                                        "note":  "sync to latest with lazy registry + cache bust"
                                     },
                    "shenjingsuanzi":  {
                                           "commit":  "cace6ee",
