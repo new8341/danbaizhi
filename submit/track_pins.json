@@ -1,4 +1,5 @@
 {
+  "_policy": "Each track pin is independent; push main alone does not rebuild other tracks. Use publish_track.ps1 for single-track release.",
   "version": "0.1",
   "tracks": {
     "danbaizhi": {

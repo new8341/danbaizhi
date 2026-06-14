@@ -83,24 +83,38 @@ py -3 -m pytest submit/tests/ -q
 .\submit\restore_track.ps1 -List
 .\submit\restore_track.ps1 -Track danbaizhi -Node 3f000c1 -RetagAcr
 .\submit\restore_track.ps1 -Track baxiangfenzi -Node e491c22 -FilesOnly   # 只恢复该赛道源码
-.\submit\trigger_acr_build.ps1 -Tracks danbaizhi,drugclip                 # 按 pin 重建所选镜像
+.\submit\publish_track.ps1 -Track baxiangfenzi          # 单赛道发布（改 pin + 只打该 tag）
+.\submit\trigger_acr_build.ps1 -Tracks danbaizhi -SkipPushMain   # 显式多赛道重建
 ```
+
+**请删除 ACR 上旧的统一规则 `release-v0.1`**，避免四仓被同一 tag 联动重建。
 
 ---
 
-## 三、同步触发四仓构建
+## 三、发布与构建（单赛道互不影响）
+
+`git push main` **不会**自动更新四仓镜像。只有移动某赛道的 **pin + tag** 才重建该仓。
+
+### 只改一个赛道（标准流程）
 
 ```powershell
-cd H:\Fusai
-git add -A
-git commit -m "feat: ..."
-git push origin main
-
-# 一次 tag 触发四个 ACR 仓库并行构建
-.\submit\trigger_acr_build.ps1 -Version 0.1
+git commit -m "feat(baxiangfenzi): ..."
+.\submit\publish_track.ps1 -Track baxiangfenzi
 ```
 
-推送 `release-v0.1` 后，四个仓库若规则相同，会**各自**拉同一 commit、用**各自 Dockerfile** 构建，互不影响。
+其他三赛道 `track_pins.json` 与 ACR 镜像 **不变**。
+
+### 显式重建多个赛道
+
+```powershell
+.\submit\trigger_acr_build.ps1 -Tracks danbaizhi,drugclip -SkipPushMain
+```
+
+**必须带 `-Tracks`**（无默认全量）。
+
+### 天池提交（不变）
+
+仍使用 `.../ai4s-lee/<repo>:0.1`、原用户名/密码、原输出文件名（`submission.zip` / `result.zip`）。
 
 ### 任务1 前置条件
 
