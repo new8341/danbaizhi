@@ -165,8 +165,8 @@ py -3 submit/main.py --track baxiangfenzi --saisdata documen/Baxiangfenzi --sais
 | 策略 | 做法 |
 |------|------|
 | **统一版本** | 四仓共用 tag `0.1` / `release-v0.1`，便于对照 |
-| **单赛道热修** | 只改该赛道业务代码 + push + 重新 `trigger_acr_build.ps1`；其他赛道镜像内容不变但会重建（可接受） |
-| **仅重建一仓** | 在 ACR 该仓库页点 **立即构建**（不必等 tag） |
+| **单赛道热修** | `.\submit\publish_track.ps1 -Track <赛道>` → 只打 `release-v0.1-<赛道>` tag，仅该仓触发构建 |
+| **仅重建一仓** | ACR 该仓库页 **立即构建**，或 `.\submit\trigger_acr_build.ps1 -Tracks <赛道>` |
 | **提分优先级** | 任务3 已可用 → 任务2 打通 baseline → 任务1/4 并行 Agent 开发 |
 
 ---
