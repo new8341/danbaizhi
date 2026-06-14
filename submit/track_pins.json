@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "3ddebcd",
-                                     "note":  "danbaizhi saisdata v2 + build_info stamp"
+                                     "commit":  "e7a32c7",
+                                     "note":  "lazy registry + cache bust"
                                  },
                    "drugclip":  {
                                     "commit":  "cace6ee",
