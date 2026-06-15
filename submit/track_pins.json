@@ -15,8 +15,8 @@
                                         "note":  "DaoCloud python base for ACR 429 fix"
                                     },
                    "shenjingsuanzi":  {
-                                          "commit":  "cace6ee",
-                                          "note":  "shenjingsuanzi pytorch base (stable with overseas build)"
+                                          "commit":  "52f95a2",
+                                          "note":  "lazy registry + cache bust"
                                       }
                }
 }

@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "danbaizhi",
-    "commit":  "e1d1153",
-    "published":  "2026-06-15 19:19:03",
-    "note":  "openmm build verify"
+    "track":  "shenjingsuanzi",
+    "commit":  "52f95a2",
+    "published":  "2026-06-15 19:19:17",
+    "note":  "lazy registry + cache bust"
 }
