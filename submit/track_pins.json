@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "2fdf64d",
-                                     "note":  "openmm+lazy verify in Dockerfile"
+                                     "commit":  "efe2458",
+                                     "note":  "output.zip saisresult name"
                                  },
                    "drugclip":  {
                                     "commit":  "cace6ee",
