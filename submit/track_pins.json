@@ -11,8 +11,8 @@
                                     "note":  "drugclip overseas build + python:3.10-slim (known good build)"
                                 },
                    "baxiangfenzi":  {
-                                        "commit":  "51fed68",
-                                        "note":  "DaoCloud python base for ACR 429 fix"
+                                        "commit":  "afdaafd",
+                                        "note":  "lazy registry verify"
                                     },
                    "shenjingsuanzi":  {
                                           "commit":  "52f95a2",
