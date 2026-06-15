@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "a14ee1b",
-                                     "note":  "openmm dep for Tianchi mmcif validation"
+                                     "commit":  "e1d1153",
+                                     "note":  "openmm build verify"
                                  },
                    "drugclip":  {
                                     "commit":  "cace6ee",
