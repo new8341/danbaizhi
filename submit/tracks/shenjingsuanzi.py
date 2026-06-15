@@ -19,19 +19,70 @@ CYLINDER_NAME = "cylinder_pred_A.hdf5"
 def _problem_root(saisdata: Path, problem: str) -> Path | None:
     return first_existing(
         saisdata / "49" / problem,
+        saisdata / "48" / problem,
         saisdata / problem,
         saisdata_subdir(saisdata, problem),
     )
 
 
+def _find_sample(problem_root: Path, filename: str) -> Path | None:
+    candidates = [
+        problem_root / "sample_submission" / filename,
+        problem_root / "sample_submission" / "A_board" / filename,
+    ]
+    if problem_root.is_dir():
+        for hit in sorted(problem_root.rglob(filename)):
+            if hit.is_file():
+                candidates.append(hit)
+    return first_existing(*candidates)
+
+
 def _seed_from_sample(problem_root: Path, staging_dir: Path, filename: str) -> bool:
-    sample = problem_root / "sample_submission" / filename
-    if not sample.is_file():
-        sample = problem_root / "sample_submission" / "A_board" / filename
-    if sample.is_file():
+    sample = _find_sample(problem_root, filename)
+    if sample is not None:
         shutil.copy2(sample, staging_dir / filename)
         return True
     return False
+
+
+def _ks_baseline_from_test(problem_root: Path, out_path: Path) -> bool:
+    """Build KS_pred_A.hdf5 from test input when sample_submission is empty."""
+    import h5py
+    import numpy as np
+
+    data_dir = problem_root / "data"
+    test_path = first_existing(
+        data_dir / "KS_test_A.hdf5",
+        data_dir / "KS_test.hdf5",
+    )
+    if test_path is None and data_dir.is_dir():
+        for hit in sorted(data_dir.glob("KS_test*.hdf5")):
+            test_path = hit
+            break
+    if test_path is None or not test_path.is_file():
+        return False
+
+    with h5py.File(test_path, "r") as src:
+        obs = np.asarray(src["tensor"], dtype=np.float32)
+        t_obs = np.asarray(src["t-coordinate"], dtype=np.float32) if "t-coordinate" in src else None
+        x_coord = np.asarray(src["x-coordinate"], dtype=np.float32) if "x-coordinate" in src else None
+
+    n_samples, n_obs, n_x = obs.shape
+    n_total = 400
+    pred = np.zeros((n_samples, n_total, n_x), dtype=np.float16)
+    pred[:, :n_obs] = obs.astype(np.float16)
+    pred[:, n_obs:] = obs[:, -1:, :].astype(np.float16)
+
+    with h5py.File(out_path, "w") as dst:
+        dst.create_dataset("tensor", data=pred, dtype=np.float16)
+        if t_obs is not None and len(t_obs) == n_obs:
+            t_full = np.linspace(float(t_obs[0]), float(t_obs[-1]) + (n_total - n_obs) * 0.5, n_total)
+            dst.create_dataset("t-coordinate", data=t_full.astype(np.float16))
+        if x_coord is not None:
+            dst.create_dataset("x-coordinate", data=x_coord.astype(np.float16))
+
+    print(f"[Shenjingsuanzi] KS baseline from {test_path} -> {out_path}", flush=True)
+    return True
 
 
 def _run_problem2_inference(problem_root: Path, staging_dir: Path, pred_path: Path) -> bool:
@@ -93,8 +144,11 @@ class ShenjingsuanziRunner(TrackRunner):
         cyl_out = staging_dir / CYLINDER_NAME
 
         if not _seed_from_sample(p1, staging_dir, KS_NAME):
-            emit_error("SHENJING_KS_SAMPLE_MISSING", f"No sample for {KS_NAME} under {p1}")
-        lines.append(f"ks_source=sample from {p1}")
+            if not _ks_baseline_from_test(p1, ks_out):
+                emit_error("SHENJING_KS_SAMPLE_MISSING", f"No sample for {KS_NAME} under {p1}")
+            lines.append(f"ks_source=baseline from {p1}/data")
+        else:
+            lines.append(f"ks_source=sample from {p1}")
 
         if not _run_problem2_inference(p2, staging_dir, cyl_out):
             if not _seed_from_sample(p2, staging_dir, CYLINDER_NAME):

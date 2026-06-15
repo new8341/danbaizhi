@@ -71,6 +71,31 @@ def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:
     assert "[agent]" in (staging / "result.log").read_text(encoding="utf-8")
 
 
+def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
+    h5py = pytest.importorskip("h5py")
+    import numpy as np
+
+    p1 = tmp_path / "saisdata" / "49" / "problem1"
+    data_dir = p1 / "data"
+    data_dir.mkdir(parents=True)
+    with h5py.File(data_dir / "KS_test_A.hdf5", "w") as f:
+        f.create_dataset("tensor", data=np.zeros((2, 20, 256), dtype=np.float16))
+        f.create_dataset("t-coordinate", data=np.arange(20, dtype=np.float16) * 0.5)
+        f.create_dataset("x-coordinate", data=np.arange(256, dtype=np.float16))
+
+    p2 = tmp_path / "saisdata" / "49" / "problem2"
+    sample_dir = p2 / "sample_submission"
+    sample_dir.mkdir(parents=True)
+    with h5py.File(sample_dir / "cylinder_pred_A.hdf5", "w") as f:
+        f.create_dataset("tensor", data=np.zeros((1, 200, 64, 128, 2), dtype=np.float16))
+
+    staging = tmp_path / "staging"
+    ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
+    assert (staging / "KS_pred_A.hdf5").is_file()
+    with h5py.File(staging / "KS_pred_A.hdf5", "r") as f:
+        assert f["tensor"].shape == (2, 400, 256)
+
+
 def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:
     h5py = pytest.importorskip("h5py")
     import numpy as np
