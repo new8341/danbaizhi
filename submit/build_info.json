@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "shenjingsuanzi",
-    "commit":  "e0f0fb3",
-    "published":  "2026-06-15 22:51:37",
-    "note":  "KS baseline from KS_test_A when sample missing"
+    "track":  "drugclip",
+    "commit":  "2977109",
+    "published":  "2026-06-15 22:58:21",
+    "note":  "RDKit Morgan Tanimoto vs crystal ligand refs"
 }

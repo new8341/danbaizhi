@@ -7,8 +7,8 @@
                                      "note":  "output.zip saisresult name"
                                  },
                    "drugclip":  {
-                                    "commit":  "cace6ee",
-                                    "note":  "drugclip overseas build + python:3.10-slim (known good build)"
+                                    "commit":  "2977109",
+                                    "note":  "RDKit Morgan Tanimoto vs crystal ligand refs"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "8c87d20",
