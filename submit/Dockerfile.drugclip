@@ -1,17 +1,24 @@
-# Fusai docker image â€?track 1 (DrugClip)
-FROM python:3.10-slim
+# Fusai docker image ? track 1 (DrugClip RDKit similarity agent)
+# Overseas ON: DaoCloud proxy avoids Docker Hub 429 on python:3.10-slim.
+FROM docker.m.daocloud.io/library/python:3.10-slim
+
+RUN pip install --no-cache-dir rdkit
 
 WORKDIR /app
 
+# Copy build stamp first so ACR layer cache invalidates on each publish.
+COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY documen/DrugClip/benchmark/ /app/benchmark/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh
+RUN chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import rdkit; from submit.tracks.drugclip_agent.scoring import score_smiles; from submit.tracks.registry import get_runner; get_runner('drugclip')"
 
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
+ENV DRUGCLIP_WORKERS=8
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1

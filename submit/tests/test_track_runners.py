@@ -40,6 +40,8 @@ def test_drugclip_mini(tmp_path: Path) -> None:
     text = (staging / "result.csv").read_text(encoding="utf-8")
     assert "mini_task__L000001" in text
     assert "mini_task__L000002" in text
+    log_text = (staging / "result.log").read_text(encoding="utf-8")
+    assert "morgan_tanimoto" in log_text
 
 
 def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:

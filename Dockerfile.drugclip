@@ -1,17 +1,22 @@
-# ACR build alias â€?keep in sync with submit/Dockerfile.drugclip
-FROM python:3.10-slim
+# ACR build alias ? keep in sync with submit/Dockerfile.drugclip
+FROM docker.m.daocloud.io/library/python:3.10-slim
+
+RUN pip install --no-cache-dir rdkit
 
 WORKDIR /app
 
+COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY documen/DrugClip/benchmark/ /app/benchmark/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh
+RUN chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import rdkit; from submit.tracks.drugclip_agent.scoring import score_smiles; from submit.tracks.registry import get_runner; get_runner('drugclip')"
 
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
+ENV DRUGCLIP_WORKERS=8
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1
