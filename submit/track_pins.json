@@ -15,8 +15,8 @@
                                         "note":  "lazy registry verify"
                                     },
                    "shenjingsuanzi":  {
-                                          "commit":  "52f95a2",
-                                          "note":  "lazy registry + cache bust"
+                                          "commit":  "68ad036",
+                                          "note":  "lazy registry Dockerfile verify"
                                       }
                }
 }

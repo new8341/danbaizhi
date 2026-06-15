@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "danbaizhi",
-    "commit":  "2fdf64d",
-    "published":  "2026-06-15 19:19:52",
-    "note":  "openmm+lazy verify in Dockerfile"
+    "track":  "shenjingsuanzi",
+    "commit":  "68ad036",
+    "published":  "2026-06-15 19:20:08",
+    "note":  "lazy registry Dockerfile verify"
 }
