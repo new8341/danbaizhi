@@ -5,11 +5,14 @@ RUN pip install --no-cache-dir h5py tqdm
 
 WORKDIR /app
 
+# Copy build stamp first so ACR layer cache invalidates on each publish.
+COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh
+RUN chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import submit.tracks.registry as r; r.get_runner('shenjingsuanzi')"
 
 ENV FUSAI_TRACK=shenjingsuanzi
 ENV SHENJING_MODEL=fno

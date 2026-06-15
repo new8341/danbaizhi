@@ -3,6 +3,7 @@ FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
     && pip install --no-cache-dir numpy mdtraj openmm \
+    && python -c "import openmm; import mdtraj" \
     && apt-get purge -y gcc g++ \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
@@ -16,7 +17,8 @@ COPY Project/ /app/Project/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh
+RUN chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import openmm; import submit.tracks.registry as r; r.get_runner('danbaizhi')"
 
 ENV FUSAI_TRACK=danbaizhi
 ENV SAISDATA=/saisdata

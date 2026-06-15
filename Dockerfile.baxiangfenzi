@@ -19,7 +19,8 @@ COPY submit/ /app/submit/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh
+RUN chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import submit.tracks.registry as r; r.get_runner('baxiangfenzi')"
 
 ENV FUSAI_TRACK=baxiangfenzi
 ENV SAISDATA=/saisdata
