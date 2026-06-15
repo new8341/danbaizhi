@@ -11,8 +11,8 @@
                                     "note":  "drugclip overseas build + python:3.10-slim (known good build)"
                                 },
                    "baxiangfenzi":  {
-                                        "commit":  "afdaafd",
-                                        "note":  "lazy registry verify"
+                                        "commit":  "8c87d20",
+                                        "note":  "lazy registry Dockerfile verify"
                                     },
                    "shenjingsuanzi":  {
                                           "commit":  "68ad036",
