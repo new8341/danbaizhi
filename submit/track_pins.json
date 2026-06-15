@@ -15,8 +15,8 @@
                                         "note":  "lazy registry Dockerfile verify"
                                     },
                    "shenjingsuanzi":  {
-                                          "commit":  "68ad036",
-                                          "note":  "lazy registry Dockerfile verify"
+                                          "commit":  "e0f0fb3",
+                                          "note":  "KS baseline from KS_test_A when sample missing"
                                       }
                }
 }
