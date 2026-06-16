@@ -15,10 +15,7 @@ TRACK_CODE = {
     "drugclip": [
         "submit/tracks/drugclip.py",
         "submit/tracks/drugclip_agent",
-        "ReDrugClip/src",
-        "ReDrugClip/agent",
-        "ReDrugClip/configs",
-        "ReDrugClip/scripts",
+        "submit/redrugclip",
         "submit/Dockerfile.drugclip",
     ],
     "shenjingsuanzi": [

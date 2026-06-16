@@ -9,10 +9,10 @@ WORKDIR /app
 # Copy build stamp first so ACR layer cache invalidates on each publish.
 COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
-COPY ReDrugClip/src /app/ReDrugClip/src/
-COPY ReDrugClip/agent /app/ReDrugClip/agent/
-COPY ReDrugClip/configs /app/ReDrugClip/configs/
-COPY ReDrugClip/scripts /app/ReDrugClip/scripts/
+COPY submit/redrugclip/src /app/ReDrugClip/src/
+COPY submit/redrugclip/agent /app/ReDrugClip/agent/
+COPY submit/redrugclip/configs /app/ReDrugClip/configs/
+COPY submit/redrugclip/scripts /app/ReDrugClip/scripts/
 COPY documen/DrugClip/benchmark/ /app/benchmark/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
