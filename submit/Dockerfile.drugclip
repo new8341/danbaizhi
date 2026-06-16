@@ -24,6 +24,7 @@ RUN mkdir -p /app/ReDrugClip/outputs \
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
 ENV DRUGCLIP_STRATEGY=hybrid_max_qed
+ENV DRUGCLIP_WORKERS=8
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1

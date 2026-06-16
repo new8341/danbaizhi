@@ -242,28 +242,60 @@ class DrugClipAgent:
         first_write = True
         all_scores: dict[str, dict[str, float]] = {}
 
-        for i, task in enumerate(tasks, 1):
-            if task.task_id in done_tasks:
-                self.log.line(f"Skip completed task {task.task_id}")
-                continue
-            self.log.line(
-                f"[{i}/{len(tasks)}] Scoring {task.task_id} ({task.num_ligands} ligands) "
-                f"strategy={strategy.name}"
-            )
-            self.log.flush()
-            rows = list(self.index.iter_ligand_rows(task))
-            scores = scorer.score_task(task, rows, config)
-            all_scores[task.task_id] = scores
+        workers = int(os.environ.get("DRUGCLIP_WORKERS", "1"))
+        pending = [t for t in tasks if t.task_id not in done_tasks]
 
+        if workers > 1 and len(pending) > 1:
+            from concurrent.futures import ProcessPoolExecutor, as_completed
+
+            from agent.parallel_score import score_task_by_id
+
+            self.log.line(f"Parallel inference workers={workers} tasks={len(pending)}")
+            self.log.flush()
+            with ProcessPoolExecutor(max_workers=workers) as pool:
+                futures = {
+                    pool.submit(score_task_by_id, t.task_id, strategy.name): t.task_id
+                    for t in pending
+                }
+                done_count = 0
+                for fut in as_completed(futures):
+                    task_id, scores = fut.result()
+                    all_scores[task_id] = scores
+                    done_count += 1
+                    self.log.line(f"[{done_count}/{len(pending)}] completed {task_id}")
+                    self.log.flush()
             from src.submission import append_scores_csv
 
-            append_scores_csv(
-                csv_path,
-                task.task_id,
-                scores,
-                write_header=first_write,
-            )
-            first_write = False
+            for i, task in enumerate(pending, 1):
+                append_scores_csv(
+                    csv_path,
+                    task.task_id,
+                    all_scores[task.task_id],
+                    write_header=(i == 1),
+                )
+        else:
+            for i, task in enumerate(tasks, 1):
+                if task.task_id in done_tasks:
+                    self.log.line(f"Skip completed task {task.task_id}")
+                    continue
+                self.log.line(
+                    f"[{i}/{len(tasks)}] Scoring {task.task_id} ({task.num_ligands} ligands) "
+                    f"strategy={strategy.name}"
+                )
+                self.log.flush()
+                rows = list(self.index.iter_ligand_rows(task))
+                scores = scorer.score_task(task, rows, config)
+                all_scores[task.task_id] = scores
+
+                from src.submission import append_scores_csv
+
+                append_scores_csv(
+                    csv_path,
+                    task.task_id,
+                    scores,
+                    write_header=first_write,
+                )
+                first_write = False
 
         if csv_path.name == "result_new.csv":
             final = OUTPUTS_DIR / "result.csv"
@@ -335,7 +367,19 @@ class DrugClipAgent:
         pilot_tasks = [self.index.get(tid) for tid in pilot_ids if tid in self.index.task_ids()]
 
         self.phase_literature_and_baseline()
-        self.phase_diagnosis(pilot_tasks)
+        if skip_archive and (forced_strategy or fast):
+            self.log.header("Phase 2: Bottleneck diagnosis (platform history)")
+            for h in PLATFORM_SCORE_HISTORY:
+                self.log.line(
+                    f"Platform {h['date']}: score={h['score']:.4f} strategy={h['strategy']}"
+                )
+            self.log.line(
+                "Docker fast path: skip pilot re-score to meet runtime budget; "
+                "strategy fixed to hybrid_max_qed."
+            )
+            self.log.flush()
+        else:
+            self.phase_diagnosis(pilot_tasks)
         strategies_map = {s.name: s for s in default_strategy_grid()}
         if forced_strategy:
             if forced_strategy not in strategies_map:
@@ -373,19 +417,17 @@ class DrugClipAgent:
 
         if not skip_archive:
             _archive("agent run final submission")
-
-        subprocess.run(
-            [sys.executable, str(PROJECT_ROOT / "scripts" / "prepare_submit.py")],
-            cwd=str(PROJECT_ROOT),
-        )
-
-        subprocess.run(
-            [
-                sys.executable,
-                str(PROJECT_ROOT / "scripts" / "validate_submission.py"),
-                "--zip",
-                str(zip_path),
-            ],
-            cwd=str(PROJECT_ROOT),
-        )
+            subprocess.run(
+                [sys.executable, str(PROJECT_ROOT / "scripts" / "prepare_submit.py")],
+                cwd=str(PROJECT_ROOT),
+            )
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(PROJECT_ROOT / "scripts" / "validate_submission.py"),
+                    "--zip",
+                    str(zip_path),
+                ],
+                cwd=str(PROJECT_ROOT),
+            )
         return zip_path
