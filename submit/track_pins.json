@@ -15,8 +15,8 @@
                                         "note":  "lazy registry Dockerfile verify"
                                     },
                    "shenjingsuanzi":  {
-                                          "commit":  "e0f0fb3",
-                                          "note":  "KS baseline from KS_test_A when sample missing"
+                                          "commit":  "65d41a9",
+                                          "note":  "matplotlib for problem2 FNO inference"
                                       }
                }
 }
