@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "efe2458",
-                                     "note":  "output.zip saisresult name"
+                                     "commit":  "5b99212",
+                                     "note":  "DaoCloud python base anti-429"
                                  },
                    "drugclip":  {
                                     "commit":  "2a3d10a",
