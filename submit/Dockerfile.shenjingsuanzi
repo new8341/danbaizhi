@@ -1,7 +1,7 @@
 # Fusai docker image — track 4 (Shenjingsuanzi) — GPU eval (V100)
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
-RUN pip install --no-cache-dir h5py tqdm
+RUN pip install --no-cache-dir h5py tqdm matplotlib
 
 WORKDIR /app
 
