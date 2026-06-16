@@ -97,6 +97,8 @@ def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
     assert (staging / "KS_pred_A.hdf5").is_file()
     with h5py.File(staging / "KS_pred_A.hdf5", "r") as f:
         assert f["tensor"].shape == (2, 400, 256)
+    log_text = (tmp_path / "shenjingsuanzi_run.log").read_text(encoding="utf-8")
+    assert "[agent] phase=done" in log_text
 
 
 def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:

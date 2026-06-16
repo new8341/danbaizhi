@@ -1,0 +1,41 @@
+"""Cylinder flow: run saisdata FNO inference."""
+from __future__ import annotations
+
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+def run_cylinder(problem_root: Path, out_path: Path) -> tuple[str, list[str]]:
+    logs: list[str] = []
+    inference_dir = problem_root / "inference"
+    run_script = inference_dir / "run_inference.py"
+    test_path = problem_root / "data" / "cylinder_test_A.hdf5"
+    if not run_script.is_file() or not test_path.is_file():
+        logs.append("[agent] cylinder_skip=inference_script_or_test_missing")
+        return "missing", logs
+
+    model = os.environ.get("SHENJING_MODEL", "fno")
+    cmd = [
+        sys.executable,
+        str(run_script),
+        "--model",
+        model,
+        "--test_path",
+        str(test_path),
+        "--pred_path",
+        str(out_path),
+    ]
+    logs.append(f"[agent] cylinder_cmd={' '.join(cmd)}")
+    try:
+        subprocess.run(cmd, cwd=str(inference_dir), check=True)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        logs.append(f"[agent] cylinder_inference_failed={exc}")
+        return "failed", logs
+
+    if out_path.is_file():
+        logs.append(f"[agent] cylinder_source=inference model={model}")
+        return "inference", logs
+    logs.append("[agent] cylinder_inference_no_output")
+    return "failed", logs

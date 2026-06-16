@@ -10,16 +10,20 @@
 
 ## 当前状态
 
-- Runner：`submit/tracks/shenjingsuanzi.py`（KS 用 sample 兜底；problem2 可跑 FNO inference）  
-- Baseline 推理：`documen/Shenjingsuanzi/problem2/inference/`（评测时以挂载为准）  
+- Runner：`submit/tracks/shenjingsuanzi.py` → `submit/tracks/shenjingsuanzi_agent/`
+- KS：挂载 `KS_train.hdf5` 时训练 FNO1d 并自回归预测 380 步；无训练集时用 test seed 外推；再失败则 sample 兜底
+- Cylinder：调用挂载 `problem2/inference/run_inference.py`（FNO 权重）；失败则 sample 兜底
+- 参考实现（本地）：`shenjingsuanzi/daima/202605192309`（初赛 ~57.69），未打入镜像
 
 ## 最后一周
 
-须将 Agent 代码置于 `/app/agent_code/` 并附 README（可在 Dockerfile.shenjingsuanzi 中 COPY 业务目录）。
+Agent 代码在 `submit/tracks/shenjingsuanzi_agent/`，由 Dockerfile 随 `submit/` 一并 COPY。
 
 ## 环境变量
 
 - `SHENJING_MODEL=fno`（problem2 推理模型）
+- `SHENJING_KS_EPOCHS`（默认 10；6h 预算内可调大）
+- `SHENJING_QUICK=1`（本地/冒烟：少 epoch、小窗口）
 
 ## 本地验证
 

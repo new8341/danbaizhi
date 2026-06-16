@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import shutil
 import subprocess
+import tarfile
 from datetime import datetime
 from pathlib import Path
 
@@ -19,7 +21,7 @@ TRACK_CODE = {
     ],
     "shenjingsuanzi": [
         "submit/tracks/shenjingsuanzi.py",
-        "shenjingsuanzi/pdeburgers",
+        "submit/tracks/shenjingsuanzi_agent",
         "submit/Dockerfile.shenjingsuanzi",
     ],
     "baxiangfenzi": [
@@ -59,21 +61,45 @@ def _copy_paths(dest: Path, rel_paths: list[str]) -> None:
             shutil.copy2(src, dst)
 
 
+def _copy_paths_from_git(dest: Path, rel_paths: list[str], commit: str) -> None:
+    """Snapshot track code as it existed at a git commit (for scored submissions)."""
+    existing: list[str] = []
+    for rel in rel_paths:
+        ls = subprocess.run(
+            ["git", "ls-tree", commit, rel],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if ls.returncode == 0 and ls.stdout.strip():
+            existing.append(rel)
+    if not existing:
+        return
+    data = subprocess.check_output(["git", "archive", commit, *existing], cwd=ROOT)
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:") as tar:
+        if hasattr(tarfile, "data_filter"):
+            tar.extractall(dest, filter="data")
+        else:
+            tar.extractall(dest)
+
+
 def archive_run(
     stamp: str,
     track: str,
     score: float,
     note: str = "",
     extra: dict | None = None,
+    git_commit: str = "",
 ) -> Path:
     out = ROOT / "guidang" / stamp / track
     out.mkdir(parents=True, exist_ok=True)
+    code_commit = git_commit.strip() or _git_head()
     meta = {
         "track": track,
         "score": score,
         "stamp": stamp,
         "archived_at": datetime.now().isoformat(timespec="seconds"),
-        "git_commit": _git_head(),
+        "git_commit": code_commit,
         "note": note,
     }
     if extra:
@@ -81,11 +107,21 @@ def archive_run(
     (out / "score_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    _copy_paths(out, TRACK_CODE.get(track, []))
+    rel_paths = TRACK_CODE.get(track, [])
+    if git_commit.strip():
+        _copy_paths_from_git(out, rel_paths, git_commit.strip())
+    else:
+        _copy_paths(out, rel_paths)
     return out
 
 
-def update_cundang(track: str, score: float, stamp: str, note: str = "") -> Path:
+def update_cundang(
+    track: str,
+    score: float,
+    stamp: str,
+    note: str = "",
+    git_commit: str = "",
+) -> Path:
     """Update cundang/<track>/ if score improves."""
     cundang = ROOT / "cundang" / track
     cundang.mkdir(parents=True, exist_ok=True)
@@ -103,13 +139,18 @@ def update_cundang(track: str, score: float, stamp: str, note: str = "") -> Path
                 shutil.rmtree(child)
             else:
                 child.unlink()
-    _copy_paths(cundang, TRACK_CODE.get(track, []))
+    rel_paths = TRACK_CODE.get(track, [])
+    code_commit = git_commit.strip() or _git_head()
+    if git_commit.strip():
+        _copy_paths_from_git(cundang, rel_paths, code_commit)
+    else:
+        _copy_paths(cundang, rel_paths)
     meta = {
         "track": track,
         "score": score,
         "stamp": stamp,
         "updated_at": datetime.now().isoformat(timespec="seconds"),
-        "git_commit": _git_head(),
+        "git_commit": code_commit,
         "note": note,
     }
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -123,12 +164,21 @@ def main() -> int:
     parser.add_argument("--score", type=float, required=True)
     parser.add_argument("--note", default="")
     parser.add_argument("--no-cundang", action="store_true")
+    parser.add_argument(
+        "--git-commit",
+        default="",
+        help="Archive code from this commit (default: current working tree)",
+    )
     args = parser.parse_args()
 
-    out = archive_run(args.stamp, args.track, args.score, args.note)
+    out = archive_run(
+        args.stamp, args.track, args.score, args.note, git_commit=args.git_commit
+    )
     print(f"guidang -> {out}")
     if not args.no_cundang:
-        c = update_cundang(args.track, args.score, args.stamp, args.note)
+        c = update_cundang(
+            args.track, args.score, args.stamp, args.note, git_commit=args.git_commit
+        )
         print(f"cundang -> {c}")
     return 0
 

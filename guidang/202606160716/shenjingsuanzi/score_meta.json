@@ -2,7 +2,7 @@
   "track": "shenjingsuanzi",
   "score": 32.904013,
   "stamp": "202606160716",
-  "archived_at": "2026-06-16T13:05:27",
-  "git_commit": "203ab1a",
+  "archived_at": "2026-06-16T22:32:25",
+  "git_commit": "65d41a9",
   "note": "KS baseline + P2 sample fallback"
 }
