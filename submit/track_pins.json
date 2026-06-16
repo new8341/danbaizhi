@@ -7,8 +7,8 @@
                                      "note":  "output.zip saisresult name"
                                  },
                    "drugclip":  {
-                                    "commit":  "2977109",
-                                    "note":  "RDKit Morgan Tanimoto vs crystal ligand refs"
+                                    "commit":  "69fc1ac",
+                                    "note":  "ReDrugClip hybrid_max_qed full agent log"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "8c87d20",

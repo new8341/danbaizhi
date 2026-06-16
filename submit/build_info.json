@@ -1,6 +1,6 @@
 ﻿{
     "track":  "drugclip",
-    "commit":  "2977109",
-    "published":  "2026-06-15 22:58:21",
-    "note":  "RDKit Morgan Tanimoto vs crystal ligand refs"
+    "commit":  "69fc1ac",
+    "published":  "2026-06-16 13:05:57",
+    "note":  "ReDrugClip hybrid_max_qed full agent log"
 }
