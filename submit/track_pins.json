@@ -7,8 +7,8 @@
                                      "note":  "output.zip saisresult name"
                                  },
                    "drugclip":  {
-                                    "commit":  "69fc1ac",
-                                    "note":  "ReDrugClip hybrid_max_qed full agent log"
+                                    "commit":  "2a3d10a",
+                                    "note":  "vendored redrugclip in submit/"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "8c87d20",
