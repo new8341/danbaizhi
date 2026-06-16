@@ -1,4 +1,4 @@
-"""DrugClip virtual screening agent (RDKit fingerprint similarity)."""
-from submit.tracks.drugclip_agent.pipeline import run_benchmark
+"""DrugClip virtual screening agent."""
+from submit.tracks.drugclip_agent.pipeline import run_benchmark, write_results
 
-__all__ = ["run_benchmark"]
+__all__ = ["run_benchmark", "write_results"]

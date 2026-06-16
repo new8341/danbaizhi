@@ -1,27 +1,21 @@
 # ACR build alias ? keep in sync with submit/Dockerfile.drugclip
 FROM docker.m.daocloud.io/library/python:3.10-slim
 
-RUN pip install --no-cache-dir rdkit biopandas pyyaml numpy pandas tqdm
+RUN pip install --no-cache-dir rdkit biopandas numpy
 
 WORKDIR /app
 
 COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
-COPY submit/redrugclip/src /app/ReDrugClip/src/
-COPY submit/redrugclip/agent /app/ReDrugClip/agent/
-COPY submit/redrugclip/configs /app/ReDrugClip/configs/
-COPY submit/redrugclip/scripts /app/ReDrugClip/scripts/
 COPY documen/DrugClip/benchmark/ /app/benchmark/
 COPY agent/ /app/agent/
 COPY submit/run.sh /app/run.sh
 
-RUN mkdir -p /app/ReDrugClip/outputs \
-    && chmod +x /app/run.sh /app/submit/run.sh \
+RUN chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "import biopandas; import rdkit; from submit.tracks.registry import get_runner; get_runner('drugclip')"
 
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
-ENV DRUGCLIP_STRATEGY=hybrid_max_qed
 ENV DRUGCLIP_WORKERS=8
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
