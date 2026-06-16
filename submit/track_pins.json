@@ -7,8 +7,8 @@
                                      "note":  "DaoCloud python base"
                                  },
                    "drugclip":  {
-                                    "commit":  "ed97c17",
-                                    "note":  "parallel workers=8 skip daima archive"
+                                    "commit":  "cf2aa2a",
+                                    "note":  "native drugclip_agent hybrid_max_qed"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "8c87d20",

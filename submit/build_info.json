@@ -1,6 +1,6 @@
 ﻿{
     "track":  "drugclip",
-    "commit":  "ed97c17",
-    "published":  "2026-06-16 20:44:33",
-    "note":  "parallel workers=8 skip daima archive"
+    "commit":  "cf2aa2a",
+    "published":  "2026-06-16 20:48:05",
+    "note":  "native drugclip_agent hybrid_max_qed"
 }
