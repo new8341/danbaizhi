@@ -7,8 +7,8 @@
                                      "note":  "DaoCloud python base anti-429"
                                  },
                    "drugclip":  {
-                                    "commit":  "2a3d10a",
-                                    "note":  "vendored redrugclip in submit/"
+                                    "commit":  "3a4b45e",
+                                    "note":  "submit/redrugclip vendored"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "8c87d20",
