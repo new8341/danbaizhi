@@ -1,0 +1,4 @@
+# Keep score metadata in git; code snapshots stay local (large).
+*
+!README.md
+!**/score_meta.json
