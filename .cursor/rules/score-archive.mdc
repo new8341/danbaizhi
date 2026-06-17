@@ -1,0 +1,46 @@
+---
+description: 分数归档：guidang 按时间、cundang 固定最高分目录
+alwaysApply: true
+---
+
+# 分数归档（guidang + cundang）
+
+## 两套目录，职责分离
+
+| 目录 | 用途 | 更新策略 |
+|------|------|----------|
+| `guidang/YYYYMMDDHHMM/<track>/` | **按时间**记录每次出分 | 每次评分后**追加**，不删不改旧目录 |
+| `cundang/<track>/` | **固定**存放该赛道历史最高分代码 | 仅当 `score > best.json` 时**整目录替换** |
+
+二者均由 `scripts/archive_competition.py` 维护；禁止手工改 `cundang/` 结构而不更新 `best.json`。
+
+## 标准命令（出分后）
+
+```powershell
+cd h:\Fusai
+py -3 scripts/archive_competition.py `
+  --stamp 202606170549 `
+  --track shenjingsuanzi `
+  --score 42.090454 `
+  --note "说明" `
+  --git-commit <镜像 build_info 中的 commit>
+```
+
+- `--stamp`：平台分数时间 `YYYYMMDDHHMM`
+- `--git-commit`：该次提交实际打分的 commit（与 `build_info.json` 一致）
+- `--no-cundang`：仅写 guidang，不尝试更新 cundang（极少用）
+
+## cundang 替换规则
+
+1. 读取 `cundang/<track>/best.json` 的 `score`（无文件则视为 0）
+2. 新分 **≤** 旧最佳 → **跳过**，guidang 仍照常写入
+3. 新分 **>** 旧最佳 → 删除该 track 下除 `best.json` 外的快照，从 `--git-commit` 复制代码并更新 `best.json`
+
+## Git 与本地
+
+- **进 Git**：`guidang/**/score_meta.json`、`cundang/**/best.json`、README
+- **仅本地**：两套目录下的代码快照（`.gitignore` 忽略，体积大）
+
+## Agent 职责
+
+用户报告新分数或粘贴评测日志后，应主动运行归档命令（含正确 `--git-commit`），并告知 guidang 路径及 cundang 是否被替换。

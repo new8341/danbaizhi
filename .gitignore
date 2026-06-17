@@ -7,6 +7,10 @@ submit/_local_saisresult/
 
 # Generated at runtime
 Project/result/
+Project/.venv_colabfold/
+Project/data/colabfold_xdg_cache/
+Project/processed_data/colabfold/_logs/
+Project/processed_data/colabfold/problem_*/predictions_msa_3m/
 daima/
 submission_staging/
 **/__pycache__/

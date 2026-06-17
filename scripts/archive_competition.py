@@ -121,8 +121,8 @@ def update_cundang(
     stamp: str,
     note: str = "",
     git_commit: str = "",
-) -> Path:
-    """Update cundang/<track>/ if score improves."""
+) -> tuple[Path, bool, float]:
+    """Replace cundang/<track>/ when score beats best.json (fixed best-code directory)."""
     cundang = ROOT / "cundang" / track
     cundang.mkdir(parents=True, exist_ok=True)
     meta_path = cundang / "best.json"
@@ -130,7 +130,7 @@ def update_cundang(
     if meta_path.is_file():
         prev = float(json.loads(meta_path.read_text(encoding="utf-8")).get("score", 0.0))
     if score <= prev:
-        return cundang
+        return cundang, False, prev
     if cundang.exists():
         for child in cundang.iterdir():
             if child.name == "best.json":
@@ -154,7 +154,7 @@ def update_cundang(
         "note": note,
     }
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-    return cundang
+    return cundang, True, prev
 
 
 def main() -> int:
@@ -176,10 +176,13 @@ def main() -> int:
     )
     print(f"guidang -> {out}")
     if not args.no_cundang:
-        c = update_cundang(
+        c, replaced, prev = update_cundang(
             args.track, args.score, args.stamp, args.note, git_commit=args.git_commit
         )
-        print(f"cundang -> {c}")
+        if replaced:
+            print(f"cundang -> {c}  replaced best {prev:.6f} -> {args.score:.6f}")
+        else:
+            print(f"cundang -> {c}  kept best {prev:.6f} (new {args.score:.6f})")
     return 0
 
 
