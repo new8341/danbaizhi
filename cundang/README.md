@@ -6,8 +6,8 @@
 
 | 赛道 | 目录 | 复赛得分 | 历史最佳 |
 |------|------|----------|----------|
-| DrugClip | `drugclip/` | 0.0 (2026-06-16) | **19.23** 初赛 ReDrugClip hybrid_max_qed |
-| 神经算子 | `shenjingsuanzi/` | 32.90 (2026-06-16) | **57.69** 初赛 pdeburgers |
+| DrugClip | `drugclip/` | **18.82** (2026-06-17) | **19.23** 初赛 ReDrugClip hybrid_max_qed |
+| 神经算子 | `shenjingsuanzi/` | **42.09** (2026-06-17) | **57.69** 初赛 pdeburgers |
 | 靶向分子 | `baxiangfenzi/` | **0.667** (2026-06-16) | 0.667 |
 | 蛋白质 | `danbaizhi/` | **0.717** (2026-06-16) | 0.717 |
 
