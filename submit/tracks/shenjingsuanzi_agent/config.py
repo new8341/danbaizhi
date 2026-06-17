@@ -1,4 +1,4 @@
-"""Training hyperparameters (champion reference: run_high_score score-push)."""
+"""Training hyperparameters (reference: run_high_score --score-push / --balanced)."""
 from __future__ import annotations
 
 import os
@@ -11,7 +11,7 @@ class KSTrainConfig:
     predict_steps: int = 380
     total_steps: int = 400
     model_type: str = "fno1d"
-    epochs: int = 10
+    epochs: int = 24
     batch_size: int = 16
     lr: float = 1.3e-3
     max_windows_per_sample: int = 24
@@ -23,6 +23,31 @@ class KSTrainConfig:
     fno_modes: int = 14
     fno_depth: int = 3
     inference_batch_size: int = 64
+    pinned_window_starts: tuple[int, ...] = (0,)
+
+
+def _score_push(epochs: int) -> KSTrainConfig:
+    return KSTrainConfig(
+        epochs=epochs,
+        batch_size=14,
+        lr=1.25e-3,
+        max_windows_per_sample=32,
+        max_total_windows=100000,
+        rollout_steps=14,
+        rollout_weight=0.4,
+        rollout_tail=0.45,
+        hidden_channels=54,
+        fno_modes=14,
+        fno_depth=3,
+        pinned_window_starts=(0, 1, 2),
+    )
+
+
+def _balanced(epochs: int) -> KSTrainConfig:
+    return KSTrainConfig(
+        epochs=epochs,
+        pinned_window_starts=(0,),
+    )
 
 
 def load_ks_config() -> KSTrainConfig:
@@ -34,6 +59,12 @@ def load_ks_config() -> KSTrainConfig:
             rollout_steps=10,
             hidden_channels=48,
             fno_modes=12,
+            pinned_window_starts=(0,),
         )
-    epochs = int(os.environ.get("SHENJING_KS_EPOCHS", "10"))
+    epochs = int(os.environ.get("SHENJING_KS_EPOCHS", "24"))
+    preset = os.environ.get("SHENJING_KS_PRESET", "score-push").strip().lower()
+    if preset in {"score-push", "score_push", "push"}:
+        return _score_push(epochs)
+    if preset in {"balanced", "default"}:
+        return _balanced(epochs)
     return KSTrainConfig(epochs=epochs)

@@ -35,6 +35,10 @@ def run_ks(problem_root: Path, out_path: Path, cfg: KSTrainConfig | None = None)
     train_path = problem_root / "data" / "KS_train.hdf5"
     test_path = _test_path(problem_root)
 
+    logs.append(f"[agent] ks_train_path={train_path} exists={train_path.is_file()}")
+    if test_path is not None:
+        logs.append(f"[agent] ks_test_path={test_path} exists=True")
+
     if test_path is None:
         raise FileNotFoundError(f"KS test HDF5 missing under {problem_root}/data")
 
@@ -45,9 +49,13 @@ def run_ks(problem_root: Path, out_path: Path, cfg: KSTrainConfig | None = None)
         raise FileNotFoundError(f"KS_train missing and baseline failed: {problem_root}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logs.append(f"[agent] ks_phase=train device={device} model={cfg.model_type} epochs={cfg.epochs}")
+    logs.append(
+        f"[agent] ks_phase=train device={device} model={cfg.model_type} "
+        f"epochs={cfg.epochs} windows_cap={cfg.max_total_windows}"
+    )
 
     train_arr = load_3d_array(train_path)
+    logs.append(f"[agent] ks_train_shape={tuple(train_arr.shape)}")
     normalizer = build_field_normalizer(train_arr)
     train_norm = normalizer.normalize(train_arr)
 
@@ -57,6 +65,7 @@ def run_ks(problem_root: Path, out_path: Path, cfg: KSTrainConfig | None = None)
         rollout_steps=cfg.rollout_steps,
         max_windows_per_sample=cfg.max_windows_per_sample,
         max_total_windows=cfg.max_total_windows,
+        pinned_starts=cfg.pinned_window_starts,
     )
     loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=True, drop_last=False)
     model = build_model(

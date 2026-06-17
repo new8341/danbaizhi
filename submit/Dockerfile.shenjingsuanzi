@@ -16,6 +16,8 @@ RUN chmod +x /app/run.sh /app/submit/run.sh \
 
 ENV FUSAI_TRACK=shenjingsuanzi
 ENV SHENJING_MODEL=fno
+ENV SHENJING_KS_PRESET=score-push
+ENV SHENJING_KS_EPOCHS=24
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1

@@ -22,8 +22,8 @@ Agent 代码在 `submit/tracks/shenjingsuanzi_agent/`，由 Dockerfile 随 `subm
 ## 环境变量
 
 - `SHENJING_MODEL=fno`（problem2 推理模型）
-- `SHENJING_KS_EPOCHS`（默认 10；6h 预算内可调大）
-- `SHENJING_QUICK=1`（本地/冒烟：少 epoch、小窗口）
+- `SHENJING_KS_EPOCHS`（默认 24；6h 预算内可调大）
+- `SHENJING_KS_PRESET=score-push`（默认；或 `balanced` / `SHENJING_QUICK=1` 冒烟）
 
 ## 本地验证
 

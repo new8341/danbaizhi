@@ -25,4 +25,18 @@ class ShenjingsuanziRunner(TrackRunner):
 
         log_path = work_dir / "shenjingsuanzi_run.log"
         log_path.write_text("\n".join(logs) + "\n", encoding="utf-8")
+        for line in logs:
+            if any(
+                key in line
+                for key in (
+                    "ks_train_mount=",
+                    "ks_train_path=",
+                    "ks_source=",
+                    "ks_phase=",
+                    "ks_train_done",
+                    "ks_train_shape=",
+                    "ks_train_failed=",
+                )
+            ):
+                print(line, flush=True)
         print(f"[Shenjingsuanzi] staged {KS_NAME} + {CYLINDER_NAME}", flush=True)

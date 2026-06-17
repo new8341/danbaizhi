@@ -18,6 +18,7 @@ class RolloutWindowDataset(Dataset):
         rollout_steps: int,
         max_windows_per_sample: int | None = None,
         max_total_windows: int | None = None,
+        pinned_starts: tuple[int, ...] = (0,),
     ):
         self.data = data.astype(np.float32)
         self.input_steps = input_steps
@@ -27,16 +28,30 @@ class RolloutWindowDataset(Dataset):
         max_start = t - input_steps - rollout_steps
         if max_start < 0:
             raise ValueError(f"time length {t} too short")
+        pinned_set = set(pinned_starts)
         for i in range(n):
-            starts = list(range(max_start + 1))
+            pinned = [s for s in pinned_starts if 0 <= s <= max_start]
+            other = [s for s in range(max_start + 1) if s not in pinned_set]
             if max_windows_per_sample is not None:
-                starts = starts[:max_windows_per_sample]
+                cap = max_windows_per_sample
+                extra = max(0, cap - len(pinned))
+                starts = pinned + other[:extra]
+            else:
+                starts = list(range(max_start + 1))
             for s in starts:
                 self.indices.append((i, s))
         if max_total_windows is not None and len(self.indices) > max_total_windows:
+            pinned_idx = [j for j, (_sid, start) in enumerate(self.indices) if start in pinned_set]
+            other_idx = [j for j, (_sid, start) in enumerate(self.indices) if start not in pinned_set]
             rng = np.random.default_rng(42)
-            pick = rng.choice(len(self.indices), size=max_total_windows, replace=False)
-            self.indices = [self.indices[int(i)] for i in sorted(pick)]
+            keep_other = min(len(other_idx), max(0, max_total_windows - len(pinned_idx)))
+            if keep_other < len(other_idx):
+                pick = rng.choice(other_idx, size=keep_other, replace=False)
+                other_idx = [int(x) for x in pick]
+            merged = sorted(set(pinned_idx) | set(other_idx))
+            if len(merged) > max_total_windows:
+                merged = merged[:max_total_windows]
+            self.indices = [self.indices[j] for j in merged]
 
     def __len__(self) -> int:
         return len(self.indices)

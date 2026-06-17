@@ -69,6 +69,10 @@ def run_agent(saisdata: Path, staging_dir: Path) -> list[str]:
     ks_out = staging_dir / KS_NAME
     cyl_out = staging_dir / CYLINDER_NAME
 
+    ks_train = p1 / "data" / "KS_train.hdf5"
+    logs.append(f"[agent] problem1={p1}")
+    logs.append(f"[agent] ks_train_mount={ks_train} exists={ks_train.is_file()}")
+
     logs.append("[agent] phase=ks")
     try:
         ks_source, ks_logs, train_t, inf_t = run_ks(p1, ks_out)
