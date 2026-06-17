@@ -121,6 +121,23 @@ def commercial_building_blocks() -> frozenset[str]:
       "c1ccncc1",
       "c1cccnc1",
       "c1ccc2ccccc2c1",
+      "CC(=O)N",
+      "Brc1cccnc1",
+      "OB(O)c1cccnc1",
+      "Fc1cccnc1",
+      "Nc1cccnc1",
+      "c1ccoc1",
+      "c1ccsc1",
+      "C1CCNCC1",
+      "CC(C)N",
+      "CC(C)O",
+      "CC#N",
+      "COC(=O)C",
+      "O=C1CCCN1",
+      "c1ccc(Cl)cc1",
+      "c1ccc(Br)cc1",
+      "c1ccc(C#N)cc1",
+      "c1ccc(C(F)(F)F)cc1",
   ]
   out: set[str] = set()
   for smi in raw:

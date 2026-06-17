@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors
 
 from submit.tracks.baxiangfenzi_agent.chemistry import canonical_smiles, is_valid_molecule, sa_score
 
@@ -57,6 +57,22 @@ def _mutate_smiles(smiles: str, seed: int, variants: int = 4) -> list[str]:
     except Exception:
         return []
     return out
+
+
+def _dock_priority(smiles: str, sa: float) -> float:
+    """Higher = dock earlier (binding-relevant, not easiest-to-synthesize)."""
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return -1.0
+    mw = Descriptors.MolWt(mol)
+    logp = Descriptors.MolLogP(mol)
+    aromatic = rdMolDescriptors.CalcNumAromaticRings(mol)
+    return (
+        aromatic * 0.35
+        + min(mw, 480.0) / 480.0 * 0.25
+        + max(0.0, min(1.0, (logp + 1.0) / 6.0)) * 0.2
+        + max(0.0, (4.0 - sa) / 4.0) * 0.2
+    )
 
 
 def generate_candidates(pdb_path: Path, max_candidates: int | None = None) -> list[str]:
@@ -115,7 +131,7 @@ def generate_candidates(pdb_path: Path, max_candidates: int | None = None) -> li
             continue
         filtered.append((sa, smi))
 
-    filtered.sort(key=lambda x: x[0])
+    filtered.sort(key=lambda x: (-_dock_priority(x[1], x[0]), x[0]))
     ordered = [smi for _, smi in filtered]
 
     if len(ordered) < limit // 3:

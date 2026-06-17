@@ -206,3 +206,96 @@ def validate_route(route: str, target_smiles: str) -> bool:
         if not reaction_atom_balanced(reactants, rhs):
             return False
     return True
+
+
+def _route_validity_score(route: str) -> float:
+    steps = [s for s in route.split(",") if s.strip()]
+    if not steps:
+        return 0.0
+    for step in steps:
+        if ">>" not in step:
+            return 0.0
+        lhs, rhs = step.split(">>")
+        reactants = lhs.split(".")
+        for smi in reactants + [rhs]:
+            if not is_valid_molecule(smi):
+                return 0.0
+        if rhs in reactants:
+            return 0.0
+        if not reaction_atom_balanced(reactants, rhs):
+            return 0.0
+    return 1.0
+
+
+def _starting_material_score(route: str) -> float:
+    steps = route.split(",")
+    if not steps:
+        return 0.0
+    first = steps[0].split(">>")[0].split(".")
+    if not first:
+        return 0.0
+    hits = sum(1 for smi in first if is_commercial_fragment(smi))
+    return hits / len(first)
+
+
+def _step_penalty_score(route: str) -> float:
+    n = len([s for s in route.split(",") if s.strip()])
+    return max(0.0, 1.0 - 0.12 * max(0, n - 1))
+
+
+def _convergence_score(route: str) -> float:
+    """Bonus when a step merges two non-commercial intermediates."""
+    blocks = commercial_building_blocks()
+    for step in route.split(","):
+        lhs, _rhs = step.split(">>")
+        reactants = lhs.split(".")
+        if len(reactants) < 2:
+            continue
+        non_commercial = [r for r in reactants if canonical_smiles(r) not in blocks]
+        if len(non_commercial) >= 2:
+            return 1.0
+    return 0.0
+
+
+def _balance_score(route: str) -> float:
+    for step in route.split(","):
+        lhs, rhs = step.split(">>")
+        if not reaction_atom_balanced(lhs.split("."), rhs):
+            return 0.0
+    return 1.0
+
+
+def score_route(route: str, target_smiles: str) -> float:
+    """Platform route sub-score in [0, 1] (weights per readme)."""
+    if not validate_route(route, target_smiles):
+        return 0.0
+    balance = _balance_score(route)
+    if balance <= 0.0:
+        return 0.0
+    validity = _route_validity_score(route)
+    return (
+        0.55 * validity
+        + 0.30 * _starting_material_score(route)
+        + 0.05 * _step_penalty_score(route)
+        + 0.05 * _convergence_score(route)
+        + 0.05 * balance
+    )
+
+
+def score_molecule(
+    smiles: str,
+    affinity: float | None,
+    sa: float,
+    pseudo_affinity: float,
+) -> float:
+    """Platform molecule sub-score in [0, 1] (binding 0.8 + validity 0.1 + SA 0.1)."""
+    if not is_valid_molecule(smiles):
+        return 0.0
+    aff = affinity if affinity is not None else pseudo_affinity
+    binding = max(0.0, min(1.0, (-aff - 4.0) / 8.0))
+    sa_part = max(0.0, (4.0 - sa) / 4.0) if sa < 4.0 else 0.0
+    return 0.8 * binding + 0.1 * 1.0 + 0.1 * sa_part
+
+
+def official_composite(molecule_score: float, route_score: float) -> float:
+    return 0.7 * molecule_score + 0.3 * route_score

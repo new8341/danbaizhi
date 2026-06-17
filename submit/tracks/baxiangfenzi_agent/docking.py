@@ -1,6 +1,7 @@
 """AutoDock Vina docking wrapper."""
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 import shutil
@@ -16,6 +17,18 @@ from submit.tracks.baxiangfenzi_agent.targets import BindingSite
 
 def _which(cmd: str) -> str | None:
     return shutil.which(cmd)
+
+
+def prepare_receptor_pdbqt(receptor_pdb: Path, cache_dir: Path) -> Path | None:
+    """Build or reuse receptor PDBQT (once per target per run)."""
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    digest = hashlib.sha256(receptor_pdb.read_bytes()).hexdigest()[:16]
+    out_path = cache_dir / f"receptor_{digest}.pdbqt"
+    if out_path.is_file() and out_path.stat().st_size > 0:
+        return out_path
+    if _prepare_receptor_pdbqt(receptor_pdb, out_path):
+        return out_path
+    return None
 
 
 def _prepare_ligand_pdbqt(smiles: str, out_path: Path) -> bool:
@@ -100,6 +113,7 @@ def dock_smiles(
     receptor_pdb: Path,
     site: BindingSite,
     work_dir: Path | None = None,
+    receptor_pdbqt: Path | None = None,
 ) -> float | None:
     """Return Vina affinity (kcal/mol, more negative is better) or None."""
     vina = _which("vina") or _which("autodock_vina")
@@ -109,19 +123,23 @@ def dock_smiles(
     exhaustiveness = int(os.environ.get("BAXIANG_VINA_EXHAUSTIVENESS", "6"))
     tmp_ctx = tempfile.TemporaryDirectory(prefix="baxiang_dock_")
     tmp = Path(work_dir) if work_dir else Path(tmp_ctx.name)
-    receptor_pdbqt = tmp / "receptor.pdbqt"
+
+    rec_pdbqt = receptor_pdbqt
+    if rec_pdbqt is None:
+        rec_pdbqt = tmp / "receptor.pdbqt"
+        if not _prepare_receptor_pdbqt(receptor_pdb, rec_pdbqt):
+            return None
+
     ligand_pdbqt = tmp / "ligand.pdbqt"
     out_pdbqt = tmp / "out.pdbqt"
 
-    if not _prepare_receptor_pdbqt(receptor_pdb, receptor_pdbqt):
-        return None
     if not _prepare_ligand_pdbqt(smiles, ligand_pdbqt):
         return None
 
     cmd = [
         vina,
         "--receptor",
-        str(receptor_pdbqt),
+        str(rec_pdbqt),
         "--ligand",
         str(ligand_pdbqt),
         "--center_x",
