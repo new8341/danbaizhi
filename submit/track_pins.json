@@ -15,8 +15,8 @@
                                         "note":  "Sprint3 route_enum two_stage"
                                     },
                    "shenjingsuanzi":  {
-                                          "commit":  "a489387",
-                                          "note":  "semifinal AB boards + FFT fix"
+                                          "commit":  "79c0008",
+                                          "note":  "KS train path logging"
                                       }
                }
 }
