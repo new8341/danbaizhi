@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "9830379",
-                                     "note":  "four-track sprint 2026-06-19 12:11"
+                                     "commit":  "8a8ce02",
+                                     "note":  "auto_prior max24 P1_3m"
                                  },
                    "drugclip":  {
                                     "commit":  "bb37aa2",
