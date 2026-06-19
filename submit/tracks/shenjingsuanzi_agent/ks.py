@@ -48,7 +48,8 @@ def resolve_ks_test_path(saisdata: Path, problem_root: Path, board: str) -> Path
     )
 
 
-def _resolve_train_path(problem_root: Path) -> Path | None:
+def list_ks_train_candidates(problem_root: Path) -> list[tuple[Path, bool]]:
+    """All candidate KS_train paths with existence flags (for agent logging)."""
     sais = problem_root
     for _ in range(4):
         sais = sais.parent
@@ -59,12 +60,19 @@ def _resolve_train_path(problem_root: Path) -> Path | None:
         sais / "48" / "data" / "KS_train.hdf5",
     ]
     seen: set[str] = set()
+    out: list[tuple[Path, bool]] = []
     for path in candidates:
-        key = str(path.resolve()) if path.exists() else str(path)
+        key = str(path)
         if key in seen:
             continue
         seen.add(key)
-        if path.is_file():
+        out.append((path, path.is_file()))
+    return out
+
+
+def _resolve_train_path(problem_root: Path) -> Path | None:
+    for path, exists in list_ks_train_candidates(problem_root):
+        if exists:
             return path
     return None
 
@@ -161,6 +169,8 @@ def run_ks(
         return state.source, logs, 0.0, inf_t, state
 
     train_path = _resolve_train_path(problem_root) or (problem_root / "data" / "KS_train.hdf5")
+    for cand, exists in list_ks_train_candidates(problem_root):
+        logs.append(f"[agent] ks_train_candidate path={cand} exists={exists}")
     logs.append(f"[agent] ks_train_path={train_path} exists={train_path.is_file()}")
 
     if not train_path.is_file():

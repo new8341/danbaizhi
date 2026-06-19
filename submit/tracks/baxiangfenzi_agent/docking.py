@@ -108,6 +108,16 @@ def _parse_vina_affinity(stdout: str) -> float | None:
     return None
 
 
+def _parse_vina_best_affinity(stdout: str) -> float | None:
+    """Return best (most negative) affinity across all reported modes."""
+    vals: list[float] = []
+    for m in re.finditer(r"^\s*\d+\s+(-?\d+\.\d+)", stdout, re.MULTILINE):
+        val = float(m.group(1))
+        if val < 0:
+            vals.append(val)
+    return min(vals) if vals else _parse_vina_affinity(stdout)
+
+
 def dock_smiles(
     smiles: str,
     receptor_pdb: Path,
@@ -121,6 +131,7 @@ def dock_smiles(
         return None
 
     exhaustiveness = int(os.environ.get("BAXIANG_VINA_EXHAUSTIVENESS", "6"))
+    num_modes = int(os.environ.get("BAXIANG_VINA_NUM_MODES", "3"))
     tmp_ctx = tempfile.TemporaryDirectory(prefix="baxiang_dock_")
     tmp = Path(work_dir) if work_dir else Path(tmp_ctx.name)
 
@@ -157,12 +168,12 @@ def dock_smiles(
         "--exhaustiveness",
         str(exhaustiveness),
         "--num_modes",
-        "1",
+        str(num_modes),
         "--out",
         str(out_pdbqt),
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True)
-    affinity = _parse_vina_affinity(proc.stdout + "\n" + proc.stderr)
+    affinity = _parse_vina_best_affinity(proc.stdout + "\n" + proc.stderr)
     if work_dir is None:
         tmp_ctx.cleanup()
     return affinity

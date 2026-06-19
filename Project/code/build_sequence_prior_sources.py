@@ -410,7 +410,7 @@ def resolve_runtime_sources_config(
     base_name: str = "processed_data/configs/submission_sources.json",
     out_name: str = "processed_data/configs/submission_sources_runtime.json",
     colab_name: str = "processed_data/colabfold",
-    max_prior_per_problem: int = 8,
+    max_prior_per_problem: int = 24,
 ) -> Path:
     """Scan colabfold/ at predict time; prefer newest models (incl. predictions_msa_3m)."""
     root = root or _project_root()

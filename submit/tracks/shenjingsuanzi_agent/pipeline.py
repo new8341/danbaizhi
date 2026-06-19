@@ -8,7 +8,7 @@ from pathlib import Path
 from submit.tracks._paths import first_existing, saisdata_subdir
 from submit.tracks.shenjingsuanzi_agent.cylinder import resolve_cylinder_test_path, run_cylinder
 from submit.tracks.shenjingsuanzi_agent.data_utils import ks_baseline_from_test_path
-from submit.tracks.shenjingsuanzi_agent.ks import KsRunState, resolve_ks_test_path, run_ks
+from submit.tracks.shenjingsuanzi_agent.ks import KsRunState, list_ks_train_candidates, resolve_ks_test_path, run_ks
 
 KS_PRED_A = "KS_pred_A.hdf5"
 KS_PRED_B = "KS_pred_B.hdf5"
@@ -160,8 +160,8 @@ def run_agent(saisdata: Path, staging_dir: Path) -> list[str]:
 
     logs.append(f"[agent] problem1={p1}")
     logs.append(f"[agent] problem2={p2}")
-    ks_train = p1 / "data" / "KS_train.hdf5"
-    logs.append(f"[agent] ks_train_mount={ks_train} exists={ks_train.is_file()}")
+    for cand, exists in list_ks_train_candidates(p1):
+        logs.append(f"[agent] ks_train_candidate path={cand} exists={exists}")
 
     _seed_fallback(staging_dir, p1, p2, logs)
 
