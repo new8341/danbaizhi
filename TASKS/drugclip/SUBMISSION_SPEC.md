@@ -16,10 +16,16 @@ py -3 submit/main.py --track drugclip --saisdata documen/DrugClip --saisresult s
 pytest submit/tests/test_track_runners.py -k drugclip
 ```
 
-## 代码
+## Docker 默认
 
-- `submit/tracks/drugclip.py`
-- `submit/tracks/drugclip_agent/`（hybrid_max_qed + 两阶段 scoring）
+`DRUGCLIP_STRATEGY=auto`（有权重+GPU 栈时 `neural_hybrid`，否则 `hybrid_max_qed_v2`）
+
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `DRUGCLIP_NEURAL_BLEND` | 0.9 | 神经分与指纹分融合权重 |
+| `DRUGCLIP_NUM_CONF` | 1 | 每分子构象数 |
+| `DRUGCLIP_BATCH_SIZE` | 16 | 检索 batch |
+| `DRUGCLIP_WEIGHTS_DIR` | `/app/weights` | dude + litpcba 权重 |
 
 ## 发布
 

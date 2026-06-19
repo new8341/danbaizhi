@@ -16,12 +16,12 @@ tracks:
     note: Sprint auto_prior max24 + P1 3m model_1/2；待 publish 提交
 
   drugclip:
-    mode: LEADERBOARD
+    mode: OPTIMIZE
     yesterday: 19.229531
     today: 19.229531
     leaderboard_1: 48.5629
     submissions_left: 1
-    note: 指纹天花板~19.23；保留今日1次，转神经 DrugCLIP Sprint2
+    note: Sprint2 神经 DrugCLIP 已编码；待 publish 后提交（勿浪费在指纹）
 
   baxiangfenzi:
     mode: OPTIMIZE

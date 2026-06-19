@@ -15,6 +15,7 @@ from submit.tracks.drugclip_agent.benchmark import TaskInfo
 class PocketRecord:
     pocket_id: str
     pocket_atoms: list[str]
+    pocket_coordinates: list[list[float]]
 
 
 def _residue_keys_pdb(pdb_path: Path) -> tuple[np.ndarray, list[str], list[str]]:
@@ -54,15 +55,19 @@ def _extract_pair(protein: Path, ligand: Path, pocket_id: str, radius: float) ->
         p_coord, p_res, p_atom = _residue_keys_pdb(protein)
     else:
         p_coord, p_res, p_atom = _residue_keys_mol2(protein)
-    pocket_res = _pocket_residues(p_coord, p_res, _ligand_coords(ligand), radius)
+    lig_coord = _ligand_coords(ligand)
+    pocket_res = _pocket_residues(p_coord, p_res, lig_coord, radius)
     atoms: list[str] = []
+    coords: list[list[float]] = []
     for i, res in enumerate(p_res):
         if res in pocket_res:
             sym = p_atom[i][0] if p_atom[i] else "C"
-            atoms.append("C" if sym.isdigit() else sym)
+            sym = "C" if sym.isdigit() else sym
+            atoms.append(sym)
+            coords.append(p_coord[i].tolist())
     if not atoms:
         raise ValueError(f"empty pocket for {pocket_id}")
-    return PocketRecord(pocket_id=pocket_id, pocket_atoms=atoms)
+    return PocketRecord(pocket_id=pocket_id, pocket_atoms=atoms, pocket_coordinates=coords)
 
 
 def _litpcba_pairs(task: TaskInfo) -> list[tuple[Path, Path, str]]:
