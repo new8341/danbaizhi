@@ -1,6 +1,6 @@
 ﻿{
     "track":  "drugclip",
-    "commit":  "6223edd",
-    "published":  "2026-06-19 21:15:45",
-    "note":  "neural DrugCLIP Sprint2"
+    "commit":  "c1cff43",
+    "published":  "2026-06-19 22:12:25",
+    "note":  "neural build fix: root Dockerfile sync"
 }

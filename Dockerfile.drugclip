@@ -1,6 +1,6 @@
-# ACR build alias — keep in sync with submit/Dockerfile.drugclip (auto-synced by publish_track.ps1)
 # Fusai docker image — track 1 (DrugClip neural + hybrid agent)
-# GPU runtime (V100). DaoCloud mirror for overseas ACR builds.
+# GPU runtime (V100). ACR builds this file; root Dockerfile.drugclip is synced on publish.
+# DaoCloud mirror for overseas ACR builds (avoid Docker Hub 429).
 FROM docker.m.daocloud.io/pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends git \
