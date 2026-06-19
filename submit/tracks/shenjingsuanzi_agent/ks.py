@@ -29,10 +29,32 @@ def _test_path(problem_root: Path) -> Path | None:
     )
 
 
+def _resolve_train_path(problem_root: Path) -> Path | None:
+    """Find KS_train.hdf5 on typical competition mount layouts."""
+    sais = problem_root
+    for _ in range(4):
+        sais = sais.parent
+    candidates = [
+        problem_root / "data" / "KS_train.hdf5",
+        sais / "48" / "KS_train.hdf5",
+        sais / "48" / "problem1" / "data" / "KS_train.hdf5",
+        sais / "48" / "data" / "KS_train.hdf5",
+    ]
+    seen: set[str] = set()
+    for path in candidates:
+        key = str(path.resolve()) if path.exists() else str(path)
+        if key in seen:
+            continue
+        seen.add(key)
+        if path.is_file():
+            return path
+    return None
+
+
 def run_ks(problem_root: Path, out_path: Path, cfg: KSTrainConfig | None = None) -> tuple[str, list[str], float, float]:
     cfg = cfg or load_ks_config()
     logs: list[str] = []
-    train_path = problem_root / "data" / "KS_train.hdf5"
+    train_path = _resolve_train_path(problem_root) or (problem_root / "data" / "KS_train.hdf5")
     test_path = _test_path(problem_root)
 
     logs.append(f"[agent] ks_train_path={train_path} exists={train_path.is_file()}")

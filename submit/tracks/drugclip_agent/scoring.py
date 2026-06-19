@@ -15,15 +15,15 @@ RDLogger.DisableLog("rdApp.*")
 
 @dataclass(frozen=True)
 class HybridConfig:
-    """Champion strategy (ReDrugClip hybrid_max_qed, platform ~18.87 / peak 19.23)."""
+    """Champion v2 (ReDrugClip hybrid_max_qed_v2, platform peak ~19.23)."""
 
     fp_radius: int = 2
     fp_bits: int = 2048
     pocket_radius: float = 6.0
-    qed_bonus: float = 0.05
+    qed_bonus: float = 0.04
     pocket_heavy_bonus: float = 0.02
     use_drug_likeness: bool = True
-    smiles_sim_weight: float = 0.0
+    smiles_sim_weight: float = 0.08
 
 
 DEFAULT_CONFIG = HybridConfig()
@@ -48,6 +48,19 @@ def _reference_ligand_paths(task: TaskInfo) -> list[Path]:
     if task.reference_ligand_files:
         return [task.resolve(task.reference_ligand_files[0])]
     return []
+
+
+def _reference_smiles(task: TaskInfo) -> list[str]:
+    smis: list[str] = []
+    for path in _reference_ligand_paths(task):
+        mol = _mol_from_mol2(path)
+        if mol is None:
+            continue
+        try:
+            smis.append(Chem.MolToSmiles(mol))
+        except Exception:
+            continue
+    return smis
 
 
 def _reference_fps(task: TaskInfo, cfg: HybridConfig) -> list:
@@ -110,17 +123,28 @@ def _fingerprint_scores(
     return scores
 
 
+def _smiles_tanimoto(a: str, b: str) -> float:
+    ma, mb = Chem.MolFromSmiles(a), Chem.MolFromSmiles(b)
+    if ma is None or mb is None:
+        return 0.0
+    fa = AllChem.GetMorganFingerprintAsBitVect(ma, 2, nBits=2048)
+    fb = AllChem.GetMorganFingerprintAsBitVect(mb, 2, nBits=2048)
+    return float(DataStructs.TanimotoSimilarity(fa, fb))
+
+
 def _hybrid_bonuses(
     task: TaskInfo,
     ligand_rows: list[dict[str, str]],
     cfg: HybridConfig,
     fp_scores: dict[str, float],
 ) -> dict[str, float]:
-    """Phase 2: pocket heavy-atom bonus on every row (ReDrugClip HybridScorer)."""
+    """Phase 2: pocket heavy-atom bonus + optional SMILES sim (ReDrugClip HybridScorer v2)."""
     try:
         pocket_size = max_pocket_atom_count(task, cfg.pocket_radius)
     except Exception:
         pocket_size = 0
+
+    ref_smiles = _reference_smiles(task) if cfg.smiles_sim_weight > 0 else []
 
     out: dict[str, float] = {}
     for row in ligand_rows:
@@ -131,6 +155,10 @@ def _hybrid_bonuses(
         bonus = cfg.pocket_heavy_bonus * (
             1.0 - min(abs(heavy - pocket_size * 0.15) / max(heavy, 1), 1.0)
         )
+        if ref_smiles:
+            bonus += cfg.smiles_sim_weight * max(
+                (_smiles_tanimoto(smi, rs) for rs in ref_smiles), default=0.0
+            )
         out[lid] = fp_scores.get(lid, 0.0) + bonus
     return out
 

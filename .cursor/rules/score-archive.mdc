@@ -43,4 +43,4 @@ py -3 scripts/archive_competition.py `
 
 ## Agent 职责
 
-用户报告新分数或粘贴评测日志后，应主动运行归档命令（含正确 `--git-commit`），并告知 guidang 路径及 cundang 是否被替换。
+用户报告新分数或粘贴评测日志后，应主动运行归档命令（含正确 `--git-commit`），并告知 guidang 路径及 cundang 是否被替换；`TASKS/<track>/EXPERIMENTS.md` 与 `STATUS/SCOREBOARD.md` 由脚本自动更新。

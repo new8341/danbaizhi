@@ -7,6 +7,7 @@ import io
 import json
 import shutil
 import subprocess
+import sys
 import tarfile
 from datetime import datetime
 from pathlib import Path
@@ -157,6 +158,49 @@ def update_cundang(
     return cundang, True, prev
 
 
+def append_experiments(
+    track: str,
+    stamp: str,
+    score: float,
+    note: str,
+    git_commit: str,
+    *,
+    cundang_replaced: bool | None = None,
+) -> None:
+    """Append one row to TASKS/<track>/EXPERIMENTS.md (skip duplicate stamp)."""
+    exp_path = ROOT / "TASKS" / track / "EXPERIMENTS.md"
+    if not exp_path.is_file():
+        return
+    text = exp_path.read_text(encoding="utf-8")
+    if f"| {stamp} |" in text:
+        return
+    commit = git_commit.strip() or _git_head()
+    if cundang_replaced is True:
+        outcome = "cundang replaced"
+    elif cundang_replaced is False:
+        outcome = "guidang only (below cundang best)"
+    else:
+        outcome = "archived"
+    row = f"| {stamp} | {score:.6f} | {commit} | {note} | {outcome} |"
+    lines = text.splitlines()
+    insert_at: int | None = None
+    for i, line in enumerate(lines):
+        if line.startswith("|") and "时间戳" in line:
+            insert_at = i + 2
+            break
+    if insert_at is None:
+        lines.append(row)
+    else:
+        lines.insert(insert_at, row)
+    exp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def refresh_scoreboard() -> None:
+    script = ROOT / "scripts" / "generate_scoreboard.py"
+    if script.is_file():
+        subprocess.run([sys.executable, str(script)], cwd=ROOT, check=False)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Archive guidang + update cundang")
     parser.add_argument("--stamp", required=True, help="YYYYMMDDHHMM from platform score time")
@@ -171,10 +215,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    code_commit = args.git_commit.strip() or _git_head()
     out = archive_run(
         args.stamp, args.track, args.score, args.note, git_commit=args.git_commit
     )
     print(f"guidang -> {out}")
+    replaced: bool | None = None
     if not args.no_cundang:
         c, replaced, prev = update_cundang(
             args.track, args.score, args.stamp, args.note, git_commit=args.git_commit
@@ -183,6 +229,15 @@ def main() -> int:
             print(f"cundang -> {c}  replaced best {prev:.6f} -> {args.score:.6f}")
         else:
             print(f"cundang -> {c}  kept best {prev:.6f} (new {args.score:.6f})")
+    append_experiments(
+        args.track,
+        args.stamp,
+        args.score,
+        args.note,
+        code_commit,
+        cundang_replaced=replaced,
+    )
+    refresh_scoreboard()
     return 0
 
 

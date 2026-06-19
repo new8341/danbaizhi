@@ -35,7 +35,15 @@ def _run(cmd: list[str]) -> None:
 # ---------------------------------------------------------------------------
 def cmd_predict(_args: argparse.Namespace) -> None:
     """调用 generate_submission.py，使用冻结配置与 seed=42。"""
+    import os
+
     cfg = PROJECT_ROOT / "processed_data" / "configs" / "submission_sources.json"
+    if os.environ.get("DANBAIZHI_AUTO_PRIOR", "1").strip().lower() not in {"0", "false", "no"}:
+        sys.path.insert(0, str(CODE))
+        from build_sequence_prior_sources import resolve_runtime_sources_config
+
+        cfg = resolve_runtime_sources_config(PROJECT_ROOT)
+        print(f"[Danbaizhi] sources_config={cfg.relative_to(PROJECT_ROOT)}", flush=True)
     _run(
         [
             sys.executable,

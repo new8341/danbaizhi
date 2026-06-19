@@ -1,0 +1,21 @@
+---
+description: 发布前校验 — structure + submission zip
+globs: submit/**,VALIDATION/**,TASKS/**
+---
+
+# 校验 (VALIDATION)
+
+改 submit 或 TASKS 后，发布前建议：
+
+```powershell
+pytest submit/tests/
+py -3 VALIDATION/check_structure.py
+py -3 VALIDATION/check_submission.py --track <track> --zip <path>
+```
+
+`publish_track.ps1` 已内置 structure + pytest 预检。
+
+本地 zip 路径示例：
+
+- danbaizhi: `submit/danbaizhi/submission.zip`
+- drugclip / baxiangfenzi / shenjingsuanzi: 先 `submit/main.py` 生成到 `_local_saisresult`

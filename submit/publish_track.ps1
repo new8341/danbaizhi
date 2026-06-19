@@ -27,6 +27,12 @@ if (-not $Version) { $Version = $pins.version }
 $meta = $script:TrackMeta[$Track]
 
 Write-Host "=== Publish single track: $Track (image :$Version) ===" -ForegroundColor Cyan
+Write-Host "Pre-publish validation..." -ForegroundColor Yellow
+py -3 VALIDATION/check_structure.py
+if ($LASTEXITCODE -ne 0) { throw "check_structure failed" }
+py -3 -m pytest submit/tests/ -q --tb=no
+if ($LASTEXITCODE -ne 0) { throw "pytest failed" }
+
 Write-Host "Other tracks are NOT rebuilt (pins unchanged)." -ForegroundColor Green
 Write-Host "Tianchi: crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/$($meta.acr_repo):$Version"
 Write-Host "Output: /saisresult/$($meta.output)"

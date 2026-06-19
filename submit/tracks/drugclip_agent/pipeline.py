@@ -31,9 +31,9 @@ def _agent_header(benchmark: Path) -> list[str]:
     for date, score, strategy in PLATFORM_HISTORY:
         lines.append(f"[agent] platform_history date={date} score={score:.4f} strategy={strategy}")
     lines.append(
-        "[agent] diagnosis=ensemble-heavy configs hurt EF1%; keep hybrid_max_qed + light priors."
+        "[agent] diagnosis=ensemble-heavy configs hurt EF1%; keep hybrid_max_qed_v2 + light priors."
     )
-    lines.append("[agent] phase=strategy selected=hybrid_max_qed")
+    lines.append("[agent] phase=strategy selected=hybrid_max_qed_v2")
     lines.append(
         f"[agent] config morgan_radius={DEFAULT_CONFIG.fp_radius} "
         f"qed_bonus={DEFAULT_CONFIG.qed_bonus} pocket_heavy_bonus={DEFAULT_CONFIG.pocket_heavy_bonus}"
@@ -49,7 +49,7 @@ def _score_one_task(task_id: str, benchmark: str) -> tuple[str, dict[str, float]
     vals = list(scores.values())
     logs = [
         f"[agent] phase=inference task={task_id} ligands={len(rows)} "
-        f"strategy=hybrid_max_qed",
+        f"strategy=hybrid_max_qed_v2",
     ]
     if vals:
         logs.append(

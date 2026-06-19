@@ -53,7 +53,7 @@ def _agent_header() -> list[str]:
     lines.append(
         "[agent] diagnosis=KS uses field-normalized FNO1d; cylinder uses mounted FNO weights."
     )
-    lines.append("[agent] phase=strategy selected=ks_fno1d+cylinder_fno")
+    lines.append("[agent] phase=strategy selected=ks_fno1d_ks_q1+cylinder_fno")
     return lines
 
 

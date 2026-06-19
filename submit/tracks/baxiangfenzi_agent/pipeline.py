@@ -11,6 +11,7 @@ from submit.tracks.baxiangfenzi_agent.candidates import generate_candidates
 from submit.tracks.baxiangfenzi_agent.chemistry import canonical_smiles, is_valid_molecule, sa_score
 from submit.tracks.baxiangfenzi_agent.docking import dock_smiles, prepare_receptor_pdbqt, pseudo_dock_score
 from submit.tracks.baxiangfenzi_agent.retrosyn import (
+    best_route_for_target,
     official_composite,
     score_molecule,
     score_route,
@@ -33,7 +34,7 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
     log: list[str] = [
         f"[agent] slot={slot} phase=init target={target_pdb.name}",
         f"[agent] timestamp={datetime.now(timezone.utc).isoformat()}",
-        "[agent] hypothesis=binding_first_selection pocket_aware_box receptor_cache",
+        "[agent] hypothesis=sprint2_official_6_4 best_route_per_candidate expanded_pool",
     ]
 
     site = binding_site_from_pdb(target_pdb)
@@ -44,7 +45,7 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
     )
 
     max_dock = int(os.environ.get("BAXIANG_MAX_DOCK", "40"))
-    select_pool = int(os.environ.get("BAXIANG_SELECT_POOL", "15"))
+    select_pool = int(os.environ.get("BAXIANG_SELECT_POOL", "25"))
     candidates = generate_candidates(target_pdb)
     log.append(f"[agent] phase=generate_candidates count={len(candidates)} dock_pool={max_dock}")
 
@@ -91,12 +92,11 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
         can = canonical_smiles(smi)
         if can is None:
             continue
-        route = try_plan_route(can)
+        route, route_s = best_route_for_target(can)
         if not route or not validate_route(route, can):
             continue
         pseudo = pseudo_dock_score(can, site)
         mol_s = score_molecule(can, affinity, sa, pseudo)
-        route_s = score_route(route, can)
         composite = official_composite(mol_s, route_s)
         if composite > best_composite:
             best_composite = composite

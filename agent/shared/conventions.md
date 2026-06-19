@@ -30,15 +30,15 @@
 |------|------|------|
 | `guidang/YYYYMMDDHHMM/<track>/` | 按时间追加 | 每次出分都归档，不删旧记录 |
 | `cundang/<track>/` | 固定目录，更高分替换 | 仅保留该赛道历史最高分代码 |
+| `TASKS/<track>/EXPERIMENTS.md` | 自动追加 | 由 `archive_competition.py` 维护 |
 
 命令：`py -3 scripts/archive_competition.py --stamp ... --track ... --score ... --git-commit ...`  
-详见 `guidang/README.md`、`cundang/README.md`、`.cursor/rules/score-archive.mdc`。
+详见 `guidang/README.md`、`cundang/README.md`、`.cursor/rules/score-archive.mdc`、`SUBMISSIONS/README.md`。
 
-### 单赛道 daima（历史）
+### 单赛道 daima（历史，只读）
 
-- 可能改变提交几何或分数的运行 → `daima/YYYYMMDDHHMM/`（启动时刻命名）  
-- 含：相关代码快照 + 提交 zip + 评测 json（若有）  
-- `documen/` **不得**写入归档副本以外的修改  
+- **不再新建 `daima/`**；新实验统一 guidang + TASKS/EXPERIMENTS
+- 历史 `daima/YYYYMMDDHHMM/` 保留作对照
 
 ## ACR 镜像命名
 

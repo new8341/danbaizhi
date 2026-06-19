@@ -41,7 +41,7 @@ def test_drugclip_mini(tmp_path: Path) -> None:
     assert "mini_task__L000001" in text
     assert "mini_task__L000002" in text
     log_text = (staging / "result.log").read_text(encoding="utf-8")
-    assert "hybrid_max_qed" in log_text
+    assert "hybrid_max_qed_v2" in log_text
     assert "[agent] phase=done" in log_text
 
 
@@ -101,6 +101,30 @@ def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
     assert "[agent] phase=done" in log_text
 
 
+def test_drugclip_hybrid_v2_config() -> None:
+    from submit.tracks.drugclip_agent.scoring import DEFAULT_CONFIG
+
+    assert DEFAULT_CONFIG.qed_bonus == 0.04
+    assert DEFAULT_CONFIG.smiles_sim_weight == 0.08
+
+
+def test_shenjingsuanzi_ks_q1_preset() -> None:
+    import os
+
+    os.environ["SHENJING_KS_PRESET"] = "ks-q1"
+    os.environ["SHENJING_KS_EPOCHS"] = "28"
+    try:
+        from submit.tracks.shenjingsuanzi_agent.config import load_ks_config
+
+        cfg = load_ks_config()
+        assert cfg.epochs == 28
+        assert cfg.rollout_weight == 0.44
+        assert len(cfg.pinned_window_starts) >= 5
+    finally:
+        os.environ.pop("SHENJING_KS_PRESET", None)
+        os.environ.pop("SHENJING_KS_EPOCHS", None)
+
+
 def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:
     h5py = pytest.importorskip("h5py")
     import numpy as np
@@ -120,3 +144,22 @@ def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:
     ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
     assert (staging / "KS_pred_A.hdf5").is_file()
     assert (staging / "cylinder_pred_A.hdf5").is_file()
+
+
+def test_baxiangfenzi_official_composite_rematch_weights() -> None:
+    from submit.tracks.baxiangfenzi_agent.retrosyn import official_composite
+
+    assert official_composite(1.0, 0.0) == pytest.approx(0.6)
+    assert official_composite(0.0, 1.0) == pytest.approx(0.4)
+    assert official_composite(0.5, 0.5) == pytest.approx(0.5)
+
+
+def test_baxiangfenzi_best_route_picks_higher_score() -> None:
+    pytest.importorskip("rdkit")
+    from submit.tracks.baxiangfenzi_agent.retrosyn import best_route_for_target, score_route
+
+    target = "O=C(Nc1ccccc1)c1ccccc1"
+    route, route_s = best_route_for_target(target)
+    assert route is not None
+    assert route_s > 0.0
+    assert score_route(route, target) == pytest.approx(route_s)

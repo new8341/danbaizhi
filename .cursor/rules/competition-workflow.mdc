@@ -1,0 +1,50 @@
+---
+description: AI 竞赛标准工作流 — 读 STATUS 后执行
+alwaysApply: true
+---
+
+# 竞赛工作流
+
+用户说「开始执行」或更新分数后请求优化时：
+
+## 第一步 — 治理与状态
+
+1. `GOVERNANCE/PROJECT_RULES.md`
+2. `GOVERNANCE/MODES.md`
+3. `INDEX/PROJECT_INDEX.md`
+4. `STATUS/DAILY_STATUS.md`
+5. `STATUS/SCOREBOARD.md`
+
+## 第二步 — 赛道上下文
+
+对 `DAILY_STATUS.md` 中 mode ≠ idle 的赛道，读取：
+
+- `TASKS/<track>/REQUIREMENTS.md`
+- `TASKS/<track>/SUBMISSION_SPEC.md`
+- `TASKS/<track>/EXPERIMENTS.md`
+- `TASKS/<track>/LESSONS_LEARNED.md`
+
+## 第三步 — 分析与输出
+
+- 识别有效/失败实验（EXPERIMENTS 表）
+- 提出**单假设**优化方案
+- 列出修改文件范围与风险
+- 出分后运行 `scripts/archive_competition.py`（含 `--git-commit`）
+
+## 第四步 — 验证（改代码后）
+
+```powershell
+pytest submit/tests/
+py -3 VALIDATION/check_structure.py
+```
+
+## 禁止
+
+- 自动天池提交
+- 无 `-Tracks` 调用 `trigger_acr_build.ps1`
+- 新建 `daima/` 归档（用 guidang + cundang）
+- 中断 ColabFold WSL 进程（除非用户要求）
+
+## 发布
+
+仅用户确认后：`.\submit\publish_track.ps1 -Track <name>`

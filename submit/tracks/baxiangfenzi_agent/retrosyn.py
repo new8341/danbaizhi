@@ -1,6 +1,7 @@
 """Retrosynthesis route planner (amide / BRICS + commercial leaves)."""
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
 from rdkit import Chem
@@ -298,4 +299,23 @@ def score_molecule(
 
 
 def official_composite(molecule_score: float, route_score: float) -> float:
-    return 0.7 * molecule_score + 0.3 * route_score
+    """复赛官方权重：分子 0.6 + 路线 0.4（documen/Baxiangfenzi/readme.md）。"""
+    mol_w = float(os.environ.get("BAXIANG_MOL_WEIGHT", "0.6"))
+    route_w = 1.0 - mol_w
+    return mol_w * molecule_score + route_w * route_score
+
+
+def best_route_for_target(target_smiles: str) -> tuple[str | None, float]:
+    """Return highest score_route among one- and two-step plans."""
+    can = canonical_smiles(target_smiles)
+    if can is None:
+        return None, 0.0
+    routes: list[str] = []
+    for planner in (_one_step, _two_step):
+        route = planner(can)
+        if route and validate_route(route, can):
+            routes.append(route)
+    if not routes:
+        return None, 0.0
+    best = max(routes, key=lambda r: score_route(r, can))
+    return best, score_route(best, can)

@@ -22,6 +22,7 @@ RUN chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "import openmm; import submit.tracks.registry as r; r.get_runner('danbaizhi')"
 
 ENV FUSAI_TRACK=danbaizhi
+ENV DANBAIZHI_AUTO_PRIOR=1
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1

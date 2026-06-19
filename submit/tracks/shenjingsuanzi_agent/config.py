@@ -26,6 +26,24 @@ class KSTrainConfig:
     pinned_window_starts: tuple[int, ...] = (0,)
 
 
+def _ks_q1(epochs: int) -> KSTrainConfig:
+    """Q1-focused: wider window coverage + stronger rollout tail."""
+    return KSTrainConfig(
+        epochs=epochs,
+        batch_size=12,
+        lr=1.2e-3,
+        max_windows_per_sample=36,
+        max_total_windows=110000,
+        rollout_steps=16,
+        rollout_weight=0.44,
+        rollout_tail=0.50,
+        hidden_channels=56,
+        fno_modes=16,
+        fno_depth=4,
+        pinned_window_starts=(0, 1, 2, 4, 8, 12),
+    )
+
+
 def _score_push(epochs: int) -> KSTrainConfig:
     return KSTrainConfig(
         epochs=epochs,
@@ -61,8 +79,10 @@ def load_ks_config() -> KSTrainConfig:
             fno_modes=12,
             pinned_window_starts=(0,),
         )
-    epochs = int(os.environ.get("SHENJING_KS_EPOCHS", "24"))
-    preset = os.environ.get("SHENJING_KS_PRESET", "score-push").strip().lower()
+    epochs = int(os.environ.get("SHENJING_KS_EPOCHS", "28"))
+    preset = os.environ.get("SHENJING_KS_PRESET", "ks-q1").strip().lower()
+    if preset in {"ks-q1", "ks_q1", "q1"}:
+        return _ks_q1(epochs)
     if preset in {"score-push", "score_push", "push"}:
         return _score_push(epochs)
     if preset in {"balanced", "default"}:

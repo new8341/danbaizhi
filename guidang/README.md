@@ -12,6 +12,8 @@ guidang/YYYYMMDDHHMM/<track>/
 
 - **guidang**：记录每一次出分（涨分、跌分、持平都归档）
 - **cundang**：固定目录，仅保留该赛道**历史最高分**代码；更高分才替换（见 `cundang/README.md`）
+- **SUBMISSIONS/**：框架逻辑别名，说明见 `SUBMISSIONS/README.md`
+- **TASKS/*/EXPERIMENTS.md**：归档时自动追加实验行
 
 同一条归档命令同时写 guidang；cundang 由脚本按分数自动决定是否替换。
 

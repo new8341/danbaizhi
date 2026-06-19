@@ -36,11 +36,17 @@ def _as_repo_relative(root: Path, path: Path) -> str:
 
 
 def _read_problem_length(root: Path, problem_id: int) -> int:
-    """从 document/{id}.json 读取序列长度（完整仓库布局）。"""
-    problem_json = root / "document" / f"{problem_id}.json"
-    payload = json.loads(problem_json.read_text(encoding="utf-8"))
-    seq = payload[0]["sequences"][0]["proteinChain"]["sequence"].strip()
-    return len(seq)
+    """从 data/{id}.json（Docker）或 document/{id}.json（本地）读取序列长度。"""
+    for problem_json in (
+        root / "data" / f"{problem_id}.json",
+        root / "document" / f"{problem_id}.json",
+    ):
+        if not problem_json.is_file():
+            continue
+        payload = json.loads(problem_json.read_text(encoding="utf-8"))
+        seq = payload[0]["sequences"][0]["proteinChain"]["sequence"].strip()
+        return len(seq)
+    raise FileNotFoundError(f"problem JSON missing for id={problem_id} under {root}")
 
 
 # ---------------------------------------------------------------------------
@@ -396,6 +402,39 @@ def main() -> None:
                 f"sequence_prior_candidates={len(entry.get('sequence_prior_candidates', []))}, "
                 f"rejected={len(entry.get('sequence_prior_rejected', []))}"
             )
+
+
+def resolve_runtime_sources_config(
+    root: Path | None = None,
+    *,
+    base_name: str = "processed_data/configs/submission_sources.json",
+    out_name: str = "processed_data/configs/submission_sources_runtime.json",
+    colab_name: str = "processed_data/colabfold",
+    max_prior_per_problem: int = 8,
+) -> Path:
+    """Scan colabfold/ at predict time; prefer newest models (incl. predictions_msa_3m)."""
+    root = root or _project_root()
+    base = root / base_name
+    if not base.is_file():
+        return base
+    colab = root / colab_name
+    if not colab.is_dir() or not any(colab.rglob("*.pdb")):
+        return base
+    payload = build_sources(
+        root=root,
+        base_config=base,
+        candidate_roots=[colab],
+        prefer_sequence_prior=True,
+        validate_candidates=True,
+        max_length_delta=0,
+        candidate_sort="mtime_desc",
+        max_prior_per_problem=max_prior_per_problem,
+        min_mean_plddt=50.0,
+    )
+    out = root / out_name
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return out
 
 
 if __name__ == "__main__":
