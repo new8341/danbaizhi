@@ -3,28 +3,25 @@
 | 项 | 值 |
 |----|-----|
 | FUSAI_TRACK | `shenjingsuanzi` |
-| 输出 | `/saisresult/submission.zip`（`KS_pred_A.hdf5` + `cylinder_pred_A.hdf5`） |
-| 输入 | `/saisdata/49/problem1`, `problem2`；训练数据 `/saisdata/48/` |
-| 镜像仓库 | `.../ai4s-lee/shenjingsuanzi:<tag>` |
-| 环境 | V100 16G，限时 6h；镜像建议 <5G |
+| 输出 | `/saisresult/submission.zip`（**4 个 HDF5**：A/B × KS/cylinder） |
+| 输入 | `/saisdata/49/`、`/saisdata/48/`、`/saisdata/66/`（B榜） |
+| 镜像 | `.../ai4s-lee/shenjingsuanzi:<tag>` |
+| 环境 | V100 16G，6h；镜像 <5G |
 
-## 当前状态
+## 实现
 
-- Runner：`submit/tracks/shenjingsuanzi.py` → `submit/tracks/shenjingsuanzi_agent/`
-- KS：挂载 `KS_train.hdf5` 时训练 FNO1d 并自回归预测 380 步；无训练集时用 test seed 外推；再失败则 sample 兜底
-- Cylinder：调用挂载 `problem2/inference/run_inference.py`（FNO 权重）；失败则 sample 兜底
-- 参考实现（本地）：`shenjingsuanzi/daima/202605192309`（初赛 ~57.69），未打入镜像
-
-## 最后一周
-
-Agent 代码在 `submit/tracks/shenjingsuanzi_agent/`，由 Dockerfile 随 `submit/` 一并 COPY。
+- `submit/tracks/shenjingsuanzi_agent/` — KS FNO1d 训练一次、A/B 双榜推理；cylinder 挂载 FNO
+- 详细规范：`documen/Shenjingsuanzi/readme.md` §复赛评测提交规范
+- 任务文档：`TASKS/shenjingsuanzi/`
 
 ## 环境变量
 
-- `SHENJING_MODEL=fno`（problem2 推理模型）
-- `SHENJING_KS_EPOCHS`（默认 24；6h 预算内可调大）
-- `SHENJING_KS_PRESET=score-push`（默认；或 `balanced` / `SHENJING_QUICK=1` 冒烟）
+- `SHENJING_KS_PRESET=ks-q1`（默认）
+- `SHENJING_KS_EPOCHS=28`
+- `SHENJING_MODEL=fno`
 
 ## 本地验证
 
-需自建 `saisdata/49/problem{1,2}/sample_submission/` 或使用评测挂载结构；见 `submit/tests/test_track_runners.py`。
+```powershell
+pytest submit/tests/test_track_runners.py -k shenjingsuanzi
+```

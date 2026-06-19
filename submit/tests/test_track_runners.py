@@ -14,6 +14,12 @@ from submit.tracks.baxiangfenzi import BaxiangfenziRunner
 from submit.tracks.drugclip import DrugclipRunner
 from submit.tracks.registry import get_runner
 from submit.tracks.shenjingsuanzi import ShenjingsuanziRunner
+from submit.tracks.shenjingsuanzi_agent.pipeline import (
+    CYLINDER_PRED_A,
+    CYLINDER_PRED_B,
+    KS_PRED_A,
+    KS_PRED_B,
+)
 
 
 def test_registry_unknown_track_fails() -> None:
@@ -89,13 +95,24 @@ def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
     p2 = tmp_path / "saisdata" / "49" / "problem2"
     sample_dir = p2 / "sample_submission"
     sample_dir.mkdir(parents=True)
-    with h5py.File(sample_dir / "cylinder_pred_A.hdf5", "w") as f:
-        f.create_dataset("tensor", data=np.zeros((1, 200, 64, 128, 2), dtype=np.float16))
+    for name in (CYLINDER_PRED_A, CYLINDER_PRED_B):
+        with h5py.File(sample_dir / name, "w") as f:
+            f.create_dataset("tensor", data=np.zeros((1, 200, 64, 128, 2), dtype=np.float16))
+
+    b_dir = tmp_path / "saisdata" / "66"
+    b_dir.mkdir(parents=True)
+    with h5py.File(b_dir / "KS_test_B.hdf5", "w") as f:
+        f.create_dataset("tensor", data=np.zeros((2, 20, 256), dtype=np.float16))
+        f.create_dataset("t-coordinate", data=np.arange(20, dtype=np.float16) * 0.5)
+        f.create_dataset("x-coordinate", data=np.arange(256, dtype=np.float16))
+    with h5py.File(b_dir / "cylinder_test_B.hdf5", "w") as f:
+        f.create_dataset("tensor", data=np.zeros((1, 20, 64, 128, 2), dtype=np.float16))
 
     staging = tmp_path / "staging"
     ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
-    assert (staging / "KS_pred_A.hdf5").is_file()
-    with h5py.File(staging / "KS_pred_A.hdf5", "r") as f:
+    for name in (KS_PRED_A, KS_PRED_B, CYLINDER_PRED_A, CYLINDER_PRED_B):
+        assert (staging / name).is_file(), name
+    with h5py.File(staging / KS_PRED_A, "r") as f:
         assert f["tensor"].shape == (2, 400, 256)
     log_text = (tmp_path / "shenjingsuanzi_run.log").read_text(encoding="utf-8")
     assert "[agent] phase=done" in log_text
@@ -130,20 +147,20 @@ def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:
     import numpy as np
 
     saisdata = tmp_path / "saisdata" / "49"
-    for problem, shape in (
-        ("problem1", (1, 400, 256)),
-        ("problem2", (1, 200, 64, 128, 2)),
+    for problem, names, shape in (
+        ("problem1", (KS_PRED_A, KS_PRED_B), (1, 400, 256)),
+        ("problem2", (CYLINDER_PRED_A, CYLINDER_PRED_B), (1, 200, 64, 128, 2)),
     ):
         sample_dir = saisdata / problem / "sample_submission"
         sample_dir.mkdir(parents=True)
-        name = "KS_pred_A.hdf5" if problem == "problem1" else "cylinder_pred_A.hdf5"
-        with h5py.File(sample_dir / name, "w") as f:
-            f.create_dataset("tensor", data=np.zeros(shape, dtype=np.float16))
+        for name in names:
+            with h5py.File(sample_dir / name, "w") as f:
+                f.create_dataset("tensor", data=np.zeros(shape, dtype=np.float16))
 
     staging = tmp_path / "staging"
     ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
-    assert (staging / "KS_pred_A.hdf5").is_file()
-    assert (staging / "cylinder_pred_A.hdf5").is_file()
+    for name in (KS_PRED_A, KS_PRED_B, CYLINDER_PRED_A, CYLINDER_PRED_B):
+        assert (staging / name).is_file()
 
 
 def test_baxiangfenzi_official_composite_rematch_weights() -> None:

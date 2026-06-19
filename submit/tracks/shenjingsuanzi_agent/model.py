@@ -30,17 +30,20 @@ class SpectralConv1d(nn.Module):
         self.weight_imag = nn.Parameter(scale * torch.randn(in_channels, out_channels, modes))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x_ft = torch.fft.rfft(x, dim=-1)
+        # FFT on V100 requires float32/complex64; float16 → ComplexHalf breaks einsum.
+        x32 = x.float()
+        x_ft = torch.fft.rfft(x32, dim=-1)
         out_ft = torch.zeros(
             x.shape[0], self.weight_real.shape[1], x_ft.shape[-1],
-            dtype=torch.cfloat, device=x.device,
+            dtype=torch.complex64, device=x.device,
         )
         modes = min(self.modes, x_ft.shape[-1])
         weight = torch.complex(
-            self.weight_real[:, :, :modes], self.weight_imag[:, :, :modes]
+            self.weight_real[:, :, :modes].float(),
+            self.weight_imag[:, :, :modes].float(),
         )
         out_ft[:, :, :modes] = torch.einsum("bim,iom->bom", x_ft[:, :, :modes], weight)
-        return torch.fft.irfft(out_ft, n=x.shape[-1], dim=-1)
+        return torch.fft.irfft(out_ft, n=x.shape[-1], dim=-1).to(dtype=x.dtype)
 
 
 class FNO1dPredictor(nn.Module):

@@ -32,7 +32,12 @@ def _check_danbaizhi(zf: zipfile.ZipFile) -> list[str]:
 def _check_shenjingsuanzi(zf: zipfile.ZipFile) -> list[str]:
     errs: list[str] = []
     names = set(zf.namelist())
-    for want in ("KS_pred_A.hdf5", "cylinder_pred_A.hdf5"):
+    for want in (
+        "KS_pred_A.hdf5",
+        "cylinder_pred_A.hdf5",
+        "KS_pred_B.hdf5",
+        "cylinder_pred_B.hdf5",
+    ):
         if want not in names:
             errs.append(f"missing {want}")
     return errs

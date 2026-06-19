@@ -104,8 +104,12 @@ def ks_baseline_from_test(problem_root: Path, out_path: Path, n_total: int = 400
     for name in ("KS_test_A.hdf5", "KS_test.hdf5"):
         test_path = data_dir / name
         if test_path.is_file():
-            break
-    else:
+            return ks_baseline_from_test_path(test_path, out_path, n_total)
+    return False
+
+
+def ks_baseline_from_test_path(test_path: Path, out_path: Path, n_total: int = 400) -> bool:
+    if not test_path.is_file():
         return False
     with h5py.File(test_path, "r") as src:
         obs = np.asarray(src["tensor"], dtype=np.float32)

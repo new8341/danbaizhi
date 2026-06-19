@@ -5,16 +5,22 @@ from pathlib import Path
 
 from submit.pack_submission import emit_error
 from submit.tracks.base import TrackRunner, TrackSpec
-from submit.tracks.shenjingsuanzi_agent.pipeline import KS_NAME, CYLINDER_NAME, run_agent
+from submit.tracks.shenjingsuanzi_agent.pipeline import (
+    CYLINDER_PRED_A,
+    CYLINDER_PRED_B,
+    KS_PRED_A,
+    KS_PRED_B,
+    run_agent,
+)
 
 
 class ShenjingsuanziRunner(TrackRunner):
     spec = TrackSpec(
         name="shenjingsuanzi",
         task_id="4",
-        saisdata_hint="/saisdata/49/problem1 + problem2",
+        saisdata_hint="/saisdata/49/problem1+problem2; B榜 /saisdata/66/",
         output_name="submission.zip",
-        output_members=(KS_NAME, CYLINDER_NAME),
+        output_members=(KS_PRED_A, CYLINDER_PRED_A, KS_PRED_B, CYLINDER_PRED_B),
     )
 
     def run(self, saisdata: Path, staging_dir: Path, work_dir: Path) -> None:
@@ -39,4 +45,4 @@ class ShenjingsuanziRunner(TrackRunner):
                 )
             ):
                 print(line, flush=True)
-        print(f"[Shenjingsuanzi] staged {KS_NAME} + {CYLINDER_NAME}", flush=True)
+        print(f"[Shenjingsuanzi] staged {KS_PRED_A}+{CYLINDER_PRED_A}+{KS_PRED_B}+{CYLINDER_PRED_B}", flush=True)

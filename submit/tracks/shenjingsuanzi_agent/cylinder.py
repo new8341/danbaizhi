@@ -6,14 +6,31 @@ import subprocess
 import sys
 from pathlib import Path
 
+from submit.tracks._paths import first_existing
 
-def run_cylinder(problem_root: Path, out_path: Path) -> tuple[str, list[str]]:
+
+def resolve_cylinder_test_path(saisdata: Path, problem_root: Path, board: str) -> Path | None:
+    board = board.upper()
+    if board == "A":
+        return first_existing(problem_root / "data" / "cylinder_test_A.hdf5")
+    return first_existing(
+        saisdata / "66" / "cylinder_test_B.hdf5",
+        problem_root / "data" / "cylinder_test_B.hdf5",
+        saisdata / "cylinder_test_B.hdf5",
+    )
+
+
+def run_cylinder(
+    problem_root: Path,
+    out_path: Path,
+    test_path: Path | None = None,
+) -> tuple[str, list[str]]:
     logs: list[str] = []
     inference_dir = problem_root / "inference"
     run_script = inference_dir / "run_inference.py"
-    test_path = problem_root / "data" / "cylinder_test_A.hdf5"
-    if not run_script.is_file() or not test_path.is_file():
-        logs.append("[agent] cylinder_skip=inference_script_or_test_missing")
+    test = test_path or (problem_root / "data" / "cylinder_test_A.hdf5")
+    if not run_script.is_file() or not test.is_file():
+        logs.append(f"[agent] cylinder_skip=inference_script_or_test_missing test={test}")
         return "missing", logs
 
     model = os.environ.get("SHENJING_MODEL", "fno")
@@ -23,7 +40,7 @@ def run_cylinder(problem_root: Path, out_path: Path) -> tuple[str, list[str]]:
         "--model",
         model,
         "--test_path",
-        str(test_path),
+        str(test),
         "--pred_path",
         str(out_path),
     ]
@@ -35,7 +52,7 @@ def run_cylinder(problem_root: Path, out_path: Path) -> tuple[str, list[str]]:
         return "failed", logs
 
     if out_path.is_file():
-        logs.append(f"[agent] cylinder_source=inference model={model}")
+        logs.append(f"[agent] cylinder_source=inference model={model} test={test.name}")
         return "inference", logs
     logs.append("[agent] cylinder_inference_no_output")
     return "failed", logs
