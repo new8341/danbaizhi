@@ -11,7 +11,7 @@ tracks:
     mode: AUTO_ASSISTED
     yesterday: 0.717129
     today: 0.717129
-    note: ColabFold A1 跑 problem_1 predictions_msa_3m（CPU）
+    note: auto_prior+ColabFold 3m 待 publish
 
   drugclip:
     mode: OPTIMIZE
