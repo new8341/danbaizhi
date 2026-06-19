@@ -26,6 +26,29 @@ if (-not $Version) { $Version = $pins.version }
 
 $meta = $script:TrackMeta[$Track]
 
+function Sync-AcrDockerfileAlias {
+    param(
+        [string]$Root,
+        [string]$Track,
+        [hashtable]$Meta
+    )
+    $alias = $Meta.dockerfile
+    $src = Join-Path $Root "submit/Dockerfile.$Track"
+    if ($Track -eq "danbaizhi") {
+        $src = Join-Path $Root "submit/Dockerfile.danbaizhi"
+        $alias = "Dockerfile"
+    }
+    if (-not (Test-Path $src)) {
+        Write-Warning "No canonical dockerfile at $src — skip sync"
+        return
+    }
+    $dst = Join-Path $Root $alias
+    Copy-Item -Path $src -Destination $dst -Force
+    Write-Host "Synced $src -> $alias" -ForegroundColor DarkGray
+}
+
+Sync-AcrDockerfileAlias -Root $Root -Track $Track -Meta $meta
+
 Write-Host "=== Publish single track: $Track (image :$Version) ===" -ForegroundColor Cyan
 Write-Host "Pre-publish validation..." -ForegroundColor Yellow
 py -3 VALIDATION/check_structure.py
@@ -50,6 +73,9 @@ $noteText = if ($Note) { $Note } else { "published $(Get-Date -Format 'yyyy-MM-d
 Write-BuildInfo -Root $Root -Track $Track -Commit $head -Note $noteText
 
 Invoke-GitSafe add submit/track_pins.json submit/build_info.json
+if ($meta.dockerfile) {
+    Invoke-GitSafe add $meta.dockerfile
+}
 $dirty = git diff --cached --quiet 2>$null; if ($LASTEXITCODE -ne 0) {
     Invoke-GitSafe commit -m "chore: publish $Track build metadata ($head)"
     if (-not $SkipPushMain) {

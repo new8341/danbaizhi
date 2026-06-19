@@ -29,7 +29,8 @@ $script:TrackMeta = @{
         paths     = @(
             "Dockerfile.drugclip",
             "submit/Dockerfile.drugclip",
-            "submit/tracks/drugclip.py"
+            "submit/tracks/drugclip.py",
+            "ReDrugClip/external/DrugCLIP"
         )
     }
     baxiangfenzi = @{
