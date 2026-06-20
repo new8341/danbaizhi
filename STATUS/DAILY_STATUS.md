@@ -1,55 +1,38 @@
 # 每日状态
 
-> **用户每日仅维护本文件**，然后向 AI 输入「开始执行」。
+> **用户每日仅维护本文件**，然后向 AI 输入「开始执行」。  
+> AI 自主推进其余工作；**仅 blocked 时**在对话末尾提示「需你操作」（见 `competition-workflow.mdc`）。
 
 ```yaml
-date: 2026-06-19
+date: 2026-06-20
 current_mode: OPTIMIZE
 
 tracks:
   danbaizhi:
     mode: AUTO_ASSISTED
-    yesterday: 0.717129
-    today: 0.717129
-    leaderboard_1: 0.8104
-    submissions_left: 2
-    note: Sprint auto_prior max24 + P1 3m model_1/2；待 publish 提交
+    best_cundang: 0.717129
+    latest: 0.717129
+    submissions_per_day: 2
+    note: P1 ColabFold model_3 进行中(recycle2 pLDDT92)；完成后 republish
 
   drugclip:
     mode: OPTIMIZE
-    yesterday: 19.229531
-    today: 19.229531
-    leaderboard_1: 48.5629
-    submissions_left: 1
-    note: Sprint2 神经 DrugCLIP 已编码；待 publish 后提交（勿浪费在指纹）
+    best_cundang: 19.229531
+    latest: 19.229531
+    submissions_per_day: 2
+    note: 神经镜像已 publish(35ebe28)；build 内 git clone DrugCLIP
 
   baxiangfenzi:
     mode: OPTIMIZE
-    yesterday: 0.669636
-    today: 0.669304
-    leaderboard_1: 0.8875
-    submissions_left: 1
-    note: Sprint3 route_enum 已编码；待 publish 提交
+    best_cundang: 0.669636
+    latest: 0.665760
+    submissions_per_day: 2
+    note: 已回滚 Sprint1(208eec8)并 publish
 
   shenjingsuanzi:
     mode: OPTIMIZE
-    yesterday: 42.09
-    today: 42.090454
-    leaderboard_1: 181.15
-    leaderboard_detail: "KS_A=11.61 cyl_A=67.87 KS_B=32.48 cyl_B=69.17"
-    submissions_left: 0
-    note: 明日首提；KS fno1d_train + 四文件 A/B
+    best_cundang: 57.685109
+    latest: 42.090454
+    submissions_per_day: 1
+    note: KS fp32+路径增强已 publish(35ebe28)；待提交验证
 ```
-
-## 今日待办（AI 可读）
-
-- [ ] publish + 提交 **baxiangfenzi** Sprint3（1 次）
-- [ ] publish + 提交 **danbaizhi** auto_prior P1 3m（1～2 次）
-- [ ] **drugclip**：不提交，启动神经 MVP
-- [ ] **shenjingsuanzi**：publish 备明日；grep log 确认 `ks_source=fno1d_train`
-- [ ] 出分后归档 guidang
-
-## 备注
-
-复赛总成绩 = 最高两个赛道 z-score 之和（见 `documen/fusai.md`）。  
-详细规划见 `STATUS/SUBMISSION_PLAN.md`。

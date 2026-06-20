@@ -35,3 +35,5 @@
 3. `INDEX/PROJECT_INDEX.md`
 4. `STATUS/DAILY_STATUS.md`
 5. 对应 `TASKS/<track>/` 下四文件
+
+对话结尾格式见 `.cursor/rules/competition-workflow.mdc`（四赛道总览 + 按需「需你操作」）。

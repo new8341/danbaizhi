@@ -15,6 +15,12 @@
 - `main` = 开发线；`cundang/` + `track_pins.json` = 各赛道 best 快照
 - 回滚：`.\submit\restore_track.ps1 -Track <name> -Node <commit>`
 
+## AI 与用户分工
+
+- **AI**：分析、改码、测试、commit、publish、归档、更新 STATUS/SCOREBOARD；能自己做的做到极致。
+- **用户**：天池提交、粘贴出分、ACR/环境/密钥等 AI 不可达操作。
+- **对话结尾**：输出「四赛道状态总览」；**仅 blocked 时**追加 `【需你操作】`（见 `.cursor/rules/competition-workflow.mdc`）。
+
 ## 改动原则
 
 1. **单假设单 commit**：一次只验证一个优化点
