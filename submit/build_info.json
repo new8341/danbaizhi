@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "baxiangfenzi",
-    "commit":  "c9f870f",
-    "published":  "2026-06-20 12:32:34",
-    "note":  "restore Sprint1 cundang 208eec8"
+    "track":  "drugclip",
+    "commit":  "7a490df",
+    "published":  "2026-06-20 12:33:36",
+    "note":  "clone DrugCLIP at build + neural stack"
 }
