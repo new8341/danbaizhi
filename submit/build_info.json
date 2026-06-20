@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "drugclip",
-    "commit":  "c1cff43",
-    "published":  "2026-06-19 22:12:25",
-    "note":  "neural build fix: root Dockerfile sync"
+    "track":  "shenjingsuanzi",
+    "commit":  "35ebe28",
+    "published":  "2026-06-20 12:31:42",
+    "note":  "KS fp32 inference + saisdata train paths"
 }

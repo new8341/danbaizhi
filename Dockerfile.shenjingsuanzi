@@ -1,4 +1,4 @@
-# ACR build alias �??keep in sync with submit/Dockerfile.shenjingsuanzi
+# Fusai docker image — track 4 (Shenjingsuanzi) — GPU eval (V100)
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
 RUN pip install --no-cache-dir h5py tqdm matplotlib
@@ -9,6 +9,9 @@ WORKDIR /app
 COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY agent/ /app/agent/
+COPY submit/tracks/shenjingsuanzi_agent/ /app/agent_code/shenjingsuanzi_agent/
+COPY agent/ /app/agent_code/agent/
+COPY submit/agent_code/README.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
 RUN chmod +x /app/run.sh /app/submit/run.sh \
@@ -16,6 +19,8 @@ RUN chmod +x /app/run.sh /app/submit/run.sh \
 
 ENV FUSAI_TRACK=shenjingsuanzi
 ENV SHENJING_MODEL=fno
+ENV SHENJING_KS_PRESET=ks-q1
+ENV SHENJING_KS_EPOCHS=28
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1
