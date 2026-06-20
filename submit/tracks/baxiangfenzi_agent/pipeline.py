@@ -11,7 +11,6 @@ from submit.tracks.baxiangfenzi_agent.candidates import generate_candidates
 from submit.tracks.baxiangfenzi_agent.chemistry import canonical_smiles, is_valid_molecule, sa_score
 from submit.tracks.baxiangfenzi_agent.docking import dock_smiles, prepare_receptor_pdbqt, pseudo_dock_score
 from submit.tracks.baxiangfenzi_agent.retrosyn import (
-    best_route_for_target,
     official_composite,
     score_molecule,
     score_route,
@@ -34,7 +33,7 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
     log: list[str] = [
         f"[agent] slot={slot} phase=init target={target_pdb.name}",
         f"[agent] timestamp={datetime.now(timezone.utc).isoformat()}",
-        "[agent] hypothesis=sprint3_route_enum two_stage_select vina_multimode expanded_blocks",
+        "[agent] hypothesis=binding_first_selection pocket_aware_box receptor_cache",
     ]
 
     site = binding_site_from_pdb(target_pdb)
@@ -45,14 +44,9 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
     )
 
     max_dock = int(os.environ.get("BAXIANG_MAX_DOCK", "40"))
-    select_pool = int(os.environ.get("BAXIANG_SELECT_POOL", "25"))
-    composite_pool = int(os.environ.get("BAXIANG_COMPOSITE_POOL", str(max(select_pool, 40))))
-    max_sa = float(os.environ.get("BAXIANG_MAX_SA", "4.0"))
+    select_pool = int(os.environ.get("BAXIANG_SELECT_POOL", "15"))
     candidates = generate_candidates(target_pdb)
-    log.append(
-        f"[agent] phase=generate_candidates count={len(candidates)} dock_pool={max_dock} "
-        f"composite_pool={composite_pool} max_sa={max_sa}"
-    )
+    log.append(f"[agent] phase=generate_candidates count={len(candidates)} dock_pool={max_dock}")
 
     dock_pool = candidates[:max_dock]
     ranked: list[tuple[float, str, float | None, float]] = []
@@ -67,7 +61,7 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
             if not is_valid_molecule(smi):
                 continue
             sa = sa_score(smi)
-            if sa >= max_sa:
+            if sa >= 4.0:
                 continue
             affinity = dock_smiles(
                 smi,
@@ -93,15 +87,16 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
     best_route = None
     best_composite = -1.0
 
-    for aff_key, smi, affinity, sa in ranked[:composite_pool]:
+    for aff_key, smi, affinity, sa in ranked[:select_pool]:
         can = canonical_smiles(smi)
         if can is None:
             continue
-        route, route_s = best_route_for_target(can)
+        route = try_plan_route(can)
         if not route or not validate_route(route, can):
             continue
         pseudo = pseudo_dock_score(can, site)
         mol_s = score_molecule(can, affinity, sa, pseudo)
+        route_s = score_route(route, can)
         composite = official_composite(mol_s, route_s)
         if composite > best_composite:
             best_composite = composite
@@ -115,25 +110,21 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
             )
 
     if best_smiles is None:
-        for aff_key, smi, affinity, sa in ranked[:composite_pool]:
+        for aff_key, smi, affinity, sa in ranked[:select_pool]:
             can = canonical_smiles(smi) or smi
-            route, route_s = best_route_for_target(can)
+            route = try_plan_route(can)
             if route and validate_route(route, can):
-                pseudo = pseudo_dock_score(can, site)
-                mol_s = score_molecule(can, affinity, sa, pseudo)
-                composite = official_composite(mol_s, route_s)
                 best_smiles, best_affinity, best_sa, best_route = can, affinity, sa, route
-                best_composite = composite
-                log.append(f"[agent] phase=select_fallback route_valid vina={aff_key:.2f} composite={composite:.3f}")
+                log.append(f"[agent] phase=select_fallback route_valid vina={aff_key:.2f}")
                 break
 
     if best_smiles is None and ranked:
-        for aff_key, smi, affinity, sa in ranked[:composite_pool]:
+        for aff_key, smi, affinity, sa in ranked[:select_pool]:
             can = canonical_smiles(smi) or smi
-            route, _ = best_route_for_target(can)
+            route = try_plan_route(can)
             if route and validate_route(route, can):
                 best_smiles, best_affinity, best_sa, best_route = can, affinity, sa, route
-                log.append(f"[agent] phase=select_best_route vina={aff_key:.2f}")
+                log.append(f"[agent] phase=select_plan_route vina={aff_key:.2f}")
                 break
 
     if best_smiles is None and ranked:
@@ -142,24 +133,21 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
         best_smiles = can
         best_affinity = affinity
         best_sa = sa
-        route, _ = best_route_for_target(can)
-        best_route = route or try_plan_route(can)
+        best_route = try_plan_route(can)
 
     if best_smiles is None:
         smi = "O=C(Nc1ccccc1)c1ccccc1"
         best_smiles = smi
         best_affinity = None
         best_sa = sa_score(smi)
-        route, _ = best_route_for_target(smi)
-        best_route = route or try_plan_route(smi)
+        best_route = try_plan_route(smi)
     elif not best_route:
         smi = "O=C(Nc1ccccc1)c1ccccc1"
         log.append(f"[agent] phase=select_default fallback=benzanilide prev={best_smiles[:32]}")
         best_smiles = smi
         best_affinity = None
         best_sa = sa_score(smi)
-        route, _ = best_route_for_target(smi)
-        best_route = route or try_plan_route(smi)
+        best_route = try_plan_route(smi)
 
     if not best_route:
         from submit.pack_submission import emit_error

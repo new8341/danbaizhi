@@ -102,7 +102,7 @@ def _run_ks_board(
         return ks_state
     try:
         _source, ks_logs, train_t, inf_t, ks_state = run_ks(
-            p1, test_path, out_path, state=ks_state
+            p1, test_path, out_path, state=ks_state, saisdata=saisdata
         )
         logs.extend(ks_logs)
         logs.append(
@@ -160,7 +160,7 @@ def run_agent(saisdata: Path, staging_dir: Path) -> list[str]:
 
     logs.append(f"[agent] problem1={p1}")
     logs.append(f"[agent] problem2={p2}")
-    for cand, exists in list_ks_train_candidates(p1):
+    for cand, exists in list_ks_train_candidates(p1, saisdata):
         logs.append(f"[agent] ks_train_candidate path={cand} exists={exists}")
 
     _seed_fallback(staging_dir, p1, p2, logs)

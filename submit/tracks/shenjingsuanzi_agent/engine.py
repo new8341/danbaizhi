@@ -128,7 +128,7 @@ def autoregressive_predict(
     model.to(device)
     n = seed.shape[0]
     out = np.empty((n, seed.shape[1] + predict_steps, seed.shape[-1]), dtype=np.float32)
-    use_amp = device.type == "cuda"
+    use_amp = False  # fp32 only; fp16 FFT caused ComplexHalf failures on V100
     for b0 in range(0, n, batch_size):
         b1 = min(b0 + batch_size, n)
         window = torch.from_numpy(seed[b0:b1].astype(np.float32)).to(device)

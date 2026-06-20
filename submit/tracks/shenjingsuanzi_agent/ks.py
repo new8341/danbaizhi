@@ -48,17 +48,36 @@ def resolve_ks_test_path(saisdata: Path, problem_root: Path, board: str) -> Path
     )
 
 
-def list_ks_train_candidates(problem_root: Path) -> list[tuple[Path, bool]]:
+def list_ks_train_candidates(
+    problem_root: Path,
+    saisdata: Path | None = None,
+) -> list[tuple[Path, bool]]:
     """All candidate KS_train paths with existence flags (for agent logging)."""
-    sais = problem_root
-    for _ in range(4):
-        sais = sais.parent
-    candidates = [
+    candidates: list[Path] = [
         problem_root / "data" / "KS_train.hdf5",
-        sais / "48" / "KS_train.hdf5",
-        sais / "48" / "problem1" / "data" / "KS_train.hdf5",
-        sais / "48" / "data" / "KS_train.hdf5",
     ]
+    sais = problem_root
+    for _ in range(5):
+        sais = sais.parent
+        candidates.extend(
+            [
+                sais / "48" / "KS_train.hdf5",
+                sais / "48" / "problem1" / "data" / "KS_train.hdf5",
+                sais / "48" / "data" / "KS_train.hdf5",
+                sais / "49" / "problem1" / "data" / "KS_train.hdf5",
+            ]
+        )
+    if saisdata is not None:
+        candidates.extend(
+            [
+                saisdata / "48" / "KS_train.hdf5",
+                saisdata / "48" / "problem1" / "data" / "KS_train.hdf5",
+                saisdata / "49" / "problem1" / "data" / "KS_train.hdf5",
+                saisdata / "66" / "KS_train.hdf5",
+            ]
+        )
+        for hit in sorted(saisdata.rglob("KS_train.hdf5")):
+            candidates.append(hit)
     seen: set[str] = set()
     out: list[tuple[Path, bool]] = []
     for path in candidates:
@@ -70,8 +89,8 @@ def list_ks_train_candidates(problem_root: Path) -> list[tuple[Path, bool]]:
     return out
 
 
-def _resolve_train_path(problem_root: Path) -> Path | None:
-    for path, exists in list_ks_train_candidates(problem_root):
+def _resolve_train_path(problem_root: Path, saisdata: Path | None = None) -> Path | None:
+    for path, exists in list_ks_train_candidates(problem_root, saisdata):
         if exists:
             return path
     return None
@@ -152,6 +171,7 @@ def run_ks(
     cfg: KSTrainConfig | None = None,
     *,
     state: KsRunState | None = None,
+    saisdata: Path | None = None,
 ) -> tuple[str, list[str], float, float, KsRunState | None]:
     """Train once (first board), reuse model for additional boards."""
     cfg = cfg or load_ks_config()
@@ -168,12 +188,15 @@ def run_ks(
         logs.extend(inf_logs)
         return state.source, logs, 0.0, inf_t, state
 
-    train_path = _resolve_train_path(problem_root) or (problem_root / "data" / "KS_train.hdf5")
-    for cand, exists in list_ks_train_candidates(problem_root):
+    train_path = _resolve_train_path(problem_root, saisdata) or (
+        problem_root / "data" / "KS_train.hdf5"
+    )
+    for cand, exists in list_ks_train_candidates(problem_root, saisdata):
         logs.append(f"[agent] ks_train_candidate path={cand} exists={exists}")
     logs.append(f"[agent] ks_train_path={train_path} exists={train_path.is_file()}")
 
     if not train_path.is_file():
+        logs.append("[agent] ks_train_missing=CRITICAL fallback=baseline_extrapolation")
         if ks_baseline_from_test_path(test_path, out_path, cfg.total_steps):
             logs.append("[agent] ks_source=baseline_extrapolation (no KS_train)")
             return "baseline", logs, 0.0, 0.0, None

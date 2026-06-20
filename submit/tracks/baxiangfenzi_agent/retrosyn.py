@@ -1,7 +1,6 @@
 """Retrosynthesis route planner (amide / BRICS + commercial leaves)."""
 from __future__ import annotations
 
-import os
 from functools import lru_cache
 
 from rdkit import Chem
@@ -58,15 +57,14 @@ def _brics_fragments(smiles: str) -> list[tuple[str, str]]:
     return pairs
 
 
-def _amide_routes(target: str) -> list[str]:
-    """All amide coupling routes from commercial acid + amine."""
+def _amide_one_step(target: str) -> str | None:
+    """Forward-validate amide coupling from commercial acid + amine."""
     mol = Chem.MolFromSmiles(target)
     if mol is None or not mol.HasSubstructMatch(Chem.MolFromSmarts("[C:1](=[O:2])[N:3]")):
-        return []
+        return None
     rxn = AllChem.ReactionFromSmarts("[C:1](=[O:2])[O;H1].[N:3]>>[C:1](=[O:2])[N:3]")
     blocks = commercial_building_blocks()
     acid_pat = Chem.MolFromSmarts("C(=O)[OD1]")
-
     def _is_amine(smi: str) -> bool:
         mol = Chem.MolFromSmiles(smi)
         if mol is None:
@@ -77,8 +75,6 @@ def _amide_routes(target: str) -> list[str]:
 
     acids = [s for s in blocks if Chem.MolFromSmiles(s).HasSubstructMatch(acid_pat)]
     amines = [s for s in blocks if _is_amine(s)]
-    routes: list[str] = []
-    seen: set[str] = set()
     for acid in acids:
         for amine in amines:
             try:
@@ -95,24 +91,16 @@ def _amide_routes(target: str) -> list[str]:
                     continue
                 if prod == target:
                     step = f"{acid}.{amine}>>{target}"
-                    if reaction_atom_balanced([acid, amine], target) and step not in seen:
-                        seen.add(step)
-                        routes.append(step)
-    return routes
+                    if reaction_atom_balanced([acid, amine], target):
+                        return step
+    return None
 
 
-def _amide_one_step(target: str) -> str | None:
-    routes = _amide_routes(target)
-    return routes[0] if routes else None
-
-
-def _suzuki_routes(target: str) -> list[str]:
+def _suzuki_one_step(target: str) -> str | None:
     rxn = AllChem.ReactionFromSmarts("[c:1]:[c:2][Br].[c:3]:[c:4]B(O)O>>[c:1]:[c:2]-[c:3]:[c:4]")
     blocks = commercial_building_blocks()
     halides = [s for s in blocks if "Br" in Chem.MolToSmiles(Chem.MolFromSmiles(s))]
     boronics = [s for s in blocks if "B(O)O" in s or "B(O)" in s]
-    routes: list[str] = []
-    seen: set[str] = set()
     for hal in halides:
         for bor in boronics:
             try:
@@ -127,86 +115,43 @@ def _suzuki_routes(target: str) -> list[str]:
                     continue
                 if prod == target:
                     step = f"{hal}.{bor}>>{target}"
-                    if reaction_atom_balanced([hal, bor], target) and step not in seen:
-                        seen.add(step)
-                        routes.append(step)
-    return routes
+                    if reaction_atom_balanced([hal, bor], target):
+                        return step
+    return None
 
 
-def _suzuki_one_step(target: str) -> str | None:
-    routes = _suzuki_routes(target)
-    return routes[0] if routes else None
-
-
-def _brics_one_step_routes(target: str) -> list[str]:
-    routes: list[str] = []
+def _one_step(target: str) -> str | None:
+    amide = _amide_one_step(target)
+    if amide:
+        return amide
+    suzuki = _suzuki_one_step(target)
+    if suzuki:
+        return suzuki
     for left, right in _brics_fragments(target):
         if is_commercial_fragment(left) and is_commercial_fragment(right):
             step = f"{left}.{right}>>{target}"
             if reaction_atom_balanced([left, right], target):
-                routes.append(step)
-    return routes
-
-
-def _one_step_routes(target: str) -> list[str]:
-    routes: list[str] = []
-    seen: set[str] = set()
-    for step in _amide_routes(target) + _suzuki_routes(target) + _brics_one_step_routes(target):
-        if step not in seen:
-            seen.add(step)
-            routes.append(step)
-    return routes
-
-
-def _one_step(target: str) -> str | None:
-    routes = _one_step_routes(target)
-    return routes[0] if routes else None
-
-
-def _two_step_routes(target: str) -> list[str]:
-    routes: list[str] = []
-    seen: set[str] = set()
-    for left, right in _brics_fragments(target):
-        if not is_commercial_fragment(left):
-            for sub in _one_step_routes(left):
-                if is_commercial_fragment(right):
-                    inter = sub.split(">>")[-1]
-                    step2 = f"{inter}.{right}>>{target}"
-                    if reaction_atom_balanced([inter, right], target):
-                        route = f"{sub},{step2}"
-                        if route not in seen and validate_route(route, target):
-                            seen.add(route)
-                            routes.append(route)
-        if not is_commercial_fragment(right):
-            for sub in _one_step_routes(right):
-                if is_commercial_fragment(left):
-                    inter = sub.split(">>")[-1]
-                    step2 = f"{left}.{inter}>>{target}"
-                    if reaction_atom_balanced([left, inter], target):
-                        route = f"{sub},{step2}"
-                        if route not in seen and validate_route(route, target):
-                            seen.add(route)
-                            routes.append(route)
-    return routes
+                return step
+    return None
 
 
 def _two_step(target: str) -> str | None:
-    routes = _two_step_routes(target)
-    return routes[0] if routes else None
-
-
-def enumerate_routes(target_smiles: str) -> list[str]:
-    """All valid one- and two-step routes for a target."""
-    can = canonical_smiles(target_smiles)
-    if can is None:
-        return []
-    routes: list[str] = []
-    seen: set[str] = set()
-    for route in _one_step_routes(can) + _two_step_routes(can):
-        if route not in seen and validate_route(route, can):
-            seen.add(route)
-            routes.append(route)
-    return routes
+    for left, right in _brics_fragments(target):
+        if not is_commercial_fragment(left):
+            sub = _one_step(left)
+            if sub and is_commercial_fragment(right):
+                inter = sub.split(">>")[-1]
+                step2 = f"{inter}.{right}>>{target}"
+                if reaction_atom_balanced([inter, right], target):
+                    return f"{sub},{step2}"
+        if not is_commercial_fragment(right):
+            sub = _one_step(right)
+            if sub and is_commercial_fragment(left):
+                inter = sub.split(">>")[-1]
+                step2 = f"{left}.{inter}>>{target}"
+                if reaction_atom_balanced([left, inter], target):
+                    return f"{sub},{step2}"
+    return None
 
 
 @lru_cache(maxsize=4096)
@@ -353,19 +298,4 @@ def score_molecule(
 
 
 def official_composite(molecule_score: float, route_score: float) -> float:
-    """复赛官方权重：分子 0.6 + 路线 0.4（documen/Baxiangfenzi/readme.md）。"""
-    mol_w = float(os.environ.get("BAXIANG_MOL_WEIGHT", "0.6"))
-    route_w = 1.0 - mol_w
-    return mol_w * molecule_score + route_w * route_score
-
-
-def best_route_for_target(target_smiles: str) -> tuple[str | None, float]:
-    """Return highest score_route among all enumerated plans."""
-    can = canonical_smiles(target_smiles)
-    if can is None:
-        return None, 0.0
-    routes = enumerate_routes(can)
-    if not routes:
-        return None, 0.0
-    best = max(routes, key=lambda r: score_route(r, can))
-    return best, score_route(best, can)
+    return 0.7 * molecule_score + 0.3 * route_score
