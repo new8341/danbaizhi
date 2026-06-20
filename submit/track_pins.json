@@ -11,8 +11,8 @@
                                     "note":  "neural build fix: root Dockerfile sync"
                                 },
                    "baxiangfenzi":  {
-                                        "commit":  "bb5b7e9",
-                                        "note":  "Sprint3 route_enum two_stage"
+                                        "commit":  "c9f870f",
+                                        "note":  "restore Sprint1 cundang 208eec8"
                                     },
                    "shenjingsuanzi":  {
                                           "commit":  "35ebe28",

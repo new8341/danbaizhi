@@ -1,4 +1,4 @@
-# ACR build alias ? keep in sync with submit/Dockerfile.baxiangfenzi
+# Fusai docker image ? track 2 (Baxiangfenzi agent)
 # Overseas ON: DaoCloud proxy avoids Docker Hub 429 on python:3.10-slim.
 # If still fails: turn OFF overseas build and use tcc-public line below instead.
 FROM docker.m.daocloud.io/library/python:3.10-slim
@@ -26,8 +26,9 @@ ENV FUSAI_TRACK=baxiangfenzi
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1
-ENV BAXIANG_MAX_CANDIDATES=120
-ENV BAXIANG_MAX_DOCK=40
+ENV BAXIANG_MAX_CANDIDATES=200
+ENV BAXIANG_MAX_DOCK=60
 ENV BAXIANG_VINA_EXHAUSTIVENESS=6
+ENV BAXIANG_SELECT_POOL=15
 
 CMD ["sh", "/app/run.sh"]

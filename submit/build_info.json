@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "shenjingsuanzi",
-    "commit":  "35ebe28",
-    "published":  "2026-06-20 12:31:42",
-    "note":  "KS fp32 inference + saisdata train paths"
+    "track":  "baxiangfenzi",
+    "commit":  "c9f870f",
+    "published":  "2026-06-20 12:32:34",
+    "note":  "restore Sprint1 cundang 208eec8"
 }
