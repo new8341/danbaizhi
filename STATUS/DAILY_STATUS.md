@@ -13,7 +13,7 @@ tracks:
     best_cundang: 0.717129
     latest: 0.717129
     submissions_per_day: 2
-    note: P1 ColabFold model_3 进行中(recycle2 pLDDT92)；完成后 republish
+    note: P1 3m 已完成(pLDDT92)；重启中断 P2(model2)；已续跑 P2+P3
 
   drugclip:
     mode: OPTIMIZE
@@ -25,14 +25,17 @@ tracks:
   baxiangfenzi:
     mode: OPTIMIZE
     best_cundang: 0.669636
-    latest: 0.665760
+    latest: 0.669304
+    latest_time: "2026-06-20 13:30:49"
     submissions_per_day: 2
-    note: 已回滚 Sprint1(208eec8)并 publish
+    note: Sprint1 restore≈Sprint2；未破 cundang
 
   shenjingsuanzi:
     mode: OPTIMIZE
-    best_cundang: 57.685109
-    latest: 42.090454
+    best_cundang: 81.777867
+    latest: 81.777867
+    latest_time: "2026-06-20 13:27:11"
+    latest_detail: "KS_A=1.03 cyl_A=39.70 KS_B=1.04 cyl_B=40.01"
     submissions_per_day: 1
-    note: KS fp32+路径增强已 publish(35ebe28)；待提交验证
+    note: B榜补齐+39分；KS仍baseline级，下轮KS真训练
 ```

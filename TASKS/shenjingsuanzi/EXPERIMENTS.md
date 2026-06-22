@@ -2,6 +2,7 @@
 
 | 时间戳 | 分数 | commit | 假设/备注 | 结果 |
 |--------|------|--------|-----------|------|
+| 202606201327 | 81.777867 | 35ebe28 | KS_A=1.03 cyl_A=39.70 KS_B=1.04 cyl_B=40.01 天池 2026-06-20 13:27:11 | cundang replaced |
 | 202606191402 | 42.090454 | 26d5745 | ks-q1 KS_train失败 ComplexHalf fallback Q1=2.39 Q2=39.70 | guidang only (below cundang best) |
 | 202606170549 | 42.090454 | 1266385 | FNO1d agent Q1=2.39 Q2=39.70 | guidang 最近 |
 | 202606160716 | 32.904013 | 65d41a9 | KS baseline | |

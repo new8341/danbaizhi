@@ -4,6 +4,7 @@
 
 | 时间戳 | 分数 | commit | 假设/备注 | 结果 |
 |--------|------|--------|-----------|------|
+| 202606192106 | 0.717129 | 8a8ce02 | auto_prior max24 P1_3m 天池 2026-06-19 21:06:20 | guidang only (below cundang best) |
 | 202606160717 | 0.717129 | 2977fa8 | MSA ColabFold 先验 + pLDDT≥50 | best（cundang） |
 | 202605241146 | 0.717129 | — | 序列先验锁版 | guidang 基线 |
 | 20260519 | 0.537492 | — | fast-preview 低 pLDDT | **失败** — 勿用 preview 冲榜 |

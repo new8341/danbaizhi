@@ -11,7 +11,7 @@
 
 ## 输出
 
-`submission.zip`：`KS_pred_A.hdf5`, `cylinder_pred_A.hdf5`
+`submission.zip`（复赛）：`KS_pred_A.hdf5`, `cylinder_pred_A.hdf5`, `KS_pred_B.hdf5`, `cylinder_pred_B.hdf5`
 
 ## 环境
 

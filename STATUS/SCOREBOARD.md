@@ -6,10 +6,10 @@
 
 | 赛道 | 仓库 best (cundang) | 最近归档 (guidang) | 已发布 pin | 冠军参考 |
 |------|---------------------|--------------------|------------|----------|
-| danbaizhi | 0.717129 (203ab1a) | 0.717129 (202606160717) output.zip 首通 | `2977fa8` | 0.717+ (MSA prior) |
-| drugclip | 19.229531 (203ab1a) | 18.824414 (202606170550) native drugclip_agent hybrid_max_qed 首通 | `59c7bbf` | ~19.23 (ReDrugClip hybrid) |
-| baxiangfenzi | 0.669636 (208eec8) | 0.669636 (202606172318) Sprint1 天池出分 2026-06-17 23:18:33 | `208eec8` | TBD |
-| shenjingsuanzi | 57.685109 (203ab1a) | 42.090454 (202606170549) FNO1d agent Q1=2.39 Q2=39.70 | `0bf193a` | ~57.69 (pdeburgers ref) |
+| danbaizhi | 0.717129 (203ab1a) | 0.717129 (202606192106) auto_prior max24 P1_3m 天池 2026-06-19 21: | `8a8ce02` | 0.717+ (MSA prior) |
+| drugclip | 19.229531 (203ab1a) | 19.229531 (202606191401) hybrid_max_qed_v2 天池 2026-06-19 14:01:53 | `7a490df` | ~19.23 (ReDrugClip hybrid) |
+| baxiangfenzi | 0.669636 (208eec8) | 0.669304 (202606201330) Sprint1 restore 天池 2026-06-20 13:30:49 | `c9f870f` | TBD |
+| shenjingsuanzi | 81.777867 (35ebe28) | 81.777867 (202606201327) KS_A=1.03 cyl_A=39.70 KS_B=1.04 cyl_B=40 | `35ebe28` | ~57.69 (pdeburgers ref) |
 <!-- END AUTO-GENERATED -->
 
 ## 说明

@@ -1,7 +1,8 @@
 # shenjingsuanzi — 经验教训
 
-1. **Q1/Q2 分项**：总分 42 但 Q1≈2 说明 KS 分支未真正训练或 fallback。
-2. **挂载路径**：`/saisdata/48/KS_train.hdf5` 必须存在才走 `fno1d_train`。
-3. **6h 预算**：KS epoch 与 problem2 inference 需权衡；`score-push` preset 偏 Q2。
-4. **cundang 57.69** 来自 reference pdeburgers，非当前 native agent 路径。
-5. cylinder 依赖挂载 `run_inference.py`；失败会 sample 兜底（低分）。
+1. **KS ~1 分 ≠ 一定没训练**：2026-06-20 平台 log 显示 `KS_train exists=True`、`ks_train_done seconds=19266.8`（≈5.35h）、`windows=72000` — 训练已跑完，但 **A/B 榜仍仅 ~1 分** → 瓶颈是 **380 步自回归预报质量**，不是 baseline 兜底。
+2. **6h 预算**：KS `ks-q1` 28 epoch 单题耗 ~5.3h，几乎挤占全部时限；cylinder 仍靠挂载 FNO（~40 分/榜）。
+3. **cylinder A/B 分数相同量级**（39.70 / 40.01）且与历史完全一致 → 挂载 `run_inference.py` + `fno` checkpoint 路径饱和。
+4. **挂载路径**：`/saisdata/49/problem1/data/KS_train.hdf5` 复赛可用；B 榜在 `/saisdata/66/`。
+5. **cundang 57.69** 来自 `shenjingsuanzi/pdeburgers/` 参考路径，非当前 native agent 默认可达水平。
+6. **下轮 P0**：缩短 KS 训练占时 + 强化长时 rollout 对齐（对照 pdeburgers）；P1 容器内 cylinder finetune。

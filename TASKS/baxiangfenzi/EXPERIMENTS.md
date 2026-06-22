@@ -2,6 +2,9 @@
 
 | 时间戳 | 分数 | commit | 假设/备注 | 结果 |
 |--------|------|--------|-----------|------|
+| 202606201330 | 0.669304 | c9f870f | Sprint1 restore 天池 2026-06-20 13:30:49 | guidang only (below cundang best) |
+| 202606192108 | 0.665760 | bb5b7e9 | Sprint3 route_enum 天池 2026-06-19 21:08:19 | guidang only (below cundang best) |
+| 202606191359 | 0.669304 | fc846c0 | Sprint2 6:4+best_route 天池 2026-06-19 13:59:59 | guidang only (below cundang best) |
 | 202606172318 | 0.669636 | 208eec8 | Sprint1 天池出分 2026-06-17 23:18:33 | cundang replaced |
 | 202606160717 | 0.666884 | 8c87d20 | RDKit+Vina baseline | cundang best |
 | 20260617 | ~0.667 | 208eec8 | Sprint1：pocket box、官方权重、dock 排序 | 已 publish，待平台确认 |
