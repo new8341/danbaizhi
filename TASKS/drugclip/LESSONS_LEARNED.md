@@ -11,3 +11,4 @@
 
 - 一次改训练+推理+融合（应单假设）
 - 未跑 pytest mini 就 publish
+- drugclip ACR 用国内节点拉 `docker.m.daocloud.io/pytorch` 3.4GB 层易超时；与 shenjingsuanzi 一样用 `pytorch/pytorch` + **海外机器构建**
