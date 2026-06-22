@@ -1,14 +1,15 @@
 # Fusai docker image — track 1 (DrugClip neural + hybrid agent)
 # GPU runtime (V100). ACR builds root Dockerfile.drugclip (synced on publish).
 # DrugCLIP cloned at build time (not in git monorepo).
-FROM docker.m.daocloud.io/pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+# ACR drugclip 仓库须开启「海外机器构建」（与 shenjingsuanzi 相同，拉取 ~3.4GB PyTorch 层）。
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
-RUN apt-get update && apt-get install -y --no-install-recommends git \
+RUN apt-get update && apt-get install -y --no-install-recommends git gcc g++ \
     && git clone --depth 1 https://github.com/bowen-gao/DrugCLIP.git /app/external/DrugCLIP \
     && pip install --no-cache-dir \
         rdkit biopandas numpy lmdb tqdm pyyaml ipython \
     && pip install --no-cache-dir "git+https://github.com/dptech-corp/Uni-Core.git@stable" \
-    && apt-get purge -y git \
+    && apt-get purge -y git gcc g++ \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 

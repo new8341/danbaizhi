@@ -1,6 +1,6 @@
 ﻿{
     "track":  "drugclip",
-    "commit":  "7a490df",
-    "published":  "2026-06-20 12:33:36",
-    "note":  "clone DrugCLIP at build + neural stack"
+    "commit":  "6c7e77a",
+    "published":  "2026-06-22 21:34:03",
+    "note":  "pytorch 2.1.2 + gcc Uni-Core + overseas ACR"
 }
