@@ -11,15 +11,26 @@ COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY documen/DrugClip/benchmark/ /app/benchmark/
 COPY agent/ /app/agent/
+COPY submit/tracks/drugclip_agent/ /app/agent_code/drugclip_agent/
+COPY agent/ /app/agent_code/agent/
+COPY submit/agent_code/drugclip/README.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
 RUN chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "from submit.tracks.registry import get_runner; get_runner('drugclip')"
 
+# LLM API — inject via ACR build args only. See submit/LLM_API_KEY_ACR.md
+ARG DRUGCLIP_LLM_API_KEY=""
+ARG DRUGCLIP_LLM_BASE_URL=""
+ARG DRUGCLIP_LLM_MODEL=""
+
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
 ENV DRUGCLIP_STRATEGY=auto
 ENV DRUGCLIP_WORKERS=8
+ENV DRUGCLIP_LLM_API_KEY=${DRUGCLIP_LLM_API_KEY}
+ENV DRUGCLIP_LLM_BASE_URL=${DRUGCLIP_LLM_BASE_URL}
+ENV DRUGCLIP_LLM_MODEL=${DRUGCLIP_LLM_MODEL}
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1
