@@ -18,6 +18,10 @@ COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY documen/DrugClip/benchmark/ /app/benchmark/
 COPY agent/ /app/agent/
+COPY submit/tracks/drugclip.py /app/agent_code/drugclip_runner.py
+COPY submit/tracks/drugclip_agent/ /app/agent_code/drugclip_agent/
+COPY agent/ /app/agent_code/agent/
+COPY submit/agent_code/README.drugclip.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
 RUN python /app/submit/scripts/download_drugclip_weights.py --out-dir /app/weights || true \

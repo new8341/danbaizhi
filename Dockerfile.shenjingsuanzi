@@ -11,7 +11,7 @@ COPY submit/ /app/submit/
 COPY agent/ /app/agent/
 COPY submit/tracks/shenjingsuanzi_agent/ /app/agent_code/shenjingsuanzi_agent/
 COPY agent/ /app/agent_code/agent/
-COPY submit/agent_code/README.md /app/agent_code/README.md
+COPY submit/agent_code/README.shenjingsuanzi.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
 RUN chmod +x /app/run.sh /app/submit/run.sh \

@@ -16,6 +16,10 @@ COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY Project/ /app/Project/
 COPY agent/ /app/agent/
+COPY Project/code/ /app/Code/Project_code/
+COPY submit/tracks/danbaizhi.py /app/Code/danbaizhi_runner.py
+COPY agent/ /app/Reference/agent/
+COPY submit/agent_code/README.danbaizhi.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
 RUN chmod +x /app/run.sh /app/submit/run.sh \

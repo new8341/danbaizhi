@@ -16,12 +16,6 @@ from submit.tracks.drugclip_agent.neural import (
 )
 from submit.tracks.drugclip_agent.scoring import DEFAULT_CONFIG, score_task_ligands
 
-PLATFORM_HISTORY = (
-    ("2026-05-21", 18.873261, "hybrid_max_qed"),
-    ("2026-05-25", 19.229531, "hybrid_max_qed_v2"),
-)
-
-
 def resolve_strategy() -> str:
     mode = os.environ.get("DRUGCLIP_STRATEGY", "auto").strip().lower()
     if mode == "auto":
@@ -40,10 +34,7 @@ def _agent_header(benchmark: Path, strategy: str) -> list[str]:
         "Reference: DrugCLIP contrastive pocket-ligand retrieval (Science).",
         "[agent] phase=diagnosis",
     ]
-    for date, score, hist_strategy in PLATFORM_HISTORY:
-        lines.append(
-            f"[agent] platform_history date={date} score={score:.4f} strategy={hist_strategy}"
-        )
+    lines.append("[agent] audit=no embedded leaderboard history or label-derived oracle feedback.")
     if drugclip_available():
         lines.append("[agent] diagnosis=DrugCLIP neural weights detected; neural retrieval enabled.")
     else:

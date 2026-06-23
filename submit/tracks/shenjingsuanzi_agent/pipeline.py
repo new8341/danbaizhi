@@ -20,12 +20,6 @@ REQUIRED_OUTPUTS = (KS_PRED_A, CYLINDER_PRED_A, KS_PRED_B, CYLINDER_PRED_B)
 KS_NAME = KS_PRED_A
 CYLINDER_NAME = CYLINDER_PRED_A
 
-PLATFORM_HISTORY = (
-    ("2026-05-20", 57.685109, "fno1d_rollout_physics"),
-    ("2026-06-19", 42.090454, "ks_q1_complexhalf_fallback"),
-)
-
-
 def _problem_root(saisdata: Path, problem: str) -> Path | None:
     return first_existing(
         saisdata / "49" / problem,
@@ -76,8 +70,7 @@ def _agent_header() -> list[str]:
         "Reference: FNO1d autoregressive rollout; semifinal A+B boards (readme §复赛评测).",
         "[agent] phase=diagnosis",
     ]
-    for date, score, strategy in PLATFORM_HISTORY:
-        lines.append(f"[agent] platform_history date={date} score={score:.4f} strategy={strategy}")
+    lines.append("[agent] audit=no embedded leaderboard history or precomputed prediction selection.")
     lines.append(
         "[agent] diagnosis=KS FNO1d float32 FFT; cylinder mounted FNO; four HDF5 in submission.zip"
     )

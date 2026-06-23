@@ -12,7 +12,7 @@ $script:TrackMeta = @{
         task_id   = "3"
         acr_repo  = "danbaizhi"
         dockerfile = "Dockerfile"
-        output    = "output.zip"
+        output    = "submission.zip"
         paths     = @(
             "Dockerfile",
             "submit/Dockerfile",

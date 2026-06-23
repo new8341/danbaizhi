@@ -17,6 +17,10 @@ WORKDIR /app
 COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY agent/ /app/agent/
+COPY submit/tracks/baxiangfenzi.py /app/Code/baxiangfenzi_runner.py
+COPY submit/tracks/baxiangfenzi_agent/ /app/Code/baxiangfenzi_agent/
+COPY agent/ /app/Reference/agent/
+COPY submit/agent_code/README.baxiangfenzi.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
 RUN chmod +x /app/run.sh /app/submit/run.sh \

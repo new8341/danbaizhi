@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -29,9 +30,19 @@ class DesignResult:
     log_lines: list[str]
 
 
+def _file_sha256(path: Path, chunk_size: int = 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(chunk_size), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
+    target_hash = _file_sha256(target_pdb) if target_pdb.is_file() else "missing"
     log: list[str] = [
         f"[agent] slot={slot} phase=init target={target_pdb.name}",
+        f"[agent] target_sha256={target_hash}",
         f"[agent] timestamp={datetime.now(timezone.utc).isoformat()}",
         "[agent] hypothesis=binding_first_selection pocket_aware_box receptor_cache",
     ]
