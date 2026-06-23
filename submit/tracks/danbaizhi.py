@@ -17,7 +17,7 @@ class DanbaizhiRunner(TrackRunner):
         name="danbaizhi",
         task_id="3",
         saisdata_hint="/saisdata/ or /saisdata/<id>/ (1.json, 2.json, 3.json)",
-        output_name="output.zip",
+        output_name="submission.zip",
         output_members=("agent.log",),
     )
 
