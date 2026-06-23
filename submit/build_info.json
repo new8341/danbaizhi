@@ -1,6 +1,6 @@
 ﻿{
     "track":  "drugclip",
-    "commit":  "6c7e77a",
-    "published":  "2026-06-22 21:34:03",
-    "note":  "pytorch 2.1.2 + gcc Uni-Core + overseas ACR"
+    "commit":  "9ad2644",
+    "published":  "2026-06-23 12:37:16",
+    "note":  "FROM shenjingsuanzi:0.1 ACR base"
 }

@@ -7,8 +7,8 @@
                                      "note":  "auto_prior max24 P1_3m"
                                  },
                    "drugclip":  {
-                                    "commit":  "6c7e77a",
-                                    "note":  "pytorch 2.1.2 + gcc Uni-Core + overseas ACR"
+                                    "commit":  "9ad2644",
+                                    "note":  "FROM shenjingsuanzi:0.1 ACR base"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "c9f870f",

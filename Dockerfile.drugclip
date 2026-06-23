@@ -1,13 +1,16 @@
 # Fusai docker image — track 1 (DrugClip neural + hybrid agent)
 # GPU runtime (V100). ACR builds root Dockerfile.drugclip (synced on publish).
-# DrugCLIP cloned at build time (not in git monorepo).
-# ACR drugclip 仓库须开启「海外机器构建」（与 shenjingsuanzi 相同，拉取 ~3.4GB PyTorch 层）。
-FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
+#
+# Base: reuse shenjingsuanzi:0.1 from same ACR instance (PyTorch CUDA already present).
+# Personal ACR builders time out pulling 3.4GB from docker.io; intra-registry FROM avoids that.
+# Prerequisite: shenjingsuanzi:0.1 must exist in ai4s-lee namespace.
+ARG ACR_REGISTRY=crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com
+FROM ${ACR_REGISTRY}/ai4s-lee/shenjingsuanzi:0.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends git gcc g++ \
     && git clone --depth 1 https://github.com/bowen-gao/DrugCLIP.git /app/external/DrugCLIP \
     && pip install --no-cache-dir \
-        rdkit biopandas numpy lmdb tqdm pyyaml ipython \
+        rdkit biopandas lmdb pyyaml ipython \
     && pip install --no-cache-dir "git+https://github.com/dptech-corp/Uni-Core.git@stable" \
     && apt-get purge -y git gcc g++ \
     && apt-get autoremove -y \
