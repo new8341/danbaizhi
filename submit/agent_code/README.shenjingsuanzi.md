@@ -30,10 +30,11 @@ not greater than `5e-3`.
 
 ## Model and prediction workflow
 
-The current agent uses a KS FNO-style rollout path and a cylinder prediction path
-that reads mounted inputs and produces A/B board outputs. It logs selected data
-paths, source decisions, train/inference phase information, and generated file
-names.
+The audit-safe agent does not package or run KS training code. KS predictions
+are generated from the mounted test initial-condition tensor with an
+IC-preserving baseline. Cylinder predictions use the mounted inference script
+when available. It logs selected data paths, source decisions, and generated
+file names.
 
 ## Data and compliance
 

@@ -23,15 +23,16 @@ file that can directly recover final results.
 - `/app/submit/`: runner, packer, and track dispatch code.
 - `/app/submit/tracks/drugclip_agent/`: DrugClip scoring and hybrid ranking agent.
 - `/app/agent/`: shared agent conventions and audit notes.
-- `/app/external/DrugCLIP/`: open-source DrugCLIP framework cloned at build time.
 - `/app/agent_code/`: audit copy of agent code and this README.
 
 ## Model and ranking workflow
 
-The agent uses a DrugCLIP-style pocket-ligand representation when weights and
-runtime support are available, with a deterministic molecular-property fallback
-and hybrid ranking. It logs the chosen strategy, data paths, task count, scoring
-steps, and output packaging so the run can be audited.
+The audit-safe default mode does not download or package DUD-E/LIT-PCBA
+benchmark-specific weights. It uses deterministic fingerprint, pocket, and QED
+features for hybrid ranking. Neural retrieval can be enabled only with
+externally reviewed, non-label-leaking weights. The agent logs the chosen
+strategy, data paths, task count, scoring steps, and output packaging so the run
+can be audited.
 
 ## Data processing and leakage control
 
@@ -45,8 +46,8 @@ libraries.
 
 - Base image: PyTorch CUDA runtime.
 - Key Python packages: `torch`, `rdkit`, `biopandas`, `numpy`, `lmdb`, `tqdm`,
-  `pyyaml`, `ipython`, `Uni-Core`.
-- GPU is preferred; CPU fallback depends on runtime limits.
+  `pyyaml`, `ipython`.
+- GPU is not required for the audit-safe hybrid ranking path.
 
 ## Reproduction
 
@@ -75,6 +76,5 @@ Do not hard-code personal secrets in source code.
 
 ## Runtime notes
 
-Expected runtime depends on the number of benchmark tasks and whether neural
-scoring is enabled. The run should be non-interactive and deterministic apart
-from ordinary GPU numerical differences.
+Expected runtime depends on the number of benchmark tasks. The run should be
+non-interactive and deterministic apart from ordinary numerical differences.

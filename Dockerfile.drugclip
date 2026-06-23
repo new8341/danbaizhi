@@ -1,15 +1,10 @@
 # Fusai docker image — track 1 (DrugClip neural + hybrid agent)
 # GPU runtime (V100). ACR builds root Dockerfile.drugclip (synced on publish).
-# DrugCLIP cloned at build time (not in git monorepo).
+# Audit-safe build: no benchmark-specific weights or external DrugCLIP clone.
 FROM docker.m.daocloud.io/pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
-RUN apt-get update && apt-get install -y --no-install-recommends git \
-    && git clone --depth 1 https://github.com/bowen-gao/DrugCLIP.git /app/external/DrugCLIP \
-    && pip install --no-cache-dir \
+RUN pip install --no-cache-dir \
         rdkit biopandas numpy lmdb tqdm pyyaml ipython \
-    && pip install --no-cache-dir "git+https://github.com/dptech-corp/Uni-Core.git@stable" \
-    && apt-get purge -y git \
-    && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -24,15 +19,15 @@ COPY agent/ /app/agent_code/agent/
 COPY submit/agent_code/README.drugclip.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
-RUN python /app/submit/scripts/download_drugclip_weights.py --out-dir /app/weights || true \
+RUN rm -f /app/submit/scripts/download_drugclip_weights.py \
+          /app/submit/tracks/drugclip_agent/neural.py \
+          /app/agent_code/drugclip_agent/neural.py \
     && chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "from submit.tracks.registry import get_runner; get_runner('drugclip')"
 
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
-ENV DRUGCLIP_ROOT=/app/external/DrugCLIP
-ENV DRUGCLIP_WEIGHTS_DIR=/app/weights
-ENV DRUGCLIP_STRATEGY=auto
+ENV DRUGCLIP_STRATEGY=hybrid_max_qed_v2
 ENV DRUGCLIP_NEURAL_BLEND=0.9
 ENV DRUGCLIP_NUM_CONF=1
 ENV DRUGCLIP_BATCH_SIZE=16

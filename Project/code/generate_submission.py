@@ -4,7 +4,6 @@
 入口：由 code/main.py predict 调用；--sources-config 内路径相对 Project 根目录（code/ 的上一级）。
 
 每题策略（submission_sources.json）：
-- golden_checkpoint：复制 checkpoint/golden/*_pred.cif（P2 审核冻结）
 - template_align：NW 对齐 + 可选 diversity_filter + hybrid 全原子侧链
 - template_cif：mdtraj 全原子导出 + 小角度刚体扰动（seed）
 - trajectory_ca / baseline_ca：无模板/轨迹时的回退
@@ -1229,29 +1228,6 @@ def main() -> None:
         hybrid_meta: list[dict[str, Any] | None] = [None] * n_conf
 
         source_entry = sources_cfg.get(str(p.problem_id), {})
-        # P2 审核路径：不生成，从 checkpoint/golden/ 复制冻结 mmCIF
-        golden_raw = source_entry.get("golden_conformer_cifs")
-        if isinstance(golden_raw, list) and golden_raw:
-            if len(golden_raw) < n_conf:
-                raise RuntimeError(
-                    f"golden_conformer_cifs for problem {p.problem_id} has {len(golden_raw)} "
-                    f"entries but {n_conf} conformers required"
-                )
-            for conf_idx in range(1, n_conf + 1):
-                src = Path(golden_raw[conf_idx - 1])
-                src = src if src.is_absolute() else (root / src)
-                if not src.is_file():
-                    raise FileNotFoundError(f"golden conformer missing: {src}")
-                dst = out_dir / f"{p.problem_id}_conf{conf_idx}_pred.cif"
-                shutil.copy2(src, dst)
-            strategy_report[str(p.problem_id)] = {
-                "strategy": "golden_checkpoint",
-                "reason": "copied frozen conformers from golden_conformer_cifs",
-                "conformers": n_conf,
-                "sequence_length": len(p.sequence),
-                "golden_conformer_cifs": golden_raw,
-            }
-            continue
 
         # --- 按 JSON 策略生成构象（模板 / 轨迹 / 基线）---
         export_mode = str(source_entry.get("export_mode", "auto")).lower()

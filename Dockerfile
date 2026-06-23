@@ -15,13 +15,17 @@ COPY submit/build_info.json /app/submit/build_info.json
 COPY submit/ /app/submit/
 COPY Project/ /app/Project/
 COPY agent/ /app/agent/
+COPY submit/tracks/danbaizhi.py /app/Code/main.py
+COPY submit/agent_code/README.danbaizhi.md /app/Code/README.md
 COPY Project/code/ /app/Code/Project_code/
 COPY submit/tracks/danbaizhi.py /app/Code/danbaizhi_runner.py
 COPY agent/ /app/Reference/agent/
 COPY submit/agent_code/README.danbaizhi.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh \
+RUN rm -rf /app/Project/checkpoint /app/Project/result /app/Project/agent \
+    && rm -f /app/Project/README.md /app/Project/code/compare_output_zips.py \
+    && chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "import openmm; import submit.tracks.registry as r; r.get_runner('danbaizhi')"
 
 ENV FUSAI_TRACK=danbaizhi

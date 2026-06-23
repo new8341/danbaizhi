@@ -26,6 +26,8 @@ molecule/route answer bank.
 - `/app/submit/`: runner, packer, and track dispatch code.
 - `/app/submit/tracks/baxiangfenzi_agent/`: molecule generation, filtering,
   docking, and route proposal code.
+- `/app/Code/main.py`: audit entry copy of the track runner.
+- `/app/Code/README.md`: audit copy of this reproduction README.
 - `/app/Code/`: audit copy of the inference code.
 - `/app/Reference/`: audit notes and shared conventions.
 - `/app/agent_code/README.md`: this reproduction README.
@@ -66,8 +68,7 @@ Expected artifact:
 
 ## External services and API keys
 
-Current default pipeline does not require an LLM service. If an LLM-assisted
-variant is enabled, configure:
+This semifinal image requires LLM/API key configuration at runtime. Configure:
 
 - `LLM_API_KEY`: API key location.
 - `LLM_BASE_URL`: provider base URL.

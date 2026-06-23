@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 """Project 入口（tijiao.md）。
 
 子进程的工作目录均为 Project 根目录；命令行路径相对该根目录
@@ -7,7 +7,6 @@
 子命令：
   （默认）/ predict  — 生成 result/output.zip（组织方复现）
   eval               — 本地弱评测
-  verify-repro       — 与 checkpoint/golden 比对
   build-prior        — 可选：离线合并 ColabFold 先验配置
 """
 from __future__ import annotations
@@ -58,8 +57,6 @@ def cmd_predict(_args: argparse.Namespace) -> None:
             str(cfg.relative_to(PROJECT_ROOT)).replace("\\", "/"),
             "--seed",
             "42",
-            "--agent-log-from",
-            "checkpoint/golden/agent.log",
         ]
     )
 
@@ -81,22 +78,6 @@ def cmd_eval(_args: argparse.Namespace) -> None:
             "result/local_eval.json",
         ]
     )
-
-
-# ---------------------------------------------------------------------------
-# verify-repro：与 golden 检查点逐成员比对
-# ---------------------------------------------------------------------------
-def cmd_verify_repro(_args: argparse.Namespace) -> None:
-    """仅比对 zip 内正式提交成员（忽略 golden 中的调试文件）。"""
-    _run(
-        [
-            sys.executable,
-            str(CODE / "compare_output_zips.py"),
-            "checkpoint/golden/output.zip",
-            "result/output.zip",
-        ]
-    )
-    print("[OK] result/output.zip matches checkpoint/golden/output.zip (0.717129)", flush=True)
 
 
 # ---------------------------------------------------------------------------
@@ -129,10 +110,6 @@ def main() -> int:
     sub = p.add_subparsers(dest="command")
     sub.add_parser("predict", help="生成 result/output.zip（默认）").set_defaults(func=cmd_predict)
     sub.add_parser("eval", help="本地评测 result/output.zip").set_defaults(func=cmd_eval)
-    sub.add_parser(
-        "verify-repro",
-        help="断言 result/output.zip 与 checkpoint/golden 一致（0.717129）",
-    ).set_defaults(func=cmd_verify_repro)
     sub.add_parser("build-prior", help="重建序列先验配置").set_defaults(func=cmd_build_prior)
     args = p.parse_args()
     if args.command is None:

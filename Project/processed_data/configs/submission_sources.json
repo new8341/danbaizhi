@@ -58,12 +58,6 @@
     ],
     "sequence_prior_candidates": [
       "processed_data/colabfold/problem_2/predictions_msa/p2_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
-    ],
-    "golden_conformer_cifs": [
-      "checkpoint/golden/2_conf1_pred.cif",
-      "checkpoint/golden/2_conf2_pred.cif",
-      "checkpoint/golden/2_conf3_pred.cif",
-      "checkpoint/golden/2_conf4_pred.cif"
     ]
   },
   "3": {

@@ -14,13 +14,19 @@ COPY agent/ /app/agent_code/agent/
 COPY submit/agent_code/README.shenjingsuanzi.md /app/agent_code/README.md
 COPY submit/run.sh /app/run.sh
 
-RUN chmod +x /app/run.sh /app/submit/run.sh \
+RUN rm -f /app/submit/tracks/shenjingsuanzi_agent/ks.py \
+          /app/submit/tracks/shenjingsuanzi_agent/engine.py \
+          /app/submit/tracks/shenjingsuanzi_agent/model.py \
+          /app/submit/tracks/shenjingsuanzi_agent/config.py \
+          /app/agent_code/shenjingsuanzi_agent/ks.py \
+          /app/agent_code/shenjingsuanzi_agent/engine.py \
+          /app/agent_code/shenjingsuanzi_agent/model.py \
+          /app/agent_code/shenjingsuanzi_agent/config.py \
+    && chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "import submit.tracks.registry as r; r.get_runner('shenjingsuanzi')"
 
 ENV FUSAI_TRACK=shenjingsuanzi
 ENV SHENJING_MODEL=fno
-ENV SHENJING_KS_PRESET=ks-q1
-ENV SHENJING_KS_EPOCHS=28
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1

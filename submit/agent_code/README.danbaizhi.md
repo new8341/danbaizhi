@@ -40,9 +40,11 @@ emit an audit log in the packaged output.
 ## Data processing
 
 Mounted JSON files are copied at runtime into `/app/Project/data/`. No training
-or validation dataset should be baked into the final image. Any priors or
-knowledge files included in the image must be generic method guidance, not
-target-specific answer instructions or precomputed predictions.
+or validation dataset should be baked into the final image. The Docker build
+excludes `Project/checkpoint/` and `Project/result/`; the default runtime also
+disables golden checkpoint conformer copying. Any priors or knowledge files
+included in the image must be generic method guidance, not target-specific
+answer instructions or precomputed predictions.
 
 ## Environment
 
