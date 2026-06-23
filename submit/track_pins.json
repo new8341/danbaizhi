@@ -15,8 +15,8 @@
                                         "note":  "semifinal Code/Reference mirror + LLM ARG"
                                     },
                    "shenjingsuanzi":  {
-                                          "commit":  "35ebe28",
-                                          "note":  "KS fp32 inference + saisdata train paths"
+                                          "commit":  "cd84e15",
+                                          "note":  "semifinal agent_code README + LLM ARG"
                                       }
                }
 }

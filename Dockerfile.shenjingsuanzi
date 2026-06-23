@@ -17,7 +17,15 @@ COPY submit/run.sh /app/run.sh
 RUN chmod +x /app/run.sh /app/submit/run.sh \
     && python -c "import submit.tracks.registry as r; r.get_runner('shenjingsuanzi')"
 
+# LLM API optional — core PDE inference does not require LLM. See submit/LLM_API_KEY_ACR.md
+ARG SHENJING_LLM_API_KEY=""
+ARG SHENJING_LLM_BASE_URL=""
+ARG SHENJING_LLM_MODEL=""
+
 ENV FUSAI_TRACK=shenjingsuanzi
+ENV SHENJING_LLM_API_KEY=${SHENJING_LLM_API_KEY}
+ENV SHENJING_LLM_BASE_URL=${SHENJING_LLM_BASE_URL}
+ENV SHENJING_LLM_MODEL=${SHENJING_LLM_MODEL}
 ENV SHENJING_MODEL=fno
 ENV SHENJING_KS_PRESET=ks-q1
 ENV SHENJING_KS_EPOCHS=28
