@@ -1,6 +1,6 @@
 ﻿{
     "track":  "drugclip",
-    "commit":  "9ad2644",
-    "published":  "2026-06-23 12:37:16",
-    "note":  "FROM shenjingsuanzi:0.1 ACR base"
+    "commit":  "1a47820",
+    "published":  "2026-06-23 13:24:10",
+    "note":  "ACR slim hybrid_max_qed_v2 stable"
 }
