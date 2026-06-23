@@ -11,4 +11,4 @@
 
 - 一次改训练+推理+融合（应单假设）
 - 未跑 pytest mini 就 publish
-- drugclip ACR 勿直接 `FROM pytorch`（个人版拉 3.4GB 易超时）；复用同实例 `shenjingsuanzi:0.1` 作 base
+- drugclip ACR 个人版拉不动 3.4GB PyTorch（含 shenjingsuanzi base）；云端用 slim + hybrid_max_qed_v2（19.23）
