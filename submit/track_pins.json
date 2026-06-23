@@ -7,8 +7,8 @@
                                      "note":  "semifinal submission.zip + agent_code mirror"
                                  },
                    "drugclip":  {
-                                    "commit":  "1a47820",
-                                    "note":  "ACR slim hybrid_max_qed_v2 stable"
+                                    "commit":  "e3add54",
+                                    "note":  "semifinal agent_code + LLM ARG slots"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "c9f870f",
