@@ -11,8 +11,8 @@
                                     "note":  "semifinal agent_code + LLM ARG slots"
                                 },
                    "baxiangfenzi":  {
-                                        "commit":  "c9f870f",
-                                        "note":  "restore Sprint1 cundang 208eec8"
+                                        "commit":  "20cb3cd",
+                                        "note":  "semifinal Code/Reference mirror + LLM ARG"
                                     },
                    "shenjingsuanzi":  {
                                           "commit":  "35ebe28",
