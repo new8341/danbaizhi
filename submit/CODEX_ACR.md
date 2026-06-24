@@ -41,6 +41,19 @@ Codex ACR 仓库: codex-<track>:0.1
 | 蛋白质构象 | `codex-danbaizhi` | `codex-v0.1-danbaizhi` | `Dockerfile` | `0.1` |
 | 神经算子 | `codex-shenjingsuanzi` | `codex-v0.1-shenjingsuanzi` | `Dockerfile.shenjingsuanzi` | `0.1` |
 
+## APIKEY 构建参数
+
+复赛审核要求部分赛道在推理代码或环境变量中包含可用 APIKEY。Codex 镜像统一通过 ACR 构建参数注入，不在 Git 中保存明文 key。
+
+| 赛道 | 是否必须配置 | ACR 构建参数 |
+|---|---|---|
+| DrugClip | 是 | `OPENAI_API_KEY`、`LLM_BASE_URL=https://api.openai.com/v1`、`LLM_PROVIDER=openai` |
+| 靶向分子 | 是 | `OPENAI_API_KEY`、`LLM_BASE_URL=https://api.openai.com/v1`、`LLM_PROVIDER=openai` |
+| 蛋白质构象 | 是 | `OPENAI_API_KEY`、`LLM_BASE_URL=https://api.openai.com/v1`、`LLM_PROVIDER=openai` |
+| 神经算子 | 否 | 不需要 |
+
+运行时同时暴露 `OPENAI_API_KEY` 与 `LLM_API_KEY`，日志只记录 masked key。复赛结束后应立即停用或轮换该 APIKEY。
+
 注意：
 
 - Dockerfile 文件名只填文件名，不填 `submit/...`。
@@ -88,4 +101,3 @@ crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/codex-shenji
 | 镜像 | `<track>:0.1` | `codex-<track>:0.1` |
 | pin 文件 | 修改 `track_pins.json` | 不修改 `track_pins.json` |
 | 大赛提交 | 用户手动选择镜像 | 用户手动选择镜像 |
-

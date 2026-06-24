@@ -74,7 +74,8 @@ This semifinal image requires LLM/API key configuration at runtime. Configure:
 - `LLM_BASE_URL` or `OPENAI_BASE_URL`: provider base URL. Defaults to `https://api.openai.com/v1`.
 - `LLM_PROVIDER`: provider name. Defaults to `openai`.
 
-Do not hard-code personal secrets in source code.
+In ACR builds the key may be injected through the `OPENAI_API_KEY` Docker build
+argument. Runtime logs show only a masked key prefix/suffix, not the full secret.
 
 ## Runtime notes
 

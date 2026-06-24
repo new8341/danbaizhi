@@ -5,11 +5,30 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import os
 from pathlib import Path
 
 from submit.pack_submission import emit_error
 from submit.tracks._paths import danbaizhi_data_root, describe_saisdata
 from submit.tracks.base import TrackRunner, TrackSpec
+
+
+def _require_llm_config() -> list[str]:
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+    provider = os.environ.get("LLM_PROVIDER") or "openai"
+    if not api_key:
+        emit_error(
+            "DANBAIZHI_LLM_CONFIG_MISSING",
+            "Missing required LLM/APIKEY environment variable: LLM_API_KEY or OPENAI_API_KEY",
+        )
+    masked = f"{api_key[:4]}...{api_key[-4:]}" if len(api_key) >= 8 else "***"
+    return [
+        "llm_config=required_by_semifinal_rules",
+        f"llm_provider={provider}",
+        f"llm_base_url={base_url}",
+        f"llm_api_key_masked={masked}",
+    ]
 
 
 class DanbaizhiRunner(TrackRunner):
@@ -22,6 +41,7 @@ class DanbaizhiRunner(TrackRunner):
     )
 
     def run(self, saisdata: Path, staging_dir: Path, work_dir: Path) -> None:
+        llm_logs = _require_llm_config()
         project_root = work_dir / "Project"
         if not (project_root / "code" / "main.py").is_file():
             emit_error(
@@ -58,3 +78,7 @@ class DanbaizhiRunner(TrackRunner):
         staging_dir.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(output_zip, "r") as zf:
             zf.extractall(staging_dir)
+        agent_log = staging_dir / "agent.log"
+        with agent_log.open("a", encoding="utf-8") as f:
+            f.write("\n[semifinal_api_config]\n")
+            f.write("\n".join(llm_logs) + "\n")

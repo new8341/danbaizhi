@@ -69,13 +69,16 @@ Expected artifact:
 
 ## External services and API keys
 
-If an LLM-assisted variant is enabled, configure:
+This semifinal image requires an API key to be available in the runtime
+environment for audit and LLM-assisted extensions. Configure:
 
-- `LLM_API_KEY`: API key location.
-- `LLM_BASE_URL`: provider base URL.
-- `LLM_PROVIDER`: provider name.
+- `LLM_API_KEY` or `OPENAI_API_KEY`: API key location. In ACR builds this may
+  be injected through the `OPENAI_API_KEY` Docker build argument.
+- `LLM_BASE_URL` or `OPENAI_BASE_URL`: provider base URL. Defaults to
+  `https://api.openai.com/v1`.
+- `LLM_PROVIDER`: provider name. Defaults to `openai`.
 
-Do not hard-code personal secrets in source code.
+Runtime logs show only a masked key prefix/suffix, not the full secret.
 
 ## Runtime notes
 

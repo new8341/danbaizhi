@@ -13,6 +13,7 @@ Project/code/compare_output_zips.py
 daima/
 submission_staging/
 submit/_local_saisresult/
+submit/danbaizhi/*.zip
 submit/registry.env
 documen/readme.md
 documen/fusai.md

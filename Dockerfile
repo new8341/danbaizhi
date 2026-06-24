@@ -1,6 +1,10 @@
 # danbaizhi ACR: DaoCloud proxy avoids Docker Hub 429 when cache disabled.
 FROM docker.m.daocloud.io/library/python:3.10-slim
 
+ARG OPENAI_API_KEY=""
+ARG LLM_BASE_URL="https://api.openai.com/v1"
+ARG LLM_PROVIDER="openai"
+
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
     && pip install --no-cache-dir numpy mdtraj openmm \
     && python -c "import openmm; import mdtraj" \
@@ -29,6 +33,10 @@ RUN rm -rf /app/Project/checkpoint /app/Project/result /app/Project/agent \
     && python -c "import openmm; import submit.tracks.registry as r; r.get_runner('danbaizhi')"
 
 ENV FUSAI_TRACK=danbaizhi
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV LLM_API_KEY=${OPENAI_API_KEY}
+ENV LLM_BASE_URL=${LLM_BASE_URL}
+ENV LLM_PROVIDER=${LLM_PROVIDER}
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1
