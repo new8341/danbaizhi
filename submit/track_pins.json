@@ -7,8 +7,8 @@
                                      "note":  "semifinal compliance C + LLM env slots"
                                  },
                    "drugclip":  {
-                                    "commit":  "e3add54",
-                                    "note":  "semifinal agent_code + LLM ARG slots"
+                                    "commit":  "8ca34bb",
+                                    "note":  "semifinal compliance C + LLM env slots"
                                 },
                    "baxiangfenzi":  {
                                         "commit":  "20cb3cd",
