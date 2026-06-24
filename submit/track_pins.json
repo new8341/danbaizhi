@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "5fbefc5",
-                                     "note":  "semifinal submission.zip + agent_code mirror"
+                                     "commit":  "94b0534",
+                                     "note":  "P1 3m + P2 m1/m2 priors baked in image"
                                  },
                    "drugclip":  {
                                     "commit":  "e3add54",
