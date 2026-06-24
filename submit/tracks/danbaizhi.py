@@ -8,6 +8,7 @@ import zipfile
 from pathlib import Path
 
 from submit.pack_submission import emit_error
+from submit.tracks._llm import append_llm_log
 from submit.tracks._paths import danbaizhi_data_root, describe_saisdata
 from submit.tracks.base import TrackRunner, TrackSpec
 
@@ -33,6 +34,10 @@ class DanbaizhiRunner(TrackRunner):
         data_dir.mkdir(parents=True, exist_ok=True)
         data_root = danbaizhi_data_root(saisdata)
         print(f"[Danbaizhi] saisdata root={data_root}", flush=True)
+        llm_lines: list[str] = []
+        append_llm_log(llm_lines, "DANBAIZHI")
+        for line in llm_lines:
+            print(line, flush=True)
         for name in ("1.json", "2.json", "3.json"):
             src = data_root / name
             if not src.is_file():

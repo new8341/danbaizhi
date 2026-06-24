@@ -14,6 +14,7 @@ from submit.tracks.drugclip_agent.neural import (
     drugclip_available,
     score_task_neural,
 )
+from submit.tracks._llm import append_llm_log
 from submit.tracks.drugclip_agent.scoring import DEFAULT_CONFIG, score_task_ligands
 
 PLATFORM_HISTORY = (
@@ -51,6 +52,7 @@ def _agent_header(benchmark: Path, strategy: str) -> list[str]:
             "[agent] diagnosis=neural stack unavailable; fingerprint hybrid_max_qed_v2 fallback."
         )
     lines.append(f"[agent] phase=strategy selected={strategy}")
+    append_llm_log(lines, "DRUGCLIP")
     if strategy == "hybrid_max_qed_v2":
         lines.append(
             f"[agent] config morgan_radius={DEFAULT_CONFIG.fp_radius} "

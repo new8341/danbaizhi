@@ -49,8 +49,8 @@ PDE 求解 Agent：两道题（KS 方程 + cylinder 绕流），A/B 双榜。容
 ## 6. 环境与资源
 
 - GPU V100 16G，限时 6h
-- `SHENJING_KS_PRESET=ks-q1`，`SHENJING_KS_EPOCHS=28`
-- `SHENJING_MODEL=fno`（cylinder）
+- KS / cylinder 训练强度由运行时环境变量控制（见 `shenjingsuanzi_agent/config.py`）
+- `SHENJING_MODEL=fno`（cylinder 推理后端）
 
 ## 7. 入口
 

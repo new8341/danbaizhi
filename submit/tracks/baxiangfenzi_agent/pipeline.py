@@ -17,6 +17,7 @@ from submit.tracks.baxiangfenzi_agent.retrosyn import (
     try_plan_route,
     validate_route,
 )
+from submit.tracks._llm import append_llm_log
 from submit.tracks.baxiangfenzi_agent.targets import binding_site_from_pdb
 
 
@@ -35,6 +36,7 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
         f"[agent] timestamp={datetime.now(timezone.utc).isoformat()}",
         "[agent] hypothesis=binding_first_selection pocket_aware_box receptor_cache",
     ]
+    append_llm_log(log, "BAXIANG")
 
     site = binding_site_from_pdb(target_pdb)
     log.append(
@@ -136,19 +138,15 @@ def run_agent_for_target(target_pdb: Path, slot: int) -> DesignResult:
         best_route = try_plan_route(can)
 
     if best_smiles is None:
-        smi = "O=C(Nc1ccccc1)c1ccccc1"
-        best_smiles = smi
-        best_affinity = None
-        best_sa = sa_score(smi)
-        best_route = try_plan_route(smi)
-    elif not best_route:
-        smi = "O=C(Nc1ccccc1)c1ccccc1"
-        log.append(f"[agent] phase=select_default fallback=benzanilide prev={best_smiles[:32]}")
-        best_smiles = smi
-        best_affinity = None
-        best_sa = sa_score(smi)
-        best_route = try_plan_route(smi)
+        from submit.pack_submission import emit_error
 
+        emit_error(
+            "BAXIANG_NO_CANDIDATE",
+            f"No valid docked candidate for {target_pdb.name} after pool={max_dock}",
+        )
+
+    if not best_route:
+        best_route = try_plan_route(best_smiles)
     if not best_route:
         from submit.pack_submission import emit_error
 

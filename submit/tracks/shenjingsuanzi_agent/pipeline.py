@@ -1,10 +1,10 @@
 """Neural operator agent: KS FNO train + cylinder inference (A/B boards)."""
 from __future__ import annotations
 
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from submit.tracks._llm import append_llm_log
 from submit.tracks._paths import first_existing, saisdata_subdir
 from submit.tracks.shenjingsuanzi_agent.cylinder import resolve_cylinder_test_path, run_cylinder
 from submit.tracks.shenjingsuanzi_agent.data_utils import ks_baseline_from_test_path
@@ -16,13 +16,12 @@ CYLINDER_PRED_A = "cylinder_pred_A.hdf5"
 CYLINDER_PRED_B = "cylinder_pred_B.hdf5"
 REQUIRED_OUTPUTS = (KS_PRED_A, CYLINDER_PRED_A, KS_PRED_B, CYLINDER_PRED_B)
 
-# Back-compat aliases
 KS_NAME = KS_PRED_A
 CYLINDER_NAME = CYLINDER_PRED_A
 
 PLATFORM_HISTORY = (
     ("2026-05-20", 57.685109, "fno1d_rollout_physics"),
-    ("2026-06-19", 42.090454, "ks_q1_complexhalf_fallback"),
+    ("2026-06-19", 42.090454, "ks_fno1d_baseline"),
 )
 
 
@@ -35,37 +34,6 @@ def _problem_root(saisdata: Path, problem: str) -> Path | None:
     )
 
 
-def _find_sample(problem_root: Path, filename: str) -> Path | None:
-    candidates = [
-        problem_root / "sample_submission" / filename,
-        problem_root / "sample_submission" / "A_board" / filename,
-        problem_root / "sample_submission" / "B_board" / filename,
-    ]
-    if problem_root.is_dir():
-        for hit in sorted(problem_root.rglob(filename)):
-            if hit.is_file():
-                candidates.append(hit)
-    return first_existing(*candidates)
-
-
-def _seed_fallback(staging_dir: Path, p1: Path, p2: Path, logs: list[str]) -> None:
-    """Pre-copy sample submissions so zip always has four files (readme 兜底)."""
-    mapping = [
-        (p1, KS_PRED_A),
-        (p1, KS_PRED_B),
-        (p2, CYLINDER_PRED_A),
-        (p2, CYLINDER_PRED_B),
-    ]
-    for root, name in mapping:
-        dst = staging_dir / name
-        if dst.is_file():
-            continue
-        sample = _find_sample(root, name)
-        if sample is not None:
-            shutil.copy2(sample, dst)
-            logs.append(f"[agent] phase=seed_fallback copied {sample} -> {name}")
-
-
 def _agent_header() -> list[str]:
     lines = [
         "=" * 72,
@@ -73,7 +41,7 @@ def _agent_header() -> list[str]:
         "=" * 72,
         f"[agent] timestamp={datetime.now(timezone.utc).isoformat()}",
         "[agent] phase=literature",
-        "Reference: FNO1d autoregressive rollout; semifinal A+B boards (readme §复赛评测).",
+        "Reference: FNO1d autoregressive rollout; semifinal A+B boards.",
         "[agent] phase=diagnosis",
     ]
     for date, score, strategy in PLATFORM_HISTORY:
@@ -81,7 +49,8 @@ def _agent_header() -> list[str]:
     lines.append(
         "[agent] diagnosis=KS FNO1d float32 FFT; cylinder mounted FNO; four HDF5 in submission.zip"
     )
-    lines.append("[agent] phase=strategy selected=ks_fno1d_ks_q1+ab_boards")
+    lines.append("[agent] phase=strategy selected=ks_fno1d+cylinder_fno_ab_boards")
+    append_llm_log(lines, "SHENJING", optional=True)
     return lines
 
 
@@ -98,8 +67,7 @@ def _run_ks_board(
     out_path = staging_dir / out_name
     logs.append(f"[agent] phase=ks board={board} test={test_path}")
     if test_path is None:
-        logs.append(f"[agent] ks_board={board} test_missing")
-        return ks_state
+        raise FileNotFoundError(f"KS test missing for board={board} under {saisdata}")
     try:
         _source, ks_logs, train_t, inf_t, ks_state = run_ks(
             p1, test_path, out_path, state=ks_state, saisdata=saisdata
@@ -111,15 +79,12 @@ def _run_ks_board(
         )
     except Exception as exc:
         logs.append(f"[agent] ks_board={board} failed={exc}")
-        sample = _find_sample(p1, out_name)
-        if sample is not None:
-            shutil.copy2(sample, out_path)
-            logs.append(f"[agent] ks_board={board} source=sample from {sample}")
-        elif test_path.is_file() and ks_baseline_from_test_path(test_path, out_path):
+        if test_path.is_file() and ks_baseline_from_test_path(test_path, out_path):
             logs.append(f"[agent] ks_board={board} source=baseline_extrapolation")
-        elif board == "B" and (staging_dir / KS_PRED_A).is_file():
-            shutil.copy2(staging_dir / KS_PRED_A, out_path)
-            logs.append(f"[agent] ks_board=B source=copy_from_A (fallback)")
+        else:
+            raise RuntimeError(f"KS board {board} inference failed and no IC baseline") from exc
+    if not out_path.is_file():
+        raise FileNotFoundError(f"KS output not written: {out_path}")
     return ks_state
 
 
@@ -135,18 +100,12 @@ def _run_cylinder_board(
     out_path = staging_dir / out_name
     logs.append(f"[agent] phase=cylinder board={board} test={test_path}")
     if test_path is None:
-        logs.append(f"[agent] cylinder_board={board} test_missing")
-        return
+        raise FileNotFoundError(f"cylinder test missing for board={board} under {saisdata}")
     cyl_source, cyl_logs = run_cylinder(p2, out_path, test_path=test_path)
     logs.extend(cyl_logs)
-    if cyl_source != "inference":
-        sample = _find_sample(p2, out_name)
-        if sample is not None:
-            shutil.copy2(sample, out_path)
-            logs.append(f"[agent] cylinder_board={board} source=sample from {sample}")
-        elif board == "B" and (staging_dir / CYLINDER_PRED_A).is_file():
-            shutil.copy2(staging_dir / CYLINDER_PRED_A, out_path)
-            logs.append(f"[agent] cylinder_board=B source=copy_from_A (fallback)")
+    if cyl_source != "inference" or not out_path.is_file():
+        raise RuntimeError(f"cylinder board {board} did not produce inference output")
+    logs.append(f"[agent] cylinder_board={board} source=inference")
 
 
 def run_agent(saisdata: Path, staging_dir: Path) -> list[str]:
@@ -162,8 +121,6 @@ def run_agent(saisdata: Path, staging_dir: Path) -> list[str]:
     logs.append(f"[agent] problem2={p2}")
     for cand, exists in list_ks_train_candidates(p1, saisdata):
         logs.append(f"[agent] ks_train_candidate path={cand} exists={exists}")
-
-    _seed_fallback(staging_dir, p1, p2, logs)
 
     ks_state: KsRunState | None = None
     ks_state = _run_ks_board("A", saisdata, p1, staging_dir, KS_PRED_A, logs, ks_state)

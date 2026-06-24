@@ -63,13 +63,15 @@ def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:
     staging = tmp_path / "staging"
     import os
 
-    os.environ["BAXIANG_MAX_CANDIDATES"] = "12"
-    os.environ["BAXIANG_MAX_DOCK"] = "3"
+    os.environ["BAXIANG_MAX_CANDIDATES"] = "80"
+    os.environ["BAXIANG_MAX_DOCK"] = "40"
+    os.environ["BAXIANG_SELECT_POOL"] = "20"
     try:
         BaxiangfenziRunner().run(saisdata, staging, tmp_path)
     finally:
         os.environ.pop("BAXIANG_MAX_CANDIDATES", None)
         os.environ.pop("BAXIANG_MAX_DOCK", None)
+        os.environ.pop("BAXIANG_SELECT_POOL", None)
     for i in (1, 2, 3):
         csv_path = staging / f"result{i}.csv"
         assert csv_path.is_file()
@@ -80,7 +82,7 @@ def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:
     assert "[agent]" in (staging / "result.log").read_text(encoding="utf-8")
 
 
-def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
+def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     h5py = pytest.importorskip("h5py")
     import numpy as np
 
@@ -93,11 +95,10 @@ def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
         f.create_dataset("x-coordinate", data=np.arange(256, dtype=np.float16))
 
     p2 = tmp_path / "saisdata" / "49" / "problem2"
-    sample_dir = p2 / "sample_submission"
-    sample_dir.mkdir(parents=True)
-    for name in (CYLINDER_PRED_A, CYLINDER_PRED_B):
-        with h5py.File(sample_dir / name, "w") as f:
-            f.create_dataset("tensor", data=np.zeros((1, 200, 64, 128, 2), dtype=np.float16))
+    cyl_data = p2 / "data"
+    cyl_data.mkdir(parents=True)
+    with h5py.File(cyl_data / "cylinder_test_A.hdf5", "w") as f:
+        f.create_dataset("tensor", data=np.zeros((1, 20, 64, 128, 2), dtype=np.float16))
 
     b_dir = tmp_path / "saisdata" / "66"
     b_dir.mkdir(parents=True)
@@ -109,6 +110,15 @@ def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
         f.create_dataset("tensor", data=np.zeros((1, 20, 64, 128, 2), dtype=np.float16))
 
     staging = tmp_path / "staging"
+
+    def _mock_cylinder(problem_root, out_path, test_path=None):
+        with h5py.File(out_path, "w") as f:
+            f.create_dataset("tensor", data=np.zeros((1, 200, 64, 128, 2), dtype=np.float16))
+        return "inference", ["[agent] cylinder_mock=inference"]
+
+    import submit.tracks.shenjingsuanzi_agent.pipeline as sj_pipe
+
+    monkeypatch.setattr(sj_pipe, "run_cylinder", _mock_cylinder)
     ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
     for name in (KS_PRED_A, KS_PRED_B, CYLINDER_PRED_A, CYLINDER_PRED_B):
         assert (staging / name).is_file(), name
@@ -142,7 +152,8 @@ def test_shenjingsuanzi_ks_q1_preset() -> None:
         os.environ.pop("SHENJING_KS_EPOCHS", None)
 
 
-def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:
+def test_shenjingsuanzi_rejects_sample_only_saisdata(tmp_path: Path) -> None:
+    """Semifinal: no pre-copy from sample_submission; real test paths required."""
     h5py = pytest.importorskip("h5py")
     import numpy as np
 
@@ -158,9 +169,8 @@ def test_shenjingsuanzi_sample_fallback(tmp_path: Path) -> None:
                 f.create_dataset("tensor", data=np.zeros(shape, dtype=np.float16))
 
     staging = tmp_path / "staging"
-    ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
-    for name in (KS_PRED_A, KS_PRED_B, CYLINDER_PRED_A, CYLINDER_PRED_B):
-        assert (staging / name).is_file()
+    with pytest.raises(SystemExit):
+        ShenjingsuanziRunner().run(tmp_path / "saisdata", staging, tmp_path)
 
 
 def test_baxiangfenzi_official_composite_rematch_weights() -> None:

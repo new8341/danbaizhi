@@ -18,11 +18,22 @@ ENV BAXIANG_LLM_API_KEY=${BAXIANG_LLM_API_KEY}
 
 ---
 
-## 二、ACR 控制台 — 为每个仓库填构建参数
+## 二、ACR 个人版（无构建参数）vs 本机 Docker
 
-登录 [ACR 控制台](https://cr.console.aliyun.com/) → 华东2（上海）→ 个人版实例 → **ai4s-lee**。
+| 方式 | LLM Key |
+|------|---------|
+| **ACR 个人版云端构建** | 无法传 `--build-arg`；镜像内 Key 为空，代码会记录 `llm=env_missing` |
+| **本机 `publish_with_llm.ps1`** | 从 `submit/llm.env`（gitignore）读取并 `docker build --build-arg` + `push` |
 
-对每个仓库：**仓库管理 → 选择仓库 → 构建 → 编辑规则**（如 `release-v0.1-<track>`）。
+```powershell
+# 1. 复制并填写 submit/llm.env（勿 commit）
+Copy-Item submit/llm.env.example submit/llm.env
+
+# 2. Docker Desktop 运行后
+.\submit\publish_with_llm.ps1 -Track all -Push
+```
+
+> **注意**：复赛要求 OpenAI 兼容 LLM Key；**Cursor API Key（`crsr_*`）不能用于容器内 LLM 调用**。
 
 ### 1. baxiangfenzi
 
