@@ -1,6 +1,6 @@
 ﻿{
     "track":  "danbaizhi",
-    "commit":  "94b0534",
-    "published":  "2026-06-24 20:09:56",
-    "note":  "P1 3m + P2 m1/m2 priors baked in image"
+    "commit":  "046bcef",
+    "published":  "2026-06-24 20:21:44",
+    "note":  "semifinal compliance C + LLM env slots"
 }
