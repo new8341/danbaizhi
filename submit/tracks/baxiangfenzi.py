@@ -13,15 +13,22 @@ from submit.tracks.baxiangfenzi_agent.pipeline import run_agent_for_target
 
 
 def _require_llm_config() -> list[str]:
-    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("BAXIANG_LLM_API_KEY")
-    base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("BAXIANG_LLM_BASE_URL")
-    provider = os.environ.get("LLM_PROVIDER") or os.environ.get("BAXIANG_LLM_PROVIDER")
+    api_key = (
+        os.environ.get("LLM_API_KEY")
+        or os.environ.get("OPENAI_API_KEY")
+        or os.environ.get("BAXIANG_LLM_API_KEY")
+    )
+    base_url = (
+        os.environ.get("LLM_BASE_URL")
+        or os.environ.get("OPENAI_BASE_URL")
+        or os.environ.get("BAXIANG_LLM_BASE_URL")
+        or "https://api.openai.com/v1"
+    )
+    provider = os.environ.get("LLM_PROVIDER") or os.environ.get("BAXIANG_LLM_PROVIDER") or "openai"
     missing = [
         name
         for name, value in (
             ("LLM_API_KEY", api_key),
-            ("LLM_BASE_URL", base_url),
-            ("LLM_PROVIDER", provider),
         )
         if not value
     ]

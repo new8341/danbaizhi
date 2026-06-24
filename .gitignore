@@ -1,6 +1,7 @@
 # Secrets / local artifacts
 submit/registry.env
 submit/aliyun.env
+submit/local_llm.env
 submit/_local_saisresult/
 .DS_Store
 **/.DS_Store
