@@ -1,4 +1,4 @@
-# Fusai docker image ? track 2 (Baxiangfenzi agent)
+﻿# Fusai docker image ? track 2 (Baxiangfenzi agent)
 # Overseas ON: DaoCloud proxy avoids Docker Hub 429 on python:3.10-slim.
 # If still fails: turn OFF overseas build and use tcc-public line below instead.
 FROM docker.m.daocloud.io/library/python:3.10-slim
@@ -36,8 +36,8 @@ ENV FUSAI_TRACK=baxiangfenzi
 ENV SAISDATA=/saisdata
 ENV SAISRESULT=/saisresult
 ENV PYTHONUNBUFFERED=1
-ENV OPENAI_API_KEY=${OPENAI_API_KEY}
-ENV LLM_API_KEY=${OPENAI_API_KEY}
+ENV OPENAI_API_KEY=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
+ENV LLM_API_KEY=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
 ENV LLM_BASE_URL=${LLM_BASE_URL}
 ENV LLM_PROVIDER=${LLM_PROVIDER}
 ENV BAXIANG_MAX_CANDIDATES=200
