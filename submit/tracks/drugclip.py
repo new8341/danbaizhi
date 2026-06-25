@@ -6,7 +6,7 @@ from pathlib import Path
 
 from submit.pack_submission import emit_error
 from submit.tracks.base import TrackRunner, TrackSpec
-from submit.tracks.drugclip_agent.pipeline import run_benchmark, write_results
+from submit.tracks.drugclip_agent.pipeline import write_benchmark_results
 
 
 def _require_llm_config() -> list[str]:
@@ -56,11 +56,13 @@ class DrugclipRunner(TrackRunner):
         if not manifest.is_file():
             emit_error("DRUGCLIP_MANIFEST_MISSING", f"Missing {manifest}")
 
-        max_tasks = int(os.environ.get("DRUGCLIP_MAX_TASKS", "0"))
-        rows, logs = run_benchmark(benchmark, max_tasks=max_tasks)
-        logs = llm_logs + logs
-
         staging_dir.mkdir(parents=True, exist_ok=True)
-        write_results(rows, staging_dir / "result.csv", staging_dir / "result.log", logs)
-        tasks = len({r[0] for r in rows})
-        print(f"[DrugClip] wrote {len(rows)} scores for {tasks} tasks", flush=True)
+        max_tasks = int(os.environ.get("DRUGCLIP_MAX_TASKS", "0"))
+        row_count, tasks = write_benchmark_results(
+            benchmark,
+            staging_dir / "result.csv",
+            staging_dir / "result.log",
+            max_tasks=max_tasks,
+            prefix_logs=llm_logs,
+        )
+        print(f"[DrugClip] wrote {row_count} scores for {tasks} tasks", flush=True)

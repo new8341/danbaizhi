@@ -3,12 +3,15 @@ from __future__ import annotations
 
 import csv
 import os
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
 from submit.tracks.drugclip_agent.benchmark import BenchmarkIndex
-from submit.tracks.drugclip_agent.scoring import DEFAULT_CONFIG, score_task_ligands
+from submit.tracks.drugclip_agent.scoring import (
+    DEFAULT_CONFIG,
+    reference_ligand_status,
+    score_task_ligands,
+)
 
 
 STRATEGY_NAME = "structure_reference_consensus_v1"
@@ -50,13 +53,19 @@ def _score_task(task_id: str, benchmark: str) -> tuple[str, dict[str, float], li
     index = BenchmarkIndex(Path(benchmark))
     task = index.get(task_id)
     rows = list(index.iter_ligand_rows(task))
+    fast_only = os.environ.get("DRUGCLIP_FAST_ONLY", "0").strip().lower() in {"1", "true", "yes"}
+    ref_total, ref_readable = (len(task.reference_ligand_files), -1) if fast_only else reference_ligand_status(task)
     scores = score_task_ligands(task, rows)
     vals = list(scores.values())
     logs = [
         f"[agent] phase=inference task={task_id} benchmark={task.benchmark} "
         f"task_type={task.task_type} ligands={len(rows)} receptors={task.num_receptors} "
-        f"refs={len(task.reference_ligand_files)} strategy={STRATEGY_NAME}",
+        f"refs={ref_total} refs_readable={ref_readable} strategy={STRATEGY_NAME}",
     ]
+    if fast_only:
+        logs.append(f"[agent] reference_fallback=fast_only_smiles_prior task={task_id}")
+    elif ref_total and ref_readable == 0:
+        logs.append(f"[agent] reference_fallback=oral_like_property_prior task={task_id}")
     if vals:
         logs.append(
             f"[agent] task={task_id} score_min={min(vals):.6f} "
@@ -74,28 +83,15 @@ def run_benchmark(
     logs = _agent_header(benchmark)
     logs.append(f"[agent] phase=score tasks={len(tasks)} strategy={STRATEGY_NAME}")
 
-    workers = int(os.environ.get("DRUGCLIP_WORKERS", str(min(8, os.cpu_count() or 4))))
+    workers = int(os.environ.get("DRUGCLIP_WORKERS", "1"))
     task_scores: dict[str, dict[str, float]] = {}
 
-    if workers <= 1 or len(tasks) <= 1:
-        for task in tasks:
-            tid, scores, tlogs = _score_task(task.task_id, str(benchmark))
-            task_scores[tid] = scores
-            logs.extend(tlogs)
-    else:
-        logs.append(f"[agent] parallel_workers={workers}")
-        with ProcessPoolExecutor(max_workers=workers) as pool:
-            futures = {
-                pool.submit(_score_task, task.task_id, str(benchmark)): task.task_id
-                for task in tasks
-            }
-            done = 0
-            for fut in as_completed(futures):
-                tid, scores, tlogs = fut.result()
-                task_scores[tid] = scores
-                done += 1
-                logs.append(f"[agent] completed={done}/{len(tasks)} task={tid}")
-                logs.extend(tlogs)
+    if workers != 1:
+        logs.append("[agent] note=DRUGCLIP_WORKERS ignored by audit-safe sequential runner")
+    for task in tasks:
+        tid, scores, tlogs = _score_task(task.task_id, str(benchmark))
+        task_scores[tid] = scores
+        logs.extend(tlogs)
 
     rows: list[tuple[str, str, float]] = []
     for task in tasks:
@@ -113,6 +109,68 @@ def run_benchmark(
 
     logs.append(f"[agent] phase=done total_rows={len(rows)} tasks={len(tasks)} strategy={STRATEGY_NAME}")
     return rows, logs
+
+
+def write_benchmark_results(
+    benchmark: Path,
+    csv_path: Path,
+    log_path: Path,
+    *,
+    max_tasks: int = 0,
+    prefix_logs: list[str] | None = None,
+) -> tuple[int, int]:
+    """Score and write the benchmark one task at a time to avoid high memory use."""
+    index = BenchmarkIndex(benchmark)
+    tasks = index.tasks[:max_tasks] if max_tasks else index.tasks
+    logs = list(prefix_logs or [])
+    logs.extend(_agent_header(benchmark))
+    logs.append(f"[agent] phase=score tasks={len(tasks)} strategy={STRATEGY_NAME}")
+    logs.append("[agent] runtime=streaming_csv_per_task memory=bounded_by_largest_task")
+
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    total_rows = 0
+    with csv_path.open("w", newline="", encoding="utf-8") as out_f:
+        writer = csv.writer(out_f)
+        writer.writerow(["task_id", "ligand_id", "score"])
+        for idx, task in enumerate(tasks, start=1):
+            ligand_rows = list(index.iter_ligand_rows(task))
+            fast_only = os.environ.get("DRUGCLIP_FAST_ONLY", "0").strip().lower() in {"1", "true", "yes"}
+            ref_total, ref_readable = (
+                len(task.reference_ligand_files),
+                -1,
+            ) if fast_only else reference_ligand_status(task)
+            scores = score_task_ligands(task, ligand_rows)
+            ligand_count = 0
+            for ligand in ligand_rows:
+                ligand_id = ligand["ligand_id"]
+                writer.writerow([task.task_id, ligand_id, f"{scores[ligand_id]:.8f}"])
+                ligand_count += 1
+            total_rows += ligand_count
+
+            vals = list(scores.values())
+            logs.append(
+                f"[agent] completed={idx}/{len(tasks)} task={task.task_id} "
+                f"ligands={ligand_count} receptors={task.num_receptors} "
+                f"refs={ref_total} refs_readable={ref_readable} strategy={STRATEGY_NAME}"
+            )
+            if fast_only:
+                logs.append(f"[agent] reference_fallback=fast_only_smiles_prior task={task.task_id}")
+            elif ref_total and ref_readable == 0:
+                logs.append(f"[agent] reference_fallback=oral_like_property_prior task={task.task_id}")
+            if vals:
+                logs.append(
+                    f"[agent] task={task.task_id} score_min={min(vals):.6f} "
+                    f"score_max={max(vals):.6f} score_mean={sum(vals) / len(vals):.6f}"
+                )
+            if ligand_count != task.num_ligands:
+                logs.append(
+                    f"[agent] warning=manifest_ligand_count_mismatch task={task.task_id} "
+                    f"manifest={task.num_ligands} observed={ligand_count}"
+                )
+
+    logs.append(f"[agent] phase=done total_rows={total_rows} tasks={len(tasks)} strategy={STRATEGY_NAME}")
+    log_path.write_text("\n".join(logs) + "\n", encoding="utf-8")
+    return total_rows, len(tasks)
 
 
 def write_results(
