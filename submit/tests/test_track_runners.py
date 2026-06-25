@@ -35,11 +35,13 @@ def test_drugclip_mini(tmp_path: Path) -> None:
 
     os.environ["DRUGCLIP_BENCHMARK_ROOT"] = str(benchmark)
     os.environ["DRUGCLIP_MAX_TASKS"] = "1"
+    os.environ["OPENAI_API_KEY"] = "test-key"
     try:
         runner.run(tmp_path / "saisdata", staging, tmp_path)
     finally:
         os.environ.pop("DRUGCLIP_BENCHMARK_ROOT", None)
         os.environ.pop("DRUGCLIP_MAX_TASKS", None)
+        os.environ.pop("OPENAI_API_KEY", None)
 
     assert (staging / "result.csv").is_file()
     assert (staging / "result.log").is_file()
@@ -48,7 +50,7 @@ def test_drugclip_mini(tmp_path: Path) -> None:
     assert "mini_task__L000002" in text
     log_text = (staging / "result.log").read_text(encoding="utf-8")
     assert "[agent] phase=done" in log_text
-    assert "hybrid_max_qed_v2" in log_text or "neural" in log_text
+    assert "structure_reference_consensus_v1" in log_text
 
 
 def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:
@@ -65,11 +67,13 @@ def test_baxiangfenzi_with_target_pdb(tmp_path: Path) -> None:
 
     os.environ["BAXIANG_MAX_CANDIDATES"] = "12"
     os.environ["BAXIANG_MAX_DOCK"] = "3"
+    os.environ["OPENAI_API_KEY"] = "test-key"
     try:
         BaxiangfenziRunner().run(saisdata, staging, tmp_path)
     finally:
         os.environ.pop("BAXIANG_MAX_CANDIDATES", None)
         os.environ.pop("BAXIANG_MAX_DOCK", None)
+        os.environ.pop("OPENAI_API_KEY", None)
     for i in (1, 2, 3):
         csv_path = staging / f"result{i}.csv"
         assert csv_path.is_file()
@@ -118,11 +122,11 @@ def test_shenjingsuanzi_ks_baseline_from_test(tmp_path: Path) -> None:
     assert "[agent] phase=done" in log_text
 
 
-def test_drugclip_hybrid_v2_config() -> None:
+def test_drugclip_structure_reference_config() -> None:
     from submit.tracks.drugclip_agent.scoring import DEFAULT_CONFIG
 
-    assert DEFAULT_CONFIG.qed_bonus == 0.04
-    assert DEFAULT_CONFIG.smiles_sim_weight == 0.08
+    assert DEFAULT_CONFIG.sim_weight == pytest.approx(0.58)
+    assert DEFAULT_CONFIG.property_weight == pytest.approx(0.18)
 
 
 def test_shenjingsuanzi_ks_q1_preset() -> None:

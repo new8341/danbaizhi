@@ -1,4 +1,4 @@
-# Fusai docker image — track 1 (DrugClip neural + hybrid agent)
+﻿# Fusai docker image — track 1 (DrugClip neural + hybrid agent)
 # GPU runtime (V100). ACR builds root Dockerfile.drugclip (synced on publish).
 # Audit-safe build: no benchmark-specific weights or external DrugCLIP clone.
 FROM docker.m.daocloud.io/pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
@@ -8,7 +8,7 @@ ARG LLM_BASE_URL="https://api.openai.com/v1"
 ARG LLM_PROVIDER="openai"
 
 RUN pip install --no-cache-dir \
-        rdkit biopandas numpy lmdb tqdm pyyaml ipython \
+        rdkit numpy tqdm pyyaml \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -31,13 +31,13 @@ RUN rm -f /app/submit/scripts/download_drugclip_weights.py \
 
 ENV FUSAI_TRACK=drugclip
 ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
-ENV DRUGCLIP_STRATEGY=hybrid_max_qed_v2
+ENV DRUGCLIP_STRATEGY=structure_reference_consensus_v1
 ENV DRUGCLIP_NEURAL_BLEND=0.9
 ENV DRUGCLIP_NUM_CONF=1
 ENV DRUGCLIP_BATCH_SIZE=16
-ENV DRUGCLIP_WORKERS=8
-ENV OPENAI_API_KEY=${OPENAI_API_KEY}
-ENV LLM_API_KEY=${OPENAI_API_KEY}
+ENV DRUGCLIP_WORKERS=4
+ENV OPENAI_API_KEY=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
+ENV LLM_API_KEY=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
 ENV LLM_BASE_URL=${LLM_BASE_URL}
 ENV LLM_PROVIDER=${LLM_PROVIDER}
 ENV SAISDATA=/saisdata

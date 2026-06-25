@@ -1,4 +1,4 @@
-"""Track 1 — DrugClip virtual screening (hybrid_max_qed agent)."""
+"""Track 1 — DrugClip virtual screening (structure-reference consensus agent)."""
 from __future__ import annotations
 
 import os

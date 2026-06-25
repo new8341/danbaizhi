@@ -21,33 +21,35 @@ file that can directly recover final results.
 
 - `/app/run.sh`: unique evaluation entrypoint.
 - `/app/submit/`: runner, packer, and track dispatch code.
-- `/app/submit/tracks/drugclip_agent/`: DrugClip scoring and hybrid ranking agent.
+- `/app/submit/tracks/drugclip_agent/`: DrugClip structure-reference consensus agent.
 - `/app/agent/`: shared agent conventions and audit notes.
 - `/app/agent_code/`: audit copy of agent code and this README.
 
 ## Model and ranking workflow
 
-The audit-safe default mode does not download or package DUD-E/LIT-PCBA
-benchmark-specific weights. It uses deterministic fingerprint, pocket, and QED
-features for hybrid ranking. Neural retrieval can be enabled only with
-externally reviewed, non-label-leaking weights. The agent logs the chosen
-strategy, data paths, task count, scoring steps, and output packaging so the run
-can be audited.
+The current image uses `structure_reference_consensus_v1`, rebuilt from the
+official contestant benchmark contract. It does not download benchmark-specific
+weights and does not reuse the previous hybrid/neural ranking code path. For
+each task, the agent reads `task.json`, receptor files, co-crystal reference
+ligands, and `ligands.csv` at runtime. It computes a deterministic consensus
+score from Morgan fingerprint similarity, MACCS similarity, reference-ligand
+descriptor fit, QED, and a generic receptor-complexity prior. The agent logs
+the strategy design, rejected oracle/label paths, task-level inference counts,
+score ranges, and final packaging.
 
 ## Data processing and leakage control
 
 The agent reads only the packaged benchmark inputs. It does not download DUD-E
-or LIT-PCBA labels, does not query task labels, and does not use an EF feedback
-loop for model or hyperparameter selection. Any allowed external data must be
-generic pretraining or open-source model assets, not target-specific answer
-libraries.
+or LIT-PCBA labels, does not query task labels, does not carry an EF evaluator,
+and does not use an EF feedback loop for model or hyperparameter selection. It
+does not hard-code task IDs, ligand IDs, row order, known labels, or
+target-specific answer rules.
 
 ## Environment
 
 - Base image: PyTorch CUDA runtime.
-- Key Python packages: `torch`, `rdkit`, `biopandas`, `numpy`, `lmdb`, `tqdm`,
-  `pyyaml`, `ipython`.
-- GPU is not required for the audit-safe hybrid ranking path.
+- Key Python packages: `torch`, `rdkit`, `numpy`, `tqdm`, `pyyaml`.
+- GPU is not required for the audit-safe structure-reference consensus path.
 
 ## Reproduction
 
