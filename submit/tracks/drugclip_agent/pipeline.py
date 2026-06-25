@@ -9,6 +9,7 @@ from pathlib import Path
 from submit.tracks.drugclip_agent.benchmark import BenchmarkIndex
 from submit.tracks.drugclip_agent.scoring import (
     DEFAULT_CONFIG,
+    fast_reference_status,
     reference_ligand_status,
     score_task_ligands,
 )
@@ -54,7 +55,7 @@ def _score_task(task_id: str, benchmark: str) -> tuple[str, dict[str, float], li
     task = index.get(task_id)
     rows = list(index.iter_ligand_rows(task))
     fast_only = os.environ.get("DRUGCLIP_FAST_ONLY", "0").strip().lower() in {"1", "true", "yes"}
-    ref_total, ref_readable = (len(task.reference_ligand_files), -1) if fast_only else reference_ligand_status(task)
+    ref_total, ref_readable = fast_reference_status(task) if fast_only else reference_ligand_status(task)
     scores = score_task_ligands(task, rows)
     vals = list(scores.values())
     logs = [
@@ -63,7 +64,7 @@ def _score_task(task_id: str, benchmark: str) -> tuple[str, dict[str, float], li
         f"refs={ref_total} refs_readable={ref_readable} strategy={STRATEGY_NAME}",
     ]
     if fast_only:
-        logs.append(f"[agent] reference_fallback=fast_only_smiles_prior task={task_id}")
+        logs.append(f"[agent] reference_fallback=fast_text_reference_prior task={task_id}")
     elif ref_total and ref_readable == 0:
         logs.append(f"[agent] reference_fallback=oral_like_property_prior task={task_id}")
     if vals:
@@ -135,10 +136,7 @@ def write_benchmark_results(
         for idx, task in enumerate(tasks, start=1):
             ligand_rows = list(index.iter_ligand_rows(task))
             fast_only = os.environ.get("DRUGCLIP_FAST_ONLY", "0").strip().lower() in {"1", "true", "yes"}
-            ref_total, ref_readable = (
-                len(task.reference_ligand_files),
-                -1,
-            ) if fast_only else reference_ligand_status(task)
+            ref_total, ref_readable = fast_reference_status(task) if fast_only else reference_ligand_status(task)
             scores = score_task_ligands(task, ligand_rows)
             ligand_count = 0
             for ligand in ligand_rows:
@@ -154,7 +152,7 @@ def write_benchmark_results(
                 f"refs={ref_total} refs_readable={ref_readable} strategy={STRATEGY_NAME}"
             )
             if fast_only:
-                logs.append(f"[agent] reference_fallback=fast_only_smiles_prior task={task.task_id}")
+                logs.append(f"[agent] reference_fallback=fast_text_reference_prior task={task.task_id}")
             elif ref_total and ref_readable == 0:
                 logs.append(f"[agent] reference_fallback=oral_like_property_prior task={task.task_id}")
             if vals:

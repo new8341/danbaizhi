@@ -149,6 +149,118 @@ def _property_fit(query: MolFeatures, ref: MolFeatures) -> float:
     return float(sum(terms) / len(terms))
 
 
+def _element_from_atom(atom_name: str, atom_type: str) -> str:
+    token = (atom_type or atom_name).split(".")[0].strip()
+    if token[:2] in {"Cl", "Br"}:
+        return token[:2]
+    if token:
+        return token[0].upper()
+    return "C"
+
+
+def _mol2_text_features(path: Path) -> MolFeatures | None:
+    if not path.is_file():
+        return None
+    weights = {
+        "C": 12.01,
+        "N": 14.01,
+        "O": 16.00,
+        "S": 32.06,
+        "P": 30.97,
+        "F": 19.00,
+        "Cl": 35.45,
+        "Br": 79.90,
+        "I": 126.90,
+        "H": 1.008,
+    }
+    atom_count = 0
+    heavy = 0
+    mw = 0.0
+    hetero = 0
+    hba = 0
+    hbd = 0
+    arom = 0
+    charge_abs = 0.0
+    rot = 0
+    bond_count = 0
+    in_atoms = False
+    in_bonds = False
+    try:
+        for raw in path.read_text(errors="ignore").splitlines():
+            line = raw.strip()
+            if line.startswith("@<TRIPOS>ATOM"):
+                in_atoms = True
+                in_bonds = False
+                continue
+            if line.startswith("@<TRIPOS>BOND"):
+                in_atoms = False
+                in_bonds = True
+                continue
+            if line.startswith("@<TRIPOS>"):
+                in_atoms = False
+                in_bonds = False
+                continue
+            if in_atoms and line:
+                parts = line.split()
+                if len(parts) < 6:
+                    continue
+                atom_count += 1
+                element = _element_from_atom(parts[1], parts[5])
+                if element != "H":
+                    heavy += 1
+                mw += weights.get(element, 12.01)
+                if element in {"N", "O", "S", "P"}:
+                    hetero += 1
+                    hba += 1
+                if element in {"N", "O"}:
+                    hbd += 0.35
+                if ".ar" in parts[5]:
+                    arom += 1
+                if len(parts) >= 9:
+                    try:
+                        charge_abs += abs(float(parts[8]))
+                    except ValueError:
+                        pass
+            elif in_bonds and line:
+                parts = line.split()
+                if len(parts) >= 4:
+                    bond_count += 1
+                    if parts[3] == "1":
+                        rot += 1
+    except OSError:
+        return None
+    if atom_count == 0:
+        return None
+    rings = max(0.0, float(bond_count - heavy + 1))
+    logp = 0.10 * max(heavy - hetero, 0) - 0.22 * hetero + 0.08 * arom
+    tpsa = 14.0 * hba + 6.0 * hbd
+    return MolFeatures(
+        mw=float(mw),
+        logp=float(logp),
+        tpsa=float(tpsa),
+        hba=float(hba),
+        hbd=float(hbd),
+        rot=float(max(0, rot - int(rings * 2))),
+        rings=float(rings),
+        arom=float(arom / 6.0),
+        heavy=float(heavy),
+        charge_abs=float(charge_abs),
+    )
+
+
+def _fast_reference_features(task: TaskInfo) -> MolFeatures:
+    items = [feat for path in _reference_paths(task) if (feat := _mol2_text_features(path)) is not None]
+    if items:
+        return _mean_features(items)
+    return _oral_like_reference_features()
+
+
+def fast_reference_status(task: TaskInfo) -> tuple[int, int]:
+    return len(task.reference_ligand_files), sum(
+        1 for path in _reference_paths(task) if _mol2_text_features(path) is not None
+    )
+
+
 def _oral_like_reference_features() -> MolFeatures:
     """Generic fallback when official mol2 references cannot be parsed."""
     return MolFeatures(
@@ -172,28 +284,78 @@ def _stable_tie(smiles: str) -> float:
     return acc * 1e-12
 
 
-def _fast_smiles_score(smiles: str, receptor_prior: float, is_lit_pcba: float, cfg: ConsensusConfig) -> float:
+def _approx_features_from_smiles(smiles: str) -> MolFeatures:
+    length = float(len(smiles))
+    c_count = float(smiles.count("C") + smiles.count("c"))
+    n_count = float(smiles.count("N") + smiles.count("n"))
+    o_count = float(smiles.count("O") + smiles.count("o"))
+    s_count = float(smiles.count("S") + smiles.count("s"))
+    p_count = float(smiles.count("P"))
+    halogen = float(smiles.count("F") + smiles.count("Cl") + smiles.count("Br") + smiles.count("I"))
+    hetero = n_count + o_count + s_count + p_count + halogen
+    arom = float(sum(1 for ch in smiles if ch in "cnos"))
+    rings = float(sum(1 for ch in smiles if ch.isdigit())) / 2.0
+    branches = float(smiles.count("(") + smiles.count(")")) / 2.0
+    charges = float(smiles.count("+") + smiles.count("-"))
+    heavy = max(1.0, c_count + hetero)
+    mw = 12.01 * c_count + 14.01 * n_count + 16.0 * o_count + 32.06 * s_count + 30.97 * p_count + 35.0 * halogen
+    if mw <= 0:
+        mw = 8.5 * length
+    hba = n_count + o_count + 0.5 * s_count
+    hbd = 0.35 * n_count + 0.55 * o_count
+    logp = 0.11 * c_count + 0.18 * halogen - 0.28 * (n_count + o_count) - 0.10 * charges
+    tpsa = 13.5 * hba + 8.0 * hbd
+    rot = max(0.0, branches + length / 18.0 - rings - arom / 8.0)
+    return MolFeatures(
+        mw=float(mw),
+        logp=float(logp),
+        tpsa=float(tpsa),
+        hba=float(hba),
+        hbd=float(hbd),
+        rot=float(rot),
+        rings=float(rings),
+        arom=float(arom / 6.0),
+        heavy=float(heavy),
+        charge_abs=float(charges),
+    )
+
+
+def _fast_smiles_score(
+    smiles: str,
+    receptor_prior: float,
+    is_lit_pcba: float,
+    cfg: ConsensusConfig,
+    ref_features: MolFeatures | None = None,
+) -> float:
     """Fast fallback for tasks whose official reference mol2 cannot be parsed."""
     if not smiles:
         return cfg.invalid_score
-    length = float(len(smiles))
-    hetero = float(sum(smiles.count(x) for x in ("N", "O", "S", "P", "F", "Cl", "Br", "I", "n", "o", "s")))
-    aromatic = float(sum(1 for ch in smiles if ch in "cnos"))
-    rings = float(sum(1 for ch in smiles if ch.isdigit()))
-    branches = float(smiles.count("(") + smiles.count(")"))
-    charges = float(smiles.count("+") + smiles.count("-"))
-
-    prop = (
-        _fit(length, 48.0, 42.0)
-        + _fit(hetero, 7.0, 7.0)
-        + _fit(aromatic, 10.0, 10.0)
-        + _fit(rings, 4.0, 5.0)
-        + _fit(branches, 8.0, 10.0)
-        + _fit(charges, 0.0, 2.0)
-    ) / 6.0
-    qed_proxy = max(0.0, min(1.0, 0.55 + 0.20 * _fit(length, 45.0, 55.0) + 0.15 * _fit(charges, 0.0, 2.0)))
+    feat = _approx_features_from_smiles(smiles)
+    ref = ref_features or _oral_like_reference_features()
+    prop = _property_fit(feat, ref)
+    qed_proxy = max(
+        0.0,
+        min(
+            1.0,
+            0.50
+            + 0.18 * _fit(feat.mw, 420.0, 210.0)
+            + 0.14 * _fit(feat.logp, 3.0, 2.8)
+            + 0.10 * _fit(feat.charge_abs, 0.0, 2.0)
+            + 0.08 * _fit(feat.rot, 6.0, 8.0),
+        ),
+    )
+    size_match = _fit(feat.heavy, ref.heavy, 12.0)
+    hetero_match = _fit(feat.hba + feat.hbd, ref.hba + ref.hbd, 5.0)
     lit_relax = 0.06 * is_lit_pcba * prop
-    return float(cfg.property_weight * prop + cfg.qed_weight * qed_proxy + cfg.receptor_weight * receptor_prior + lit_relax + _stable_tie(smiles))
+    return float(
+        0.46 * prop
+        + 0.16 * size_match
+        + 0.12 * hetero_match
+        + 0.12 * qed_proxy
+        + cfg.receptor_weight * receptor_prior
+        + lit_relax
+        + _stable_tie(smiles)
+    )
 
 
 def _receptor_complexity(task: TaskInfo) -> float:
@@ -235,15 +397,29 @@ def score_task_ligands(
     receptor_prior = _receptor_complexity(task)
     is_lit_pcba = 1.0 if task.benchmark.upper() == "LIT-PCBA" else 0.0
     if os.environ.get("DRUGCLIP_FAST_ONLY", "0").strip().lower() in {"1", "true", "yes"}:
+        ref_features = _fast_reference_features(task)
         return {
-            row["ligand_id"]: _fast_smiles_score(row.get("smiles", ""), receptor_prior, is_lit_pcba, cfg)
+            row["ligand_id"]: _fast_smiles_score(
+                row.get("smiles", ""),
+                receptor_prior,
+                is_lit_pcba,
+                cfg,
+                ref_features,
+            )
             for row in ligand_rows
         }
 
     ref_morgan, ref_maccs, ref_features = _baseline_reference_features(task)
     if not ref_morgan or not ref_maccs:
+        ref_features = _fast_reference_features(task)
         return {
-            row["ligand_id"]: _fast_smiles_score(row.get("smiles", ""), receptor_prior, is_lit_pcba, cfg)
+            row["ligand_id"]: _fast_smiles_score(
+                row.get("smiles", ""),
+                receptor_prior,
+                is_lit_pcba,
+                cfg,
+                ref_features,
+            )
             for row in ligand_rows
         }
 
