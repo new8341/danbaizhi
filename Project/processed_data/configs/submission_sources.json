@@ -1,8 +1,11 @@
 {
   "1": {
     "strategy": "template_align",
-    "template_cif": "processed_data/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
+    "template_cif": "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_001_alphafold2_ptm_model_3_seed_000.pdb",
     "template_cifs": [
+      "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_001_alphafold2_ptm_model_3_seed_000.pdb",
+      "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_002_alphafold2_ptm_model_2_seed_000.pdb",
+      "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_003_alphafold2_ptm_model_1_seed_000.pdb",
       "processed_data/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
       "processed_data/public/problem_1/rcsb_structures/2PO4.cif",
       "processed_data/public/problem_1/rcsb_structures/3C2P.cif",
@@ -28,13 +31,11 @@
       "min_pairwise_rmsd_A": 1.2,
       "max_pairwise_rmsd_A": 6.0
     },
-    "sequence_prior_rejected": [
-      {
-        "path": "processed_data/colabfold/problem_1/predictions/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb",
-        "reason": "plddt_below_threshold: mean=29.25, min=50.00"
-      }
-    ],
+    "sequence_prior_rejected": [],
     "sequence_prior_candidates": [
+      "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_001_alphafold2_ptm_model_3_seed_000.pdb",
+      "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_002_alphafold2_ptm_model_2_seed_000.pdb",
+      "processed_data/colabfold/problem_1/predictions_msa_3m/p1_unrelaxed_rank_003_alphafold2_ptm_model_1_seed_000.pdb",
       "processed_data/colabfold/problem_1/predictions_msa/p1_unrelaxed_rank_001_alphafold2_ptm_model_1_seed_000.pdb"
     ]
   },

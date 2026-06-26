@@ -33,7 +33,8 @@ RUN rm -rf /app/Project/checkpoint /app/Project/result /app/Project/agent \
     && python -c "import openmm; import submit.tracks.registry as r; r.get_runner('danbaizhi')"
 
 ENV FUSAI_TRACK=danbaizhi
-ENV DANBAIZHI_AUTO_PRIOR=1
+ENV DANBAIZHI_AUTO_PRIOR=0
+ENV DANBAIZHI_SAFE_FALLBACK=1
 ENV OPENAI_API_KEY=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
 ENV LLM_API_KEY=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
 ENV LLM_BASE_URL=${LLM_BASE_URL}

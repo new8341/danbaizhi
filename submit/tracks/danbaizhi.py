@@ -31,6 +31,32 @@ def _require_llm_config() -> list[str]:
     ]
 
 
+def _safe_fallback_enabled() -> bool:
+    return os.environ.get("DANBAIZHI_SAFE_FALLBACK", "0").strip().lower() in {"1", "true", "yes"}
+
+
+def _run_baseline_fallback(project_root: Path) -> None:
+    cmd = [
+        sys.executable,
+        "code/generate_submission.py",
+        "--problems-dir",
+        "data",
+        "--out-dir",
+        "result",
+        "--zip-name",
+        "output.zip",
+        "--strategy",
+        "baseline_ca",
+        "--seed",
+        "42",
+        "--note",
+        "safe_fallback=baseline_ca_after_primary_failure",
+    ]
+    print("[Danbaizhi] primary failed; running safe baseline fallback", flush=True)
+    print("[CMD]", " ".join(cmd), flush=True)
+    subprocess.run(cmd, cwd=str(project_root), check=True)
+
+
 class DanbaizhiRunner(TrackRunner):
     spec = TrackSpec(
         name="danbaizhi",
@@ -69,9 +95,16 @@ class DanbaizhiRunner(TrackRunner):
 
         cmd = [sys.executable, "code/main.py", "predict"]
         print("[CMD]", " ".join(cmd), flush=True)
-        subprocess.run(cmd, cwd=str(project_root), check=True)
+        try:
+            subprocess.run(cmd, cwd=str(project_root), check=True)
+        except subprocess.CalledProcessError:
+            if not _safe_fallback_enabled():
+                raise
+            _run_baseline_fallback(project_root)
 
         output_zip = result_dir / "output.zip"
+        if not output_zip.is_file() and _safe_fallback_enabled():
+            _run_baseline_fallback(project_root)
         if not output_zip.is_file():
             emit_error("DANBAIZHI_OUTPUT_MISSING", f"Predict did not create {output_zip}")
 
