@@ -6,18 +6,18 @@
 |----|------|------------|
 | 入口脚本 | `/app/run.sh` | `submit/run.sh` 复制为 `/app/run.sh` |
 | 读数据 | `/saisdata/` | 评测挂载 `1.json`、`2.json`、`3.json` |
-| 写结果 | `/saisresult/submission.zip` | `submit/tracks/danbaizhi.py` 打包后 mv |
+| 写结果 | `/saisresult/output.zip` | `submit/tracks/danbaizhi.py` 打包后 mv |
 | 截止时间 | 2026-06-29 14:00 | — |
 
 ## 二、本目录已准备的文件
 
 | 文件 | 说明 |
 |------|------|
-| `submission.zip` | **评测期望的最终产物**（11 个 mmCIF + `agent.log`） |
-| `output.zip` | 与 `Project/result/output.zip` 相同，便于对照 |
+| `output.zip` | **评测期望的最终产物**（11 个 mmCIF + `agent.log`） |
+| `submission.zip` | 旧日常打榜产物名，复赛 Danbaizhi 不再使用 |
 | `manifest.json` | 成员清单与镜像地址元数据 |
 
-`submission.zip` 内文件（共 12 个）：
+`output.zip` 内文件（共 12 个）：
 
 ```text
 1_conf1_pred.cif … 1_conf4_pred.cif   （题 1，4 构象）
@@ -28,7 +28,7 @@ agent.log
 
 方案来源：`Project/`（线上参考分 **0.717129**），随机种子 **42**。
 
-## 三、重新生成本地 submission.zip
+## 三、重新生成本地 output.zip
 
 在仓库根目录 `H:\Fusai`：
 
@@ -38,7 +38,7 @@ py -3 submit/main.py --track danbaizhi `
   --saisresult submit/_local_saisresult `
   --work-dir H:\Fusai
 
-Copy-Item submit\_local_saisresult\submission.zip submit\danbaizhi\submission.zip -Force
+Copy-Item submit\_local_saisresult\output.zip submit\danbaizhi\output.zip -Force
 ```
 
 可选自检（与 golden 比对）：
@@ -86,7 +86,7 @@ docker run --rm `
   crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/danbaizhi:0.1
 ```
 
-成功标志：控制台出现 `[OK] wrote /saisresult/submission.zip`，且 `submit\_local_saisresult\submission.zip` 已更新。
+成功标志：控制台出现 `[OK] wrote /saisresult/output.zip`，且 `submit\_local_saisresult\output.zip` 已更新。
 
 ### 4.4 登录并推送
 
@@ -123,7 +123,7 @@ docker push crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/
 | 现象 | 处理 |
 |------|------|
 | `docker API ... cannot find the file` | 启动 Docker Desktop 后重试 build/run |
-| 评测找不到 submission | 确认输出文件名为 `submission.zip`（不是 `output.zip`） |
+| 评测找不到 output | 确认输出文件名为 `output.zip`（不是 `submission.zip`） |
 | 分数为 0 | 检查 zip 是否含 11 个 cif + agent.log；查看评测日志 |
 | 想换版本 tag | 修改 `submit/registry.env` 中 `TAG`，重新 build + push + 天池填新 tag |
 
@@ -134,7 +134,7 @@ docker push crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/
 ```text
 daima/YYYYMMDDHHMM/
   ├── 相关代码
-  └── submission.zip / output.zip
+  └── output.zip
 ```
 
 当前本地产物也可复制到 `daima/<时刻>/` 备查。

@@ -1,6 +1,6 @@
 ﻿{
-    "track":  "drugclip",
-    "commit":  "7a490df",
-    "published":  "2026-06-20 12:33:36",
-    "note":  "clone DrugCLIP at build + neural stack"
+    "track":  "danbaizhi",
+    "commit":  "codex-v0.1-danbaizhi",
+    "published":  "2026-06-26 13:18:35",
+    "note":  "output.zip runtime with mdtraj mmCIF fallback"
 }

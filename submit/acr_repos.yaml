@@ -8,7 +8,7 @@ repos:
     dockerfile: Dockerfile
     acr_dockerfile_alt: submit/Dockerfile.danbaizhi
     env_track: danbaizhi
-    output: submission.zip
+    output: output.zip
   drugclip:
     task_id: "1"
     dockerfile: Dockerfile.drugclip

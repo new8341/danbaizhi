@@ -1,7 +1,7 @@
 {
   "track": "danbaizhi",
   "task_id": "3",
-  "output_name": "submission.zip",
+  "output_name": "output.zip",
   "online_score_reference": 0.717129,
   "generated_at": "local-predict",
   "zip_members": [
@@ -22,5 +22,5 @@
   "docker_image": "crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/danbaizhi:0.1",
   "docker_entry": "/app/run.sh",
   "saisdata_input": ["/saisdata/1.json", "/saisdata/2.json", "/saisdata/3.json"],
-  "saisresult_output": "/saisresult/submission.zip"
+  "saisresult_output": "/saisresult/output.zip"
 }

@@ -501,7 +501,59 @@ def _export_full_atom_cif(
         xyz += center
         frame.xyz[0] = xyz
     out_cif.parent.mkdir(parents=True, exist_ok=True)
-    frame.save_cif(str(out_cif))
+    save_cif = getattr(frame, "save_cif", None)
+    if callable(save_cif):
+        try:
+            save_cif(str(out_cif))
+            return
+        except Exception as exc:
+            print(f"[WARN] mdtraj save_cif failed ({exc}); writing mmCIF manually", flush=True)
+    _write_mdtraj_frame_cif(frame, out_cif, out_cif.stem)
+
+
+def _write_mdtraj_frame_cif(frame: Any, out_cif: Path, data_name: str) -> None:
+    lines: list[str] = []
+    lines.append(f"data_{data_name}")
+    lines.append("#")
+    lines.append("loop_")
+    lines.append("_atom_site.group_PDB")
+    lines.append("_atom_site.id")
+    lines.append("_atom_site.type_symbol")
+    lines.append("_atom_site.label_atom_id")
+    lines.append("_atom_site.label_alt_id")
+    lines.append("_atom_site.label_comp_id")
+    lines.append("_atom_site.label_asym_id")
+    lines.append("_atom_site.label_entity_id")
+    lines.append("_atom_site.label_seq_id")
+    lines.append("_atom_site.pdbx_PDB_ins_code")
+    lines.append("_atom_site.Cartn_x")
+    lines.append("_atom_site.Cartn_y")
+    lines.append("_atom_site.Cartn_z")
+    lines.append("_atom_site.occupancy")
+    lines.append("_atom_site.B_iso_or_equiv")
+    lines.append("_atom_site.pdbx_formal_charge")
+    lines.append("_atom_site.auth_seq_id")
+    lines.append("_atom_site.auth_comp_id")
+    lines.append("_atom_site.auth_asym_id")
+    lines.append("_atom_site.auth_atom_id")
+    lines.append("_atom_site.pdbx_PDB_model_num")
+
+    for atom_id, atom in enumerate(frame.topology.atoms, start=1):
+        residue = atom.residue
+        comp = str(getattr(residue, "name", "") or "UNK").strip().upper()[:3] or "UNK"
+        seq_id = int(getattr(residue, "resSeq", 0) or (int(getattr(residue, "index", atom_id - 1)) + 1))
+        atom_name = str(atom.name).strip()[:4] or "X"
+        sym = _element_symbol_for_atom(atom_name, atom.element)
+        chain = getattr(residue, "chain", None)
+        chain_idx = int(getattr(chain, "index", 0) or 0)
+        asym_id = chr(ord("A") + min(max(chain_idx, 0), 25))
+        x, y, z = frame.xyz[0, atom_id - 1, :] * 10.0
+        lines.append(
+            f"ATOM {atom_id} {sym} {atom_name:<4} . {comp} {asym_id} 1 {seq_id} ? "
+            f"{x:.3f} {y:.3f} {z:.3f} 1.00 20.00 ? {seq_id} {comp} {asym_id} {atom_name} 1"
+        )
+    lines.append("#")
+    out_cif.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _resolve_template_list(

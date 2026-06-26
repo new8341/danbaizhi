@@ -39,6 +39,4 @@ documen/fusai.md
 documen/Danbaizhi/
 documen/Baxiangfenzi/
 documen/Shenjingsuanzi/
-documen/DrugClip/*
-!documen/DrugClip/benchmark/
-!documen/DrugClip/benchmark/**
+documen/DrugClip/

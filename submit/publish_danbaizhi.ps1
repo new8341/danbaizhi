@@ -45,7 +45,7 @@ if (-not $SkipTest) {
         -v "${outDir}:/saisresult" `
         $image
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    $zip = Join-Path $outDir "submission.zip"
+    $zip = Join-Path $outDir "output.zip"
     if (-not (Test-Path $zip)) { Write-Error "Missing $zip after container run" }
     Write-Host "[OK] $zip ($((Get-Item $zip).Length) bytes)"
 } else {
