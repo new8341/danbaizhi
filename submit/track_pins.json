@@ -3,8 +3,8 @@
     "version":  "0.1",
     "tracks":  {
                    "danbaizhi":  {
-                                     "commit":  "8a8ce02",
-                                     "note":  "auto_prior max24 P1_3m"
+                                     "commit":  "365ba0a",
+                                     "note":  "final output.zip + mdtraj mmCIF fallback"
                                  },
                    "drugclip":  {
                                     "commit":  "7a490df",

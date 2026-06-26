@@ -1,6 +1,6 @@
 ﻿{
     "track":  "danbaizhi",
-    "commit":  "codex-v0.1-danbaizhi",
-    "published":  "2026-06-26 13:18:35",
-    "note":  "output.zip runtime with mdtraj mmCIF fallback"
+    "commit":  "365ba0a",
+    "published":  "2026-06-26 13:21:21",
+    "note":  "final output.zip + mdtraj mmCIF fallback"
 }
