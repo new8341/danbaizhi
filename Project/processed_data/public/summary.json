@@ -1,0 +1,65 @@
+{
+  "1": {
+    "problem_id": 1,
+    "sequence_length": 1104,
+    "hits_found": 17,
+    "downloads_requested": 8,
+    "downloaded_count": 8,
+    "downloaded_pdb_ids": [
+      "2PO4",
+      "3C2P",
+      "3C3L",
+      "3C46",
+      "3Q0A",
+      "3Q22",
+      "3Q23",
+      "3Q24"
+    ],
+    "paths": {
+      "hits_json": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_1\\rcsb_hits.json",
+      "structures_dir": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_1\\rcsb_structures"
+    }
+  },
+  "2": {
+    "problem_id": 2,
+    "sequence_length": 889,
+    "hits_found": 20,
+    "downloads_requested": 8,
+    "downloaded_count": 8,
+    "downloaded_pdb_ids": [
+      "3EBG",
+      "3EBH",
+      "3EBI",
+      "3Q43",
+      "3Q44",
+      "4K5L",
+      "4K5M",
+      "4K5N"
+    ],
+    "paths": {
+      "hits_json": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_2\\rcsb_hits.json",
+      "structures_dir": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_2\\rcsb_structures"
+    }
+  },
+  "3": {
+    "problem_id": 3,
+    "sequence_length": 891,
+    "hits_found": 8,
+    "downloads_requested": 8,
+    "downloaded_count": 8,
+    "downloaded_pdb_ids": [
+      "2VC9",
+      "2VCA",
+      "2VCB",
+      "2VCC",
+      "7MFK",
+      "7MFL",
+      "4A4A",
+      "4XWH"
+    ],
+    "paths": {
+      "hits_json": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_3\\rcsb_hits.json",
+      "structures_dir": "E:\\cursor\\Fudan_other\\Danbaizhi\\data\\public\\problem_3\\rcsb_structures"
+    }
+  }
+}

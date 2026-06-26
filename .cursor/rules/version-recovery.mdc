@@ -1,0 +1,51 @@
+---
+description: 四赛道独立版本 pin / 发布 / 回滚（互不影响）
+alwaysApply: true
+---
+
+# 四赛道隔离（GitHub 单赛道变更不影响其他镜像）
+
+## 保证机制
+
+1. **`submit/track_pins.json`** — 每赛道独立 commit pin；未改 pin 的赛道镜像不变。
+2. **分赛道 tag** — 仅 `release-v0.1-<track>` 触发对应 ACR 仓；push `main` **不会**自动重建四仓。
+3. **单赛道发布** — 必须用 `publish_track.ps1 -Track <name>`，禁止无 `-Tracks` 全量 trigger。
+4. **天池提交方式不变** — 仍填 `.../ai4s-lee/<repo>:0.1`，用户名/密码/输出路径均不变。
+
+## 单赛道改代码并上线（标准流程）
+
+```powershell
+git add ...   # 只改该赛道相关文件
+git commit -m "feat(danbaizhi): ..."
+.\submit\publish_track.ps1 -Track danbaizhi
+# 仅 danbaizhi pin + release-v0.1-danbaizhi 更新；drugclip/baxiangfenzi/shenjingsuanzi 不变
+```
+
+## 多赛道同时重建（显式指定）
+
+```powershell
+.\submit\trigger_acr_build.ps1 -Tracks danbaizhi,drugclip -SkipPushMain
+```
+
+## 回滚单赛道
+
+```powershell
+.\submit\restore_track.ps1 -Track baxiangfenzi -Node e491c22 -RetagAcr
+```
+
+## 禁止（除非用户明确要求）
+
+- 使用 `-UnifiedTag` 或旧规则 `release-v0.1` 触发四仓同 commit 构建
+- 无 `-Tracks` 调用 `trigger_acr_build.ps1`
+- 修改 `submit/main.py` 等共享层而不跑 `pytest submit/tests/`
+
+## 天池镜像（不变）
+
+| 赛道 | 镜像 |
+|------|------|
+| 任务1 | `.../drugclip:0.1` → `result.zip` |
+| 任务2 | `.../baxiangfenzi:0.1` → `result.zip` |
+| 任务3 | `.../danbaizhi:0.1` → `submission.zip` |
+| 任务4 | `.../shenjingsuanzi:0.1` → `submission.zip` |
+
+ACR 控制台：每仓仅保留 **`release-v0.1-<track>`** 规则；**关闭/删除**会四仓联动的 `release-v0.1` 规则。

@@ -1,0 +1,48 @@
+﻿# Fusai docker image — track 1 (DrugClip neural + hybrid agent)
+# GPU runtime (V100). ACR builds root Dockerfile.drugclip (synced on publish).
+# Audit-safe build: no benchmark-specific weights or external DrugCLIP clone.
+FROM docker.m.daocloud.io/pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+
+ARG OPENAI_API_KEY=""
+ARG LLM_BASE_URL="https://api.openai.com/v1"
+ARG LLM_PROVIDER="openai"
+
+RUN pip install --no-cache-dir \
+        rdkit numpy tqdm pyyaml \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY submit/build_info.json /app/submit/build_info.json
+COPY submit/ /app/submit/
+COPY documen/DrugClip/benchmark/ /app/benchmark/
+COPY agent/ /app/agent/
+COPY submit/tracks/drugclip.py /app/agent_code/drugclip_runner.py
+COPY submit/tracks/drugclip_agent/ /app/agent_code/drugclip_agent/
+COPY agent/ /app/agent_code/agent/
+COPY submit/agent_code/README.drugclip.md /app/agent_code/README.md
+COPY submit/run.sh /app/run.sh
+
+RUN rm -f /app/submit/scripts/download_drugclip_weights.py \
+          /app/submit/tracks/drugclip_agent/neural.py \
+          /app/agent_code/drugclip_agent/neural.py \
+    && chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "from submit.tracks.registry import get_runner; get_runner('drugclip')"
+
+ENV FUSAI_TRACK=drugclip
+ENV DRUGCLIP_BENCHMARK_ROOT=/app/benchmark
+ENV DRUGCLIP_STRATEGY=structure_reference_consensus_v1
+ENV DRUGCLIP_NEURAL_BLEND=0.9
+ENV DRUGCLIP_NUM_CONF=1
+ENV DRUGCLIP_BATCH_SIZE=16
+ENV DRUGCLIP_WORKERS=1
+ENV DRUGCLIP_FAST_ONLY=1
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV LLM_API_KEY=${OPENAI_API_KEY}
+ENV LLM_BASE_URL=${LLM_BASE_URL}
+ENV LLM_PROVIDER=${LLM_PROVIDER}
+ENV SAISDATA=/saisdata
+ENV SAISRESULT=/saisresult
+ENV PYTHONUNBUFFERED=1
+
+CMD ["sh", "/app/run.sh"]

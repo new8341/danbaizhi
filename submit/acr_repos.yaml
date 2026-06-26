@@ -1,0 +1,45 @@
+# ACR 四仓库配置（同一 GitHub 仓 + 不同 Dockerfile）
+# 实例: crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com
+# 命名空间: ai4s-lee
+
+repos:
+  danbaizhi:
+    task_id: "3"
+    dockerfile: Dockerfile
+    acr_dockerfile_alt: submit/Dockerfile.danbaizhi
+    env_track: danbaizhi
+    output: output.zip
+  drugclip:
+    task_id: "1"
+    dockerfile: Dockerfile.drugclip
+    acr_dockerfile_alt: submit/Dockerfile.drugclip
+    env_track: drugclip
+    output: result.zip
+    requires_path: documen/DrugClip/benchmark/manifest.jsonl
+  baxiangfenzi:
+    task_id: "2"
+    dockerfile: Dockerfile.baxiangfenzi
+    acr_dockerfile_alt: submit/Dockerfile.baxiangfenzi
+    env_track: baxiangfenzi
+    output: result.zip
+  shenjingsuanzi:
+    task_id: "4"
+    dockerfile: Dockerfile.shenjingsuanzi
+    acr_dockerfile_alt: submit/Dockerfile.shenjingsuanzi
+    env_track: shenjingsuanzi
+    output: submission.zip
+
+build_rule:
+  # 推荐：每仓独立 tag，见 submit/track_pins.json + restore_track.ps1
+  per_track_tag: "tags:release-v$version-<track>"
+  legacy_unified_tag: "tags:release-v$version"
+  context: "/"
+  image_tag: "$version"
+
+trigger_tag_examples:
+  unified: release-v0.1
+  per_track:
+    - release-v0.1-danbaizhi
+    - release-v0.1-drugclip
+    - release-v0.1-baxiangfenzi
+    - release-v0.1-shenjingsuanzi

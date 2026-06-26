@@ -1,0 +1,48 @@
+﻿# Fusai docker image ? track 2 (Baxiangfenzi agent)
+# Overseas ON: DaoCloud proxy avoids Docker Hub 429 on python:3.10-slim.
+# If still fails: turn OFF overseas build and use tcc-public line below instead.
+FROM docker.m.daocloud.io/library/python:3.10-slim
+# FROM registry.cn-shanghai.aliyuncs.com/tcc-public/python:3  # use with ??????
+
+ARG OPENAI_API_KEY=""
+ARG LLM_BASE_URL="https://api.openai.com/v1"
+ARG LLM_PROVIDER="openai"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    autodock-vina \
+    openbabel \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir rdkit numpy
+
+WORKDIR /app
+
+# Copy build stamp first so ACR layer cache invalidates on each publish.
+COPY submit/build_info.json /app/submit/build_info.json
+COPY submit/ /app/submit/
+COPY agent/ /app/agent/
+COPY submit/tracks/baxiangfenzi.py /app/Code/main.py
+COPY submit/agent_code/README.baxiangfenzi.md /app/Code/README.md
+COPY submit/tracks/baxiangfenzi.py /app/Code/baxiangfenzi_runner.py
+COPY submit/tracks/baxiangfenzi_agent/ /app/Code/baxiangfenzi_agent/
+COPY agent/ /app/Reference/agent/
+COPY submit/agent_code/README.baxiangfenzi.md /app/agent_code/README.md
+COPY submit/run.sh /app/run.sh
+
+RUN chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import submit.tracks.registry as r; r.get_runner('baxiangfenzi')"
+
+ENV FUSAI_TRACK=baxiangfenzi
+ENV SAISDATA=/saisdata
+ENV SAISRESULT=/saisresult
+ENV PYTHONUNBUFFERED=1
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV LLM_API_KEY=${OPENAI_API_KEY}
+ENV LLM_BASE_URL=${LLM_BASE_URL}
+ENV LLM_PROVIDER=${LLM_PROVIDER}
+ENV BAXIANG_MAX_CANDIDATES=200
+ENV BAXIANG_MAX_DOCK=60
+ENV BAXIANG_VINA_EXHAUSTIVENESS=6
+ENV BAXIANG_SELECT_POOL=15
+
+CMD ["sh", "/app/run.sh"]

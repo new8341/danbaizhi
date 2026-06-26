@@ -1,0 +1,26 @@
+{
+  "task_id": "litpcba_TP53",
+  "benchmark": "LIT-PCBA",
+  "target": "TP53",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/2vuk_protein.mol2",
+    "receptors/3zme_protein.mol2",
+    "receptors/4ago_protein.mol2",
+    "receptors/4agq_protein.mol2",
+    "receptors/5g4o_protein.mol2",
+    "receptors/5o1i_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/2vuk_ligand.mol2",
+    "refs/3zme_ligand.mol2",
+    "refs/4ago_ligand.mol2",
+    "refs/4agq_ligand.mol2",
+    "refs/5g4o_ligand.mol2",
+    "refs/5o1i_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 6,
+  "num_ligands": 811
+}

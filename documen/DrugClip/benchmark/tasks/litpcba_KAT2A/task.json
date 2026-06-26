@@ -1,0 +1,20 @@
+{
+  "task_id": "litpcba_KAT2A",
+  "benchmark": "LIT-PCBA",
+  "target": "KAT2A",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/5h84_protein.mol2",
+    "receptors/5h86_protein.mol2",
+    "receptors/5mlj_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/5h84_ligand.mol2",
+    "refs/5h86_ligand.mol2",
+    "refs/5mlj_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 3,
+  "num_ligands": 84710
+}

@@ -1,0 +1,16 @@
+.git
+.gitignore
+.specstory
+**/__pycache__
+**/.pytest_cache
+Project/daima/
+Project/checkpoint/
+Project/result/
+Project/README.md
+Project/agent/
+Project/code/compare_output_zips.py
+daima/
+submission_staging/
+submit/_local_saisresult/
+submit/registry.env
+documen/

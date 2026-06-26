@@ -1,0 +1,47 @@
+﻿# Fusai docker image ? track 3 (Danbaizhi)
+# DaoCloud proxy avoids Docker Hub 429 when???????is on.
+FROM docker.m.daocloud.io/library/python:3.10-slim
+
+ARG OPENAI_API_KEY=""
+ARG LLM_BASE_URL="https://api.openai.com/v1"
+ARG LLM_PROVIDER="openai"
+
+RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ \
+    && pip install --no-cache-dir numpy mdtraj openmm \
+    && python -c "import openmm; import mdtraj" \
+    && apt-get purge -y gcc g++ \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy build stamp first so ACR layer cache invalidates on each publish.
+COPY submit/build_info.json /app/submit/build_info.json
+COPY submit/ /app/submit/
+COPY Project/ /app/Project/
+COPY agent/ /app/agent/
+COPY submit/tracks/danbaizhi.py /app/Code/main.py
+COPY submit/agent_code/README.danbaizhi.md /app/Code/README.md
+COPY Project/code/ /app/Code/Project_code/
+COPY submit/tracks/danbaizhi.py /app/Code/danbaizhi_runner.py
+COPY agent/ /app/Reference/agent/
+COPY submit/agent_code/README.danbaizhi.md /app/agent_code/README.md
+COPY submit/run.sh /app/run.sh
+
+RUN rm -rf /app/Project/checkpoint /app/Project/result /app/Project/agent \
+    && rm -f /app/Project/README.md /app/Project/code/compare_output_zips.py \
+    && chmod +x /app/run.sh /app/submit/run.sh \
+    && python -c "import openmm; import submit.tracks.registry as r; r.get_runner('danbaizhi')"
+
+ENV FUSAI_TRACK=danbaizhi
+ENV DANBAIZHI_AUTO_PRIOR=0
+ENV DANBAIZHI_SAFE_FALLBACK=1
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV LLM_API_KEY=${OPENAI_API_KEY}
+ENV LLM_BASE_URL=${LLM_BASE_URL}
+ENV LLM_PROVIDER=${LLM_PROVIDER}
+ENV SAISDATA=/saisdata
+ENV SAISRESULT=/saisresult
+ENV PYTHONUNBUFFERED=1
+
+CMD ["sh", "/app/run.sh"]

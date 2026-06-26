@@ -1,0 +1,4 @@
+# Keep best.json in git; code snapshots stay local.
+*
+!README.md
+!**/best.json

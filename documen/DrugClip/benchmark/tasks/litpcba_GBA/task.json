@@ -1,0 +1,26 @@
+{
+  "task_id": "litpcba_GBA",
+  "benchmark": "LIT-PCBA",
+  "target": "GBA",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/2v3d_protein.mol2",
+    "receptors/2v3e_protein.mol2",
+    "receptors/2xwd_protein.mol2",
+    "receptors/2xwe_protein.mol2",
+    "receptors/3rik_protein.mol2",
+    "receptors/3ril_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/2v3d_ligand.mol2",
+    "refs/2v3e_ligand.mol2",
+    "refs/2xwd_ligand.mol2",
+    "refs/2xwe_ligand.mol2",
+    "refs/3rik_ligand.mol2",
+    "refs/3ril_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 6,
+  "num_ligands": 72240
+}

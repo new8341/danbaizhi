@@ -1,0 +1,30 @@
+{
+  "task_id": "litpcba_ALDH1",
+  "benchmark": "LIT-PCBA",
+  "target": "ALDH1",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/4wp7_protein.mol2",
+    "receptors/4wpn_protein.mol2",
+    "receptors/4x4l_protein.mol2",
+    "receptors/5ac2_protein.mol2",
+    "receptors/5l2m_protein.mol2",
+    "receptors/5l2n_protein.mol2",
+    "receptors/5l2o_protein.mol2",
+    "receptors/5tei_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/4wp7_ligand.mol2",
+    "refs/4wpn_ligand.mol2",
+    "refs/4x4l_ligand.mol2",
+    "refs/5ac2_ligand.mol2",
+    "refs/5l2m_ligand.mol2",
+    "refs/5l2n_ligand.mol2",
+    "refs/5l2o_ligand.mol2",
+    "refs/5tei_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 8,
+  "num_ligands": 26640
+}

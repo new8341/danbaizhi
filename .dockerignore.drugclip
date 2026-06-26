@@ -1,0 +1,16 @@
+.git
+.gitignore
+.specstory
+**/__pycache__
+**/.pytest_cache
+Project/
+daima/
+submission_staging/
+submit/_local_saisresult/
+submit/registry.env
+documen/Baxiangfenzi/
+documen/Shenjingsuanzi/
+documen/Danbaizhi/
+documen/DrugClip/*
+!documen/DrugClip/benchmark/
+!documen/DrugClip/benchmark/**

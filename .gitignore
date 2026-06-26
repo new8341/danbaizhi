@@ -1,0 +1,30 @@
+# Secrets / local artifacts
+submit/registry.env
+submit/aliyun.env
+submit/local_llm.env
+submit/_local_saisresult/
+.DS_Store
+**/.DS_Store
+
+# Generated at runtime
+Project/result/
+Project/.venv_colabfold/
+Project/data/colabfold_xdg_cache/
+Project/processed_data/colabfold/_logs/
+Project/processed_data/colabfold/problem_*/predictions_msa_3m/
+BeforeGPT/
+daima/
+submission_staging/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.specstory/
+
+# Other tracks' documen (large); DrugClip benchmark is opt-in for ACR build
+documen/DrugClip/*
+!documen/DrugClip/benchmark/
+!documen/DrugClip/benchmark/**
+documen/Baxiangfenzi/
+documen/Shenjingsuanzi/
+documen/readme.md
+documen/fusai.md

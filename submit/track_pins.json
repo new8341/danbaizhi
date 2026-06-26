@@ -1,0 +1,22 @@
+﻿{
+    "_policy":  "Each track pin is independent; push main alone does not rebuild other tracks. Use publish_track.ps1 for single-track release.",
+    "version":  "0.1",
+    "tracks":  {
+                   "danbaizhi":  {
+                                     "commit":  "365ba0a",
+                                     "note":  "final output.zip + mdtraj mmCIF fallback"
+                                 },
+                   "drugclip":  {
+                                    "commit":  "7a490df",
+                                    "note":  "clone DrugCLIP at build + neural stack"
+                                },
+                   "baxiangfenzi":  {
+                                        "commit":  "c9f870f",
+                                        "note":  "restore Sprint1 cundang 208eec8"
+                                    },
+                   "shenjingsuanzi":  {
+                                          "commit":  "a2051ad",
+                                          "note":  "KS damped Fourier forecast"
+                                      }
+               }
+}

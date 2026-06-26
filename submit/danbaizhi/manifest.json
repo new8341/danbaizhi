@@ -1,0 +1,26 @@
+{
+  "track": "danbaizhi",
+  "task_id": "3",
+  "output_name": "output.zip",
+  "online_score_reference": 0.717129,
+  "generated_at": "local-predict",
+  "zip_members": [
+    "1_conf1_pred.cif",
+    "1_conf2_pred.cif",
+    "1_conf3_pred.cif",
+    "1_conf4_pred.cif",
+    "2_conf1_pred.cif",
+    "2_conf2_pred.cif",
+    "2_conf3_pred.cif",
+    "2_conf4_pred.cif",
+    "3_conf1_pred.cif",
+    "3_conf2_pred.cif",
+    "3_conf3_pred.cif",
+    "agent.log"
+  ],
+  "member_count": 12,
+  "docker_image": "crpi-i14uo4x5tmwyoptf.cn-shanghai.personal.cr.aliyuncs.com/ai4s-lee/danbaizhi:0.1",
+  "docker_entry": "/app/run.sh",
+  "saisdata_input": ["/saisdata/1.json", "/saisdata/2.json", "/saisdata/3.json"],
+  "saisresult_output": "/saisresult/output.zip"
+}

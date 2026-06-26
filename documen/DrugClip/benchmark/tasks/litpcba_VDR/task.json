@@ -1,0 +1,18 @@
+{
+  "task_id": "litpcba_VDR",
+  "benchmark": "LIT-PCBA",
+  "target": "VDR",
+  "task_type": "multi_receptor_screening",
+  "receptor_files": [
+    "receptors/3a2i_protein.mol2",
+    "receptors/3a2j_protein.mol2"
+  ],
+  "reference_ligand_files": [
+    "refs/3a2i_ligand.mol2",
+    "refs/3a2j_ligand.mol2"
+  ],
+  "ligand_file": "ligands.csv",
+  "primary_metric": "EF1%",
+  "num_receptors": 2,
+  "num_ligands": 65256
+}
